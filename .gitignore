@@ -1,0 +1,14 @@
+# =============================================================================
+# DiskCleanupAuto v1.5.0 Core Build GitIgnore
+# =============================================================================
+__pycache__/
+*.py[cod]
+*.spec
+build/
+dist/
+Output/
+Release/
+*.log
+.DS_Store
+Thumbs.db
+*.tmp

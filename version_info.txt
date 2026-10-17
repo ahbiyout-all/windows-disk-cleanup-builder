@@ -1,0 +1,55 @@
+# UTF-8
+#
+# Windows PE Version Information Resource File
+# Used by PyInstaller to embed metadata into the compiled .exe file
+# This populates the "Details" tab in Windows File Properties (속성 -> 자세히)
+#
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 5, 0, 0),
+    prodvers=(1, 5, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo(
+      [
+        StringTable(
+          '041204b0',
+          [
+            StringStruct('CompanyName', 'CISNET CORPORATION'),
+            StringStruct('FileDescription', 'CISNET Windows 디스크 클린 오토'),
+            StringStruct('FileVersion', '1.5.0.0'),
+            StringStruct('InternalName', 'DiskCleanupAuto'),
+            StringStruct('LegalCopyright', 'Copyright (C) 2026 AhBiYout. All rights reserved.'),
+            StringStruct('OriginalFilename', 'DiskCleanupAuto_v1.5.0.exe'),
+            StringStruct('ProductName', 'CISNET Windows 디스크 클린 오토 (DiskCleanupAuto)'),
+            StringStruct('ProductVersion', '1.5.0.0'),
+            StringStruct('Comments', 'Windows VolumeCaches 및 cleanmgr.exe 자동화 순차 정리 도구 (개발자: AhBiYout / http://www.cisnet.co.kr/)'),
+            StringStruct('LegalTrademarks', 'AhBiYout'),
+          ]
+        ),
+        StringTable(
+          '040904b0',
+          [
+            StringStruct('CompanyName', 'CISNET CORPORATION'),
+            StringStruct('FileDescription', 'CISNET Windows Disk Cleanup Auto Runner'),
+            StringStruct('FileVersion', '1.5.0.0'),
+            StringStruct('InternalName', 'DiskCleanupAuto'),
+            StringStruct('LegalCopyright', 'Copyright (C) 2026 AhBiYout. All rights reserved.'),
+            StringStruct('OriginalFilename', 'DiskCleanupAuto_v1.5.0.exe'),
+            StringStruct('ProductName', 'CISNET Windows Disk Cleanup Auto'),
+            StringStruct('ProductVersion', '1.5.0.0'),
+            StringStruct('Comments', 'Windows VolumeCaches & cleanmgr automated sequential cleaner'),
+            StringStruct('LegalTrademarks', 'AhBiYout'),
+          ]
+        )
+      ]
+    ),
+    VarFileInfo([VarStruct('Translation', [1042, 1200, 1033, 1200])])
+  ]
+)

@@ -1,0 +1,143 @@
+{
+  "app_name": "DiskCleanupAuto",
+  "version": "v1.5.0",
+  "generated_at": "2026-10-17T00:15:02.371199Z",
+  "developer": "AhBiYout",
+  "github_user": "AhBiYout-all",
+  "total_files": 16,
+  "files": [
+    {
+      "path": "disk_cleanup_gui.py",
+      "category": "Source Code",
+      "description": "DiskCleanupAuto Tkinter GUI & Win32 kernel cleanup engine (v1.5.0)",
+      "size_bytes": 36439,
+      "sha256": "4e56bf107de9014f78db67a8b6c2fe6c532702596bfb5b0647c9802951849cca",
+      "status": "Verified"
+    },
+    {
+      "path": "build_exe.py",
+      "category": "Build System",
+      "description": "Python-native robust compiler & PyInstaller builder",
+      "size_bytes": 31975,
+      "sha256": "95c032962e5a63f4e9a70740f5c36cfe3b41b867e74aa918e2616268b7219980",
+      "status": "Verified"
+    },
+    {
+      "path": "build_exe.bat",
+      "category": "Build System",
+      "description": "Sequential Windows batch build runner (CRLF)",
+      "size_bytes": 12106,
+      "sha256": "6cb19547f6b76e6f8346a85aaf3314c7a9918bff40ce03f64429194a59623f4c",
+      "status": "Verified"
+    },
+    {
+      "path": "version_info.txt",
+      "category": "Metadata",
+      "description": "Windows PE File Properties Details metadata resource (v1.5.0)",
+      "size_bytes": 2222,
+      "sha256": "de0d5ffa8f5d06920166cdefc9ee39beea663fa8cda91f9dc9959d83fab04e55",
+      "status": "Verified"
+    },
+    {
+      "path": "app.ico",
+      "category": "Assets",
+      "description": "Windows multi-resolution application icon (16x16 to 256x256)",
+      "size_bytes": 1034590,
+      "sha256": "2bd0b94be4d6d1f8dd1259f75881685e989e63b3cba7e744f67a3a7aa2a1d13a",
+      "status": "Verified"
+    },
+    {
+      "path": "assets/app.ico",
+      "category": "Assets",
+      "description": "Windows application icon in assets folder",
+      "size_bytes": 1034590,
+      "sha256": "2bd0b94be4d6d1f8dd1259f75881685e989e63b3cba7e744f67a3a7aa2a1d13a",
+      "status": "Verified"
+    },
+    {
+      "path": "icon.png",
+      "category": "Assets",
+      "description": "Original high-resolution master icon asset (PNG)",
+      "size_bytes": 1034568,
+      "sha256": "b059f25efadd114c51e1fa13c1b7c20bf54e44f1c30bbb20447f92318f11f587",
+      "status": "Verified"
+    },
+    {
+      "path": "requirements.txt",
+      "category": "Dependencies",
+      "description": "Python dependencies specification (pyinstaller)",
+      "size_bytes": 19,
+      "sha256": "f4a0ef50fba225890a33a09d505cf872bec53f857b9902de36c4662ea85f4557",
+      "status": "Verified"
+    },
+    {
+      "path": "installer.iss",
+      "category": "Packaging",
+      "description": "Inno Setup 6.x installer script (Unpacked multi-file, silent firewall)",
+      "size_bytes": 8576,
+      "sha256": "cdd760c3d411aad7e5c005896754545e815e5283666265d1f7194393a9a9e2da",
+      "status": "Verified"
+    },
+    {
+      "path": "register_scheduler.bat",
+      "category": "Scheduling",
+      "description": "Windows Task Scheduler auto cleanup registration script",
+      "size_bytes": 1905,
+      "sha256": "860779fbd6e1ab45133107e0c9bb94fd489a6ec6a90570b255617dfa6d73a5ee",
+      "status": "Verified"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "category": "CI/CD",
+      "description": "GitHub Actions automated release pipeline (Node 22 LTS, installer asset attachment)",
+      "size_bytes": 7304,
+      "sha256": "0dae9ec356e91c3cc850fa038460751259da9282f84c807318935fdf75a7b902",
+      "status": "Verified"
+    },
+    {
+      "path": "git_push.bat",
+      "category": "Deployment",
+      "description": "Automated privacy-safe Git push script",
+      "size_bytes": 8276,
+      "sha256": "72fa7971df785806dcacd8973773e8071d52afe9faa4583aef865c1cc731ba7e",
+      "status": "Verified"
+    },
+    {
+      "path": "docs/INSTALL.md",
+      "category": "Documentation",
+      "description": "Installation, silent setup, and firewall registration guide",
+      "size_bytes": 5120,
+      "sha256": "b7ddc0bfcb5304b882cafaa19962f6dbd9565c7f2e0a9345a0c565dabe645eb5",
+      "status": "Verified"
+    },
+    {
+      "path": "docs/BUILD.md",
+      "category": "Documentation",
+      "description": "Build, packaging, and CI/CD workflow documentation",
+      "size_bytes": 8202,
+      "sha256": "0ea4c61ebe95de712e40c2e20477eaafe6271bab31ea9c80ee69c49d0ec86ab1",
+      "status": "Verified"
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "category": "Documentation",
+      "description": "Security policy and privacy protection guidelines",
+      "size_bytes": 2735,
+      "sha256": "e57cc754b0c4f0d08647ac74b25b970ad7faa6a69331d46ba5361097c721a0ef",
+      "status": "Verified"
+    },
+    {
+      "path": "docs/PATCH_NOTES.md",
+      "category": "Documentation",
+      "description": "Detailed engineering patch notes across versions",
+      "size_bytes": 21503,
+      "sha256": "4baf58293e380ac0cc9c0e5fcefcf5692548e25add2094faabb0ddb64dd8c7ad",
+      "status": "Verified"
+    }
+  ],
+  "security_check": {
+    "privacy_leak_scan": "PASSED",
+    "forbidden_patterns_found": false,
+    "web_bloat_excluded": true
+  }
+}
