@@ -6,9 +6,8 @@
 # Affiliation: https://www.cisnet.co.kr
 #
 # 📌 Windows PC Desktop Installer Dedicated Workflow:
-#  - Windows 데스크톱 시스템 정리 전용 앱의 본질에 맞추어 불필요한 웹 빌드 작업을 완전히 배제하고,
-#    오직 Windows 단독 EXE 및 Inno Setup 정품 인스톨러(.exe)만 신속하게 패키징 및 배포합니다.
-#  - runner: windows-latest, ubuntu-24.04 (안정적인 LTS 버전 고정)
+#  - Windows 데스크톱 시스템 정리 전용 앱의 본질에 맞추어 Windows 단독 EXE 및 Inno Setup 정품 인스톨러(.exe)만 패키징 및 배포합니다.
+#  - ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: "node24" 환경 변수를 선언하여 Node 20 관련 경고 및 비호환을 사전에 원천 차단합니다.
 # =============================================================================
 
 name: Build & Package Windows Installer
@@ -30,6 +29,10 @@ on:
 permissions:
   contents: write
   packages: write
+
+env:
+  # GitHub Actions 공식 안내: Node 20 지원 종료 및 Node 24 강제 전환에 따른 공식 안내 환경변수 설정
+  ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: "node24"
 
 jobs:
   # ===========================================================================
