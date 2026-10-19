@@ -7,9 +7,9 @@ Serves interactive status, manifest viewer, and documentation on port 3000.
 import http.server
 import socketserver
 import os
-import json
+import sys
 
-PORT = 3000
+DEFAULT_PORT = 3000
 
 class DiskCleanupHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -156,8 +156,14 @@ class DiskCleanupHandler(http.server.SimpleHTTPRequestHandler):
         else:
             super().do_GET()
 
+class ReusableServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", DEFAULT_PORT))
+    host = os.environ.get("HOST", "0.0.0.0")
+
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    with socketserver.TCPServer(("0.0.0.0", PORT), DiskCleanupHandler) as httpd:
-        print(f"[*] Serving DiskCleanupAuto Hub on port {PORT}...")
+    print(f"[*] Starting DiskCleanupAuto Hub Server on {host}:{port}...", flush=True)
+    with ReusableServer((host, port), DiskCleanupHandler) as httpd:
         httpd.serve_forever()

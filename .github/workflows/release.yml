@@ -6,8 +6,9 @@
 # Affiliation: https://www.cisnet.co.kr
 #
 # 📌 Windows PC Desktop Installer Dedicated Workflow:
-#  - Windows 데스크톱 시스템 정리 전용 앱의 본질에 맞추어 Windows 단독 EXE 및 Inno Setup 정품 인스톨러(.exe)만 패키징 및 배포합니다.
-#  - ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: "node24" 환경 변수를 선언하여 Node 20 관련 경고 및 비호환을 사전에 원천 차단합니다.
+#  - Push(main/master) 및 Tag(v*) 또는 수동 실행(workflow_dispatch) 시 자동으로
+#    Windows 단독 실행 파일(.exe)과 Inno Setup 정품 인스톨러(.exe)를 빌드하여
+#    GitHub Releases 및 Actions Artifacts에 항상 100% 게시합니다.
 # =============================================================================
 
 name: Build & Package Windows Installer
@@ -31,38 +32,49 @@ permissions:
   packages: write
 
 env:
-  # GitHub Actions 공식 안내: Node 20 지원 종료 및 Node 24 강제 전환에 따른 공식 안내 환경변수 설정
   ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: "node24"
 
 jobs:
   # ===========================================================================
-  # Job 1: Windows PC Installer Packaging (Inno Setup Unpacked Multi-File)
+  # Single Unified Job: Build EXE, Compile Inno Setup, and Publish to Release
+  # Windows 환경에서 빌드 후 즉시 GitHub Release를 발행하여 다운로드 분실 방지
   # ===========================================================================
-  build-windows-installer:
-    name: Package Windows PC Installer (Inno Setup)
+  build-and-release:
+    name: Build & Publish Windows Installer
     runs-on: windows-latest
     steps:
-      - name: Checkout Source Code
+      - name: 1. Checkout Source Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Setup Python 3.12
+      - name: 2. Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Install Python Dependencies & PyInstaller
+      - name: 3. Install Python Dependencies & PyInstaller
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
 
-      - name: Build Standalone Windows Executable
+      - name: 4. Build Standalone Portable EXE (PyInstaller)
         shell: pwsh
         run: |
           $iconParam = ""
           if (Test-Path "assets/app.ico") { $iconParam = "--icon=assets/app.ico" }
           elseif (Test-Path "app.ico") { $iconParam = "--icon=app.ico" }
 
+          # (1) 단독 포터블 실행 파일 빌드
+          pyinstaller --noconfirm --onefile --windowed `
+            --name "DiskCleanupAuto_v1.5.0" `
+            --uac-admin `
+            $iconParam `
+            --version-file "version_info.txt" `
+            disk_cleanup_gui.py
+
+          # (2) Inno Setup 언팩용 디렉터리 빌드
           pyinstaller --noconfirm --onedir --windowed `
             --name "DiskCleanupAuto" `
             --uac-admin `
@@ -70,22 +82,23 @@ jobs:
             --version-file "version_info.txt" `
             disk_cleanup_gui.py
 
-      - name: Verify Multi-File Unpacked Structure
+      - name: 5. Prepare Packaging Assets
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "dist/DiskCleanupAuto/assets"
           if (Test-Path "assets") { Copy-Item -Recurse -Force "assets/*" "dist/DiskCleanupAuto/assets" }
           if (Test-Path "register_scheduler.bat") { Copy-Item -Force "register_scheduler.bat" "dist/DiskCleanupAuto/" }
-          if (Test-Path "dist/DiskCleanupAuto/DiskCleanupAuto.exe") {
-            Copy-Item -Force "dist/DiskCleanupAuto/DiskCleanupAuto.exe" "dist/DiskCleanupAuto.exe"
+          if (Test-Path "dist/DiskCleanupAuto_v1.5.0.exe") {
+            New-Item -ItemType Directory -Force -Path "Release"
+            Copy-Item -Force "dist/DiskCleanupAuto_v1.5.0.exe" "Release/DiskCleanupAuto_v1.5.0.exe"
           }
 
-      - name: Install Inno Setup Compiler
+      - name: 6. Install Inno Setup Compiler
         shell: pwsh
         run: |
           choco install innosetup --no-progress --yes
 
-      - name: Compile Inno Setup Installer (.iss)
+      - name: 7. Compile Inno Setup Installer (.iss)
         shell: pwsh
         run: |
           $isccPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
@@ -101,50 +114,61 @@ jobs:
           New-Item -ItemType Directory -Force -Path "Output"
           & $isccPath installer.iss
 
-      - name: Upload Windows Installer Asset
+      - name: 8. Consolidate Release Binaries
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "release_artifacts"
+          # 설치 프로그램 복사
+          Get-ChildItem -Path "Output" -Filter "*.exe" | ForEach-Object {
+            Copy-Item -Force $_.FullName "release_artifacts/"
+            Write-Host "Collected Installer: $($_.Name)"
+          }
+          # 단독 포터블 실행 파일 복사
+          if (Test-Path "dist/DiskCleanupAuto_v1.5.0.exe") {
+            Copy-Item -Force "dist/DiskCleanupAuto_v1.5.0.exe" "release_artifacts/"
+            Write-Host "Collected Standalone Portable EXE: DiskCleanupAuto_v1.5.0.exe"
+          }
+          Write-Host "=== Final Artifacts List ==="
+          Get-ChildItem -Path "release_artifacts"
+
+      - name: 9. Upload Artifacts to GitHub Actions Run
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer
-          path: Output/WindowsDiskCleanup_Setup_*.exe
-          retention-days: 1
+          name: windows-binaries-v1.5.0
+          path: release_artifacts/*
+          retention-days: 30
 
-  # ===========================================================================
-  # Job 2: GitHub Releases Publisher (Strictly Verified Windows Installer File)
-  # ===========================================================================
-  publish-release:
-    name: Attach Installer to GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    needs: [build-windows-installer]
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Download Windows Installer
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-installer
-          path: release_assets
-
-      - name: List Release Installer Files (Confirm No Junk / No Raw Source)
+      - name: 10. Determine Release Tag
+        id: tag_info
+        shell: pwsh
         run: |
-          echo "=== 릴리스 첨부 대상 윈도우 인스톨러 파일 목록 ==="
-          ls -la release_assets/
+          $tag = "${{ github.event.inputs.release_version }}"
+          if (-not $tag -and "${{ github.ref }}".StartsWith("refs/tags/v")) {
+            $tag = "${{ github.ref_name }}"
+          }
+          if (-not $tag) {
+            $tag = "v1.5.0"
+          }
+          Write-Host "Resolved Target Tag: $tag"
+          "release_tag=$tag" >> $env:GITHUB_OUTPUT
 
-      - name: Publish to GitHub Releases
+      - name: 11. Publish to GitHub Releases (Both Setup & Standalone EXE)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.release_version || github.ref_name }}
-          name: "Release ${{ github.event.inputs.release_version || github.ref_name }} (Windows Setup Installer)"
+          tag_name: ${{ steps.tag_info.outputs.release_tag }}
+          name: "Release ${{ steps.tag_info.outputs.release_tag }} - AhBiYout Windows Disk Cleanup Auto"
           body: |
-            ## 🚀 ${{ github.ref_name }} 공식 Windows 인스톨러 배포
-            본 릴리스에는 Windows 데스크톱 전용 **Inno Setup 인스톨러(.exe)만 첨부**되어 있습니다. (불필요한 임시 문서 및 중복 소스 제외)
+            ## 🚀 ${{ steps.tag_info.outputs.release_tag }} 공식 Windows 바이너리 배포
+            AhBiYout Windows 디스크 클린 오토(DiskCleanupAuto v1.5.0) 공식 릴리스입니다.
 
             ### 📦 배포 에셋 목록
-            - **Windows PC**: `WindowsDiskCleanup_Setup_v1.5.0.exe` (Inno Setup 개별 파일 언팩 설치기 / 방화벽 사전 자동 등록)
+            1. **`WindowsDiskCleanup_Setup_v1.5.0.exe`**: Inno Setup 개별 파일 언팩 설치 프로그램 (바탕화면/시작메뉴 바로가기, 방화벽 규칙 자동 등록, 제어판 등록)
+            2. **`DiskCleanupAuto_v1.5.0.exe`**: 설치 없이 바로 실행 가능한 무설치 단독 실행 파일 (Portable Standalone)
 
             ---
             - **개발자**: AhBiYout (GitHub: [@AhBiYout-all](https://github.com/AhBiYout-all))
             - **공식 블로그**: [AhBiYoutVibe](https://ahbiyoutvibe.blogspot.com/)
             - **소속**: [CISNET](https://www.cisnet.co.kr)
-          files: |
-            release_assets/*.exe
+          files: release_artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
