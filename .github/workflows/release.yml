@@ -5,14 +5,13 @@
 # Official Blog: https://ahbiyoutvibe.blogspot.com/
 # Affiliation: https://www.cisnet.co.kr
 #
-# 📌 GitHub 공식 발표 핵심 변동 사항 준수:
-#  - Node.js 20 공식 지원 종료(2026년 4월 EOL 및 Runner Deprecated)에 따라
-#    모든 액션과 런타임을 최신 Node.js 22 LTS (및 Node.js 24 호환) 환경으로 강제 전환합니다.
-# 📌 릴리스 정책 준수:
-#  - 릴리스 에셋에는 불필요한 소스나 임시 파일 없이 '인스톨 파일(Installers)'만 생성/첨부합니다.
+# 📌 Windows PC Desktop Installer Dedicated Workflow:
+#  - Windows 데스크톱 시스템 정리 전용 앱의 본질에 맞추어 불필요한 웹 빌드 작업을 완전히 배제하고,
+#    오직 Windows 단독 EXE 및 Inno Setup 정품 인스톨러(.exe)만 신속하게 패키징 및 배포합니다.
+#  - runner: windows-latest, ubuntu-24.04 (안정적인 LTS 버전 고정)
 # =============================================================================
 
-name: Build & Package Cross-Platform Release
+name: Build & Package Windows Installer
 
 on:
   push:
@@ -34,56 +33,7 @@ permissions:
 
 jobs:
   # ===========================================================================
-  # Job 1: Web & Application Core Build (Node.js 22 LTS / Node 24 Compatible)
-  # ===========================================================================
-  build-core:
-    name: Build Web App Core (Node.js 22 LTS)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js (Node 22 LTS - Node 20 EOL Compliant)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install Dependencies
-        run: |
-          if [ -f "package-lock.json" ]; then
-            npm ci
-          elif [ -f "package.json" ]; then
-            npm install
-          else
-            echo "Pure desktop package mode - skipping npm install"
-          fi
-
-      - name: Type Check & Lint
-        run: |
-          if [ -f "package.json" ]; then
-            npm run lint || true
-          fi
-
-      - name: Build Web Application
-        run: |
-          if [ -f "package.json" ]; then
-            npm run build
-          else
-            mkdir -p dist
-            echo "DiskCleanupAuto v1.5.0 Core Release" > dist/index.html
-          fi
-
-      - name: Upload Web Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-web
-          path: dist/
-          retention-days: 1
-
-  # ===========================================================================
-  # Job 2: Windows PC Installer Packaging (Inno Setup Unpacked Multi-File)
+  # Job 1: Windows PC Installer Packaging (Inno Setup Unpacked Multi-File)
   # ===========================================================================
   build-windows-installer:
     name: Package Windows PC Installer (Inno Setup)
@@ -98,11 +48,13 @@ jobs:
           python-version: '3.12'
 
       - name: Install Python Dependencies & PyInstaller
+        shell: pwsh
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
 
       - name: Build Standalone Windows Executable
+        shell: pwsh
         run: |
           $iconParam = ""
           if (Test-Path "assets/app.ico") { $iconParam = "--icon=assets/app.ico" }
@@ -142,6 +94,7 @@ jobs:
             if ($isccCmd) { $isccPath = $isccCmd.Source }
           }
           Write-Host "Using Inno Setup Compiler: $isccPath"
+
           New-Item -ItemType Directory -Force -Path "Output"
           & $isccPath installer.iss
 
@@ -153,13 +106,13 @@ jobs:
           retention-days: 1
 
   # ===========================================================================
-  # Job 3: GitHub Releases Publisher (Strictly Verified Windows Installer File)
+  # Job 2: GitHub Releases Publisher (Strictly Verified Windows Installer File)
   # ===========================================================================
   publish-release:
     name: Attach Installer to GitHub Release
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: [build-windows-installer]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Download Windows Installer
         uses: actions/download-artifact@v4
@@ -179,7 +132,6 @@ jobs:
           name: "Release ${{ github.event.inputs.release_version || github.ref_name }} (Windows Setup Installer)"
           body: |
             ## 🚀 ${{ github.ref_name }} 공식 Windows 인스톨러 배포
-
             본 릴리스에는 Windows 데스크톱 전용 **Inno Setup 인스톨러(.exe)만 첨부**되어 있습니다. (불필요한 임시 문서 및 중복 소스 제외)
 
             ### 📦 배포 에셋 목록
