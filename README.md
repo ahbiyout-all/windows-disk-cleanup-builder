@@ -3,7 +3,7 @@
 > **공식 GitHub 저장소**: [AhBiYout-all/windows-disk-cleanup-builder](https://github.com/AhBiYout-all/windows-disk-cleanup-builder)  
 > **개발자**: AhBiYout  
 > **공식 블로그**: [AhBiYoutVibe](https://ahbiyoutvibe.blogspot.com/)  
-> **소속**: [CISNET CORPORATION](http://www.cisnet.co.kr/)
+
 
 ---
 

@@ -3,7 +3,7 @@
  Windows Disk Cleanup Automated Runner (GUI Edition v1.5.0)
  Auto-configured Registry VolumeCaches & cleanmgr.exe execution
  ----------------------------------------------------------------------------
- * 회사: CISNET CORPORATION (http://www.cisnet.co.kr/)
+ * 개발자: AhBiYout
  * 개발자: AhBiYout
  * 공식 Google 블로그: https://ahbiyoutvibe.blogspot.com/
 =============================================================================
@@ -48,7 +48,7 @@ def elevate_admin():
 CURRENT_VERSION = "v1.5.0"
 FLAG_NAME = "StateFlags0064"
 SAGESET_ID = 64
-COMPANY_NAME = "CISNET CORPORATION"
+COMPANY_NAME = "AhBiYout"
 DEVELOPER_NAME = "AhBiYout"
 GITHUB_USER = "AhBiYout-all"
 GITHUB_REPO = "windows-disk-cleanup-builder"

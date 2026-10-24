@@ -8,7 +8,7 @@ set "DIST_DIR=%SCRIPT_DIR%dist"
 set "BUILD_DIR=%SCRIPT_DIR%build"
 set "SPEC_DIR=%SCRIPT_DIR%"
 
-title [CISNET] Python to Portable Single EXE Auto Builder (v1.5.0)
+title [AhBiYout] Python to Portable Single EXE Auto Builder (v1.5.0)
 color 0B
 
 echo ===============================================================================

@@ -168,7 +168,7 @@ jobs:
             ---
             - **개발자**: AhBiYout (GitHub: [@AhBiYout-all](https://github.com/AhBiYout-all))
             - **공식 블로그**: [AhBiYoutVibe](https://ahbiyoutvibe.blogspot.com/)
-            - **소속**: [CISNET](https://www.cisnet.co.kr)
+            - **소속**: [AhBiYout](https://www.cisnet.co.kr)
           files: release_artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

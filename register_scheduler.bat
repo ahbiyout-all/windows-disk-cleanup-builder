@@ -7,7 +7,7 @@ setlocal
 :: Website: http://www.cisnet.co.kr | Official: https://ahbiyoutvibe.blogspot.com/
 :: ===============================================================================
 
-title [CISNET] Disk Cleanup Auto Scheduler Registration
+title [AhBiYout] Disk Cleanup Auto Scheduler Registration
 
 :: Check Administrator Privileges
 net session >nul 2>&1
@@ -18,7 +18,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-set "TASK_NAME=CISNET_DiskCleanupAuto"
+set "TASK_NAME=DiskCleanupAuto"
 set "APP_DIR=%~dp0"
 set "EXE_PATH=%APP_DIR%DiskCleanupAuto.exe"
 

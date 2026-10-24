@@ -9,7 +9,11 @@ import socketserver
 import os
 import sys
 
-DEFAULT_PORT = 3000
+# In this container environment:
+# NGINX listens on PORT (8080) and reverse-proxies to DEFAULT_APP_PORT (3000).
+# Therefore, our application server MUST listen on port 3000!
+TARGET_PORT = int(os.environ.get("DEFAULT_APP_PORT", 3000))
+HOST = "0.0.0.0"
 
 class DiskCleanupHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -41,7 +45,7 @@ class DiskCleanupHandler(http.server.SimpleHTTPRequestHandler):
                         Windows Disk Cleanup Auto
                         <span class="text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.5.0 Stable</span>
                     </h1>
-                    <p class="text-xs text-slate-400">AhBiYout · CISNET CORPORATION</p>
+                    <p class="text-xs text-slate-400">AhBiYout</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -147,7 +151,7 @@ class DiskCleanupHandler(http.server.SimpleHTTPRequestHandler):
 
     <!-- Footer -->
     <footer class="border-t border-slate-800 py-6 bg-slate-950 text-xs text-slate-500 text-center">
-        Copyright (C) 2026 <span class="text-slate-400">AhBiYout</span> & CISNET CORPORATION. All rights reserved.
+        Copyright (c) 2026 <span class="text-slate-400">AhBiYout</span>. All rights reserved.
     </footer>
 </body>
 </html>
@@ -160,10 +164,7 @@ class ReusableServer(socketserver.TCPServer):
     allow_reuse_address = True
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", DEFAULT_PORT))
-    host = os.environ.get("HOST", "0.0.0.0")
-
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    print(f"[*] Starting DiskCleanupAuto Hub Server on {host}:{port}...", flush=True)
-    with ReusableServer((host, port), DiskCleanupHandler) as httpd:
+    print(f"[*] Starting DiskCleanupAuto Hub Server on {HOST}:{TARGET_PORT}...", flush=True)
+    with ReusableServer((HOST, TARGET_PORT), DiskCleanupHandler) as httpd:
         httpd.serve_forever()

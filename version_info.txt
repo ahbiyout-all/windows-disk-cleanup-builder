@@ -21,13 +21,13 @@ VSVersionInfo(
         StringTable(
           '041204b0',
           [
-            StringStruct('CompanyName', 'CISNET CORPORATION'),
-            StringStruct('FileDescription', 'CISNET Windows 디스크 클린 오토'),
+            StringStruct('CompanyName', 'AhBiYout'),
+            StringStruct('FileDescription', 'Windows 디스크 클린 오토'),
             StringStruct('FileVersion', '1.5.0.0'),
             StringStruct('InternalName', 'DiskCleanupAuto'),
             StringStruct('LegalCopyright', 'Copyright (C) 2026 AhBiYout. All rights reserved.'),
             StringStruct('OriginalFilename', 'DiskCleanupAuto_v1.5.0.exe'),
-            StringStruct('ProductName', 'CISNET Windows 디스크 클린 오토 (DiskCleanupAuto)'),
+            StringStruct('ProductName', 'Windows 디스크 클린 오토 (DiskCleanupAuto)'),
             StringStruct('ProductVersion', '1.5.0.0'),
             StringStruct('Comments', 'Windows VolumeCaches 및 cleanmgr.exe 자동화 순차 정리 도구 (개발자: AhBiYout / http://www.cisnet.co.kr/)'),
             StringStruct('LegalTrademarks', 'AhBiYout'),
@@ -36,13 +36,13 @@ VSVersionInfo(
         StringTable(
           '040904b0',
           [
-            StringStruct('CompanyName', 'CISNET CORPORATION'),
-            StringStruct('FileDescription', 'CISNET Windows Disk Cleanup Auto Runner'),
+            StringStruct('CompanyName', 'AhBiYout'),
+            StringStruct('FileDescription', 'Windows Disk Cleanup Auto Runner'),
             StringStruct('FileVersion', '1.5.0.0'),
             StringStruct('InternalName', 'DiskCleanupAuto'),
             StringStruct('LegalCopyright', 'Copyright (C) 2026 AhBiYout. All rights reserved.'),
             StringStruct('OriginalFilename', 'DiskCleanupAuto_v1.5.0.exe'),
-            StringStruct('ProductName', 'CISNET Windows Disk Cleanup Auto'),
+            StringStruct('ProductName', 'Windows Disk Cleanup Auto'),
             StringStruct('ProductVersion', '1.5.0.0'),
             StringStruct('Comments', 'Windows VolumeCaches & cleanmgr automated sequential cleaner'),
             StringStruct('LegalTrademarks', 'AhBiYout'),

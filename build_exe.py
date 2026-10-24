@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-[CISNET] Python to Portable Single EXE Auto Builder (v1.5.0)
+[AhBiYout] Python to Portable Single EXE Auto Builder (v1.5.0)
 Robust Python-native compiler runner that never crashes or closes silently.
 Self-contained: auto-generates disk_cleanup_gui.py if missing.
 """
@@ -17,7 +17,7 @@ DEFAULT_GUI_SOURCE = '''"""
  Windows Disk Cleanup Automated Runner (GUI Edition v1.5.0)
  Auto-configured Registry VolumeCaches & cleanmgr.exe execution
  ----------------------------------------------------------------------------
- * 회사: CISNET CORPORATION (http://www.cisnet.co.kr/)
+ * 개발자: AhBiYout
  * 개발자: AhBiYout
  * 공식 Google 블로그: https://ahbiyoutvibe.blogspot.com/
 =============================================================================
@@ -51,7 +51,7 @@ def elevate_admin():
 
 FLAG_NAME = "StateFlags0064"
 SAGESET_ID = 64
-COMPANY_NAME = "CISNET CORPORATION"
+COMPANY_NAME = "AhBiYout"
 DEVELOPER_NAME = "AhBiYout"
 COMPANY_URL = "http://www.cisnet.co.kr/"
 BLOG_URL = "https://ahbiyoutvibe.blogspot.com/"
@@ -610,7 +610,7 @@ VSVersionInfo(
         StringTable(
           '041204b0',
           [
-            StringStruct('CompanyName', 'CISNET CORPORATION'),
+            StringStruct('CompanyName', 'AhBiYout'),
             StringStruct('FileDescription', 'AhBiYout Windows 디스크 클린 오토'),
             StringStruct('FileVersion', '{ver_str}'),
             StringStruct('InternalName', '{APP_INTERNAL_NAME}'),
@@ -625,13 +625,13 @@ VSVersionInfo(
         StringTable(
           '040904b0',
           [
-            StringStruct('CompanyName', 'CISNET CORPORATION'),
-            StringStruct('FileDescription', 'CISNET Windows Disk Cleanup Auto Runner'),
+            StringStruct('CompanyName', 'AhBiYout'),
+            StringStruct('FileDescription', 'Windows Disk Cleanup Auto Runner'),
             StringStruct('FileVersion', '{ver_str}'),
             StringStruct('InternalName', '{APP_INTERNAL_NAME}'),
             StringStruct('LegalCopyright', 'Copyright (C) 2026 AhBiYout. All rights reserved.'),
             StringStruct('OriginalFilename', '{exe_name}.exe'),
-            StringStruct('ProductName', 'CISNET Windows Disk Cleanup Auto'),
+            StringStruct('ProductName', 'Windows Disk Cleanup Auto'),
             StringStruct('ProductVersion', '{ver_str}'),
             StringStruct('Comments', 'Windows VolumeCaches & cleanmgr automated sequential cleaner'),
             StringStruct('LegalTrademarks', 'AhBiYout'),
@@ -666,7 +666,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
 
-    print_header("[CISNET] Python to Portable EXE Auto Builder (v1.5.0)")
+    print_header("[AhBiYout] Python to Portable EXE Auto Builder (v1.5.0)")
     print(f"Working Directory: {script_dir}")
     print(f"Python Version   : {sys.version.split()[0]} ({sys.executable})")
 
