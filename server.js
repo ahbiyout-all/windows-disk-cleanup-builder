@@ -15,6 +15,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AhBiYout Windows Disk Cleanup Auto (v1.5.0)</title>
+    <meta name="description" content="Windows 11/10 무인 디스크 정리 자동화 도구 및 Inno Setup 인스톨러 빌더 (AhBiYout)">
+    <meta property="og:title" content="AhBiYout Windows Disk Cleanup Auto (v1.5.0)">
+    <meta property="og:description" content="Windows 정품 cleanmgr 엔진 & Windows.old 강제 소거 자동화 빌더">
     <link rel="icon" type="image/x-icon" href="/app.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -77,15 +80,15 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 <!-- Card 1 -->
                 <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
                     <div class="text-indigo-400 font-mono text-sm font-semibold mb-1">disk_cleanup_gui.py</div>
-                    <p class="text-xs text-slate-400 mb-3">Tkinter GUI 및 Win32 커널 7단계 디스크 정리 엔진 (Python)</p>
-                    <div class="text-[11px] text-slate-500 font-mono">36.4 KB · Windows.old 강제 소거</div>
+                    <p class="text-xs text-slate-400 mb-3">Tkinter GUI 및 Win32 커널 연동 Windows 디스크 정리 엔진 (Python)</p>
+                    <div class="text-[11px] text-slate-500 font-mono">Windows.old 강제 소거 · 실시간 업데이트</div>
                 </div>
 
                 <!-- Card 2 -->
                 <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
                     <div class="text-emerald-400 font-mono text-sm font-semibold mb-1">installer.iss</div>
                     <p class="text-xs text-slate-400 mb-3">Inno Setup 6.x 언팩 개별 설치 & 방화벽 규칙 자동 등록</p>
-                    <div class="text-[11px] text-slate-500 font-mono">8.6 KB · 제어판 정식 등록</div>
+                    <div class="text-[11px] text-slate-500 font-mono">제어판 정식 등록 · 무인 설치 지원</div>
                 </div>
 
                 <!-- Card 3 -->
@@ -99,7 +102,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
                     <div class="text-amber-400 font-mono text-sm font-semibold mb-1">.github/workflows/release.yml</div>
                     <p class="text-xs text-slate-400 mb-3">GitHub Actions CI/CD 릴리스 자동화 (단일 통합 잡)</p>
-                    <div class="text-[11px] text-slate-500 font-mono">Windows-latest 런너 연동</div>
+                    <div class="text-[11px] text-slate-500 font-mono">Windows-latest 런너 · Setup & Portable EXE</div>
                 </div>
 
                 <!-- Card 5 -->
@@ -111,9 +114,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
                 <!-- Card 6 -->
                 <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
-                    <div class="text-rose-400 font-mono text-sm font-semibold mb-1">docs/</div>
-                    <p class="text-xs text-slate-400 mb-3">설치 가이드(INSTALL.md), 빌드 가이드, 패치노트, 블로그 글</p>
-                    <div class="text-[11px] text-slate-500 font-mono">Blogger 마크다운 포함</div>
+                    <div class="text-rose-400 font-mono text-sm font-semibold mb-1">docs/ & LICENSE</div>
+                    <p class="text-xs text-slate-400 mb-3">설치(INSTALL.md), 빌드(BUILD.md), 패치노트, 보안 가이드 및 MIT 라이선스</p>
+                    <div class="text-[11px] text-slate-500 font-mono">MIT License · Blogger 원고 포함</div>
                 </div>
             </div>
         </div>
@@ -121,16 +124,16 @@ const HTML_CONTENT = `<!DOCTYPE html>
         <!-- Build Instructions -->
         <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-6 space-y-4">
             <h3 class="text-md font-bold text-white flex items-center gap-2">
-                🔨 로컬 빌드 및 푸시 방법
+                🔨 로컬 빌드 및 배포 방법
             </h3>
             <div class="space-y-3 text-xs md:text-sm text-slate-300">
                 <div class="flex items-start gap-2">
                     <span class="bg-slate-800 text-indigo-400 font-mono px-2 py-0.5 rounded">1</span>
-                    <p>로컬에서 <code class="text-indigo-300 font-mono">build_exe.bat</code>를 실행하면 <code class="text-slate-200 font-mono">Release\DiskCleanupAuto_v1.5.0.exe</code> 및 <code class="text-slate-200 font-mono">Release\WindowsDiskCleanup_Setup_v1.5.0.exe</code>가 생성됩니다.</p>
+                    <p>Windows 로컬에서 <code class="text-indigo-300 font-mono">build_exe.bat</code>를 실행하면 <code class="text-slate-200 font-mono">Release\DiskCleanupAuto_v1.5.0.exe</code> 및 <code class="text-slate-200 font-mono">Release\WindowsDiskCleanup_Setup_v1.5.0.exe</code>가 자동 생성됩니다.</p>
                 </div>
                 <div class="flex items-start gap-2">
                     <span class="bg-slate-800 text-indigo-400 font-mono px-2 py-0.5 rounded">2</span>
-                    <p><code class="text-indigo-300 font-mono">git_push.bat</code>를 실행하면 <strong>스크립트 본인과 빌드 임시 파일은 자동으로 제외</strong>되고 핵심 코드만 안전하게 GitHub로 푸시됩니다.</p>
+                    <p><code class="text-indigo-300 font-mono">git push</code> 또는 버전 태그(<code class="text-slate-200 font-mono">v1.5.0</code>) 푸시 시 <code class="text-slate-200 font-mono">.gitignore</code>로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.</p>
                 </div>
             </div>
         </div>
@@ -145,27 +148,65 @@ const HTML_CONTENT = `<!DOCTYPE html>
 `;
 
 const server = http.createServer((req, res) => {
-    const url = req.url.split('?')[0];
-
-    if (url === '/' || url === '/index.html') {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(HTML_CONTENT);
+    const method = (req.method || 'GET').toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD') {
+        res.writeHead(405, {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Allow': 'GET, HEAD',
+        });
+        res.end('Method Not Allowed');
         return;
     }
 
-    if (url === '/app.ico' || url === '/assets/app.ico' || url === '/icon.png') {
-        const filePath = path.join(__dirname, url === '/icon.png' ? 'icon.png' : 'app.ico');
-        if (fs.existsSync(filePath)) {
-            const ext = path.extname(filePath);
-            const contentType = ext === '.ico' ? 'image/x-icon' : 'image/png';
-            res.writeHead(200, { 'Content-Type': contentType });
-            fs.createReadStream(filePath).pipe(res);
-            return;
+    const url = (req.url || '/').split('?')[0];
+
+    if (url === '/' || url === '/index.html') {
+        const buf = Buffer.from(HTML_CONTENT, 'utf8');
+        res.writeHead(200, {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Content-Length': buf.length,
+        });
+        if (method === 'HEAD') {
+            res.end();
+        } else {
+            res.end(buf);
         }
+        return;
     }
 
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('Not Found');
+    if (url === '/app.ico' || url === '/assets/app.ico' || url === '/favicon.ico' || url === '/icon.png') {
+        let targetRel = 'app.ico';
+        if (url === '/icon.png') targetRel = 'icon.png';
+        else if (url === '/assets/app.ico') targetRel = path.join('assets', 'app.ico');
+        const filePath = path.join(__dirname, targetRel);
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+                res.end(method === 'HEAD' ? undefined : 'Not Found');
+                return;
+            }
+            const ext = path.extname(filePath);
+            const contentType = ext === '.ico' ? 'image/x-icon' : 'image/png';
+            res.writeHead(200, {
+                'Content-Type': contentType,
+                'Content-Length': data.length,
+                'Cache-Control': 'public, max-age=3600',
+            });
+            if (method === 'HEAD') {
+                res.end();
+            } else {
+                res.end(data);
+            }
+        });
+        return;
+    }
+
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end(method === 'HEAD' ? undefined : 'Not Found');
+});
+
+server.on('error', (err) => {
+    console.error('[DiskCleanupAuto Server] Error:', err);
 });
 
 server.listen(PORT, HOST, () => {

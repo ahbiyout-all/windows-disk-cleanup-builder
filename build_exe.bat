@@ -23,10 +23,11 @@ REM Check if Python-native builder build_exe.py exists
 REM -------------------------------------------------------------------------------
 if exist "%SCRIPT_DIR%build_exe.py" goto :RUN_PY_BUILDER
 
+:AFTER_PY_CHECK
 REM -------------------------------------------------------------------------------
-REM [1/6] Find Python Interpreter
+REM [1/7] Find Python Interpreter
 REM -------------------------------------------------------------------------------
-echo [1/6] Searching for Python interpreter...
+echo [1/7] Searching for Python interpreter...
 set "PY_CMD="
 
 call python -V >nul 2>&1
@@ -94,9 +95,9 @@ call %PY_CMD% --version
 echo.
 
 REM -------------------------------------------------------------------------------
-REM [2/6] Check / Install PyInstaller
+REM [2/7] Check / Install PyInstaller
 REM -------------------------------------------------------------------------------
-echo [2/6] Checking PyInstaller...
+echo [2/7] Checking PyInstaller...
 call %PY_CMD% -m pyinstaller --version >nul 2>&1
 if %errorlevel% equ 0 goto :PYINSTALLER_OK
 
@@ -113,9 +114,9 @@ echo [OK] PyInstaller is ready.
 echo.
 
 REM -------------------------------------------------------------------------------
-REM [3/6] Check Target Python Source File
+REM [3/7] Check Target Python Source File
 REM -------------------------------------------------------------------------------
-echo [3/6] Finding Python source file...
+echo [3/7] Finding Python source file...
 set "TARGET_PY="
 set "TARGET_NAME="
 
@@ -154,23 +155,28 @@ echo [OK] Target script: %TARGET_NAME%
 echo.
 
 REM -------------------------------------------------------------------------------
-REM [4/6] Compile to Single Standalone Portable EXE
+REM [4/7] Compile to Single Standalone Portable EXE
 REM -------------------------------------------------------------------------------
-echo [4/6] Building portable EXE (DiskCleanupAuto_v1.5.0.exe)...
+echo [4/7] Building portable EXE (DiskCleanupAuto_v1.5.0.exe)...
 echo Please wait 15-30 seconds...
 echo -------------------------------------------------------------------------------
 
+if exist "%DIST_DIR%" rd /s /q "%DIST_DIR%" >nul 2>&1
+if exist "%BUILD_DIR%" rd /s /q "%BUILD_DIR%" >nul 2>&1
+
 set "ICON_PARAM="
-if exist "%SCRIPT_DIR%app.ico" set "ICON_PARAM=--icon=%SCRIPT_DIR%app.ico"
+set "ICON_DATA_PARAM="
+if exist "%SCRIPT_DIR%app.ico" set ICON_PARAM=--icon="%SCRIPT_DIR%app.ico"
+if exist "%SCRIPT_DIR%app.ico" set ICON_DATA_PARAM=--add-data="%SCRIPT_DIR%app.ico;assets"
 
 set "VERSION_PARAM="
-if exist "%SCRIPT_DIR%version_info.txt" set "VERSION_PARAM=--version-file=%SCRIPT_DIR%version_info.txt"
+if exist "%SCRIPT_DIR%version_info.txt" set VERSION_PARAM=--version-file="%SCRIPT_DIR%version_info.txt"
 
-call %PY_CMD% -m pyinstaller --onefile --clean --name=DiskCleanupAuto_v1.5.0 --noconsole --uac-admin %ICON_PARAM% %VERSION_PARAM% --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" "%TARGET_PY%"
+call %PY_CMD% -m pyinstaller --onefile --clean --name=DiskCleanupAuto_v1.5.0 --noconsole --uac-admin %ICON_PARAM% %ICON_DATA_PARAM% %VERSION_PARAM% --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" "%TARGET_PY%"
 if %errorlevel% equ 0 goto :BUILD_OK
 
 echo [*] Retrying with pyinstaller CLI...
-call pyinstaller --onefile --clean --name=DiskCleanupAuto_v1.5.0 --noconsole --uac-admin %ICON_PARAM% %VERSION_PARAM% --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" "%TARGET_PY%"
+call pyinstaller --onefile --clean --name=DiskCleanupAuto_v1.5.0 --noconsole --uac-admin %ICON_PARAM% %ICON_DATA_PARAM% %VERSION_PARAM% --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" "%TARGET_PY%"
 if %errorlevel% neq 0 goto :ERR_BUILD
 
 :BUILD_OK
@@ -179,23 +185,18 @@ echo [OK] PyInstaller compilation completed.
 echo.
 
 REM -------------------------------------------------------------------------------
-REM [5/6] Move EXE to Release Folder
+REM [5/7] Move EXE to Release Folder
 REM -------------------------------------------------------------------------------
-echo [5/6] Copying executable to Release folder...
+echo [5/7] Copying executable to Release folder...
 if not exist "%RELEASE_DIR%" mkdir "%RELEASE_DIR%"
 
 taskkill /F /IM DiskCleanupAuto_v1.5.0.exe >nul 2>&1
 if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" attrib -r "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
 
-if exist "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" copy /y "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
-if exist "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" copy /y "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" "%DIST_DIR%\DiskCleanupAuto.exe" >nul 2>&1
-if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" copy /y "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" "%DIST_DIR%\DiskCleanupAuto.exe" >nul 2>&1
+if exist "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" move /y "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
 if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" echo [OK] Output file: "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe"
 echo.
 
-REM -------------------------------------------------------------------------------
-REM [7/7] Clean Temporary Artifacts
-REM -------------------------------------------------------------------------------
 REM -------------------------------------------------------------------------------
 REM [6/7] Build Inno Setup Installer (if installer.iss exists)
 REM -------------------------------------------------------------------------------
@@ -276,7 +277,18 @@ exit /b 1
 :RUN_PY_BUILDER
 echo [INFO] Launching Python-native builder (build_exe.py)...
 echo.
-call python "%SCRIPT_DIR%build_exe.py"
+where python >nul 2>&1
+if %errorlevel% equ 0 (
+    call python "%SCRIPT_DIR%build_exe.py"
+) else (
+    where py >nul 2>&1
+    if %errorlevel% equ 0 (
+        call py "%SCRIPT_DIR%build_exe.py"
+    ) else (
+        echo [WARN] python / py not on PATH. Falling back to batch search...
+        goto :FALLBACK_BATCH_BUILD
+    )
+)
 if %errorlevel% neq 0 (
     echo.
     echo [ERROR] Python builder exited with code %errorlevel%.
@@ -284,3 +296,7 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 exit /b 0
+
+:FALLBACK_BATCH_BUILD
+echo [*] Running pure-batch fallback pipeline...
+goto :AFTER_PY_CHECK

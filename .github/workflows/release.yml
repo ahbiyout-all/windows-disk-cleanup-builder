@@ -3,7 +3,7 @@
 # Repository: https://github.com/AhBiYout-all/windows-disk-cleanup-builder
 # Developer: AhBiYout (GitHub: AhBiYout-all)
 # Official Blog: https://ahbiyoutvibe.blogspot.com/
-# Affiliation: https://www.cisnet.co.kr
+# Copyright (c) 2026 AhBiYout. All rights reserved.
 #
 # 📌 Windows PC Desktop Installer Dedicated Workflow:
 #  - Push(main/master) 및 Tag(v*) 또는 수동 실행(workflow_dispatch) 시 자동으로
@@ -62,41 +62,44 @@ jobs:
       - name: 4. Build Standalone Portable EXE (PyInstaller)
         shell: pwsh
         run: |
-          $iconParam = ""
-          if (Test-Path "assets/app.ico") { $iconParam = "--icon=assets/app.ico" }
-          elseif (Test-Path "app.ico") { $iconParam = "--icon=app.ico" }
+          $commonArgs = @("--noconfirm", "--windowed", "--uac-admin", "--version-file", "version_info.txt")
+          $onefileIconArgs = @()
+          $onedirIconArgs = @()
+          if (Test-Path "assets/app.ico") {
+            $onefileIconArgs = @("--icon=assets/app.ico", "--add-data=assets/app.ico;assets")
+            $onedirIconArgs = @("--icon=assets/app.ico")
+          }
+          elseif (Test-Path "app.ico") {
+            $onefileIconArgs = @("--icon=app.ico", "--add-data=app.ico;assets")
+            $onedirIconArgs = @("--icon=app.ico")
+          }
 
           # (1) 단독 포터블 실행 파일 빌드
-          pyinstaller --noconfirm --onefile --windowed `
-            --name "DiskCleanupAuto_v1.5.0" `
-            --uac-admin `
-            $iconParam `
-            --version-file "version_info.txt" `
-            disk_cleanup_gui.py
+          pyinstaller @commonArgs --onefile --name "DiskCleanupAuto_v1.5.0" @onefileIconArgs disk_cleanup_gui.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           # (2) Inno Setup 언팩용 디렉터리 빌드
-          pyinstaller --noconfirm --onedir --windowed `
-            --name "DiskCleanupAuto" `
-            --uac-admin `
-            $iconParam `
-            --version-file "version_info.txt" `
-            disk_cleanup_gui.py
+          pyinstaller @commonArgs --onedir --name "DiskCleanupAuto" @onedirIconArgs disk_cleanup_gui.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: 5. Prepare Packaging Assets
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force -Path "release_artifacts"
           New-Item -ItemType Directory -Force -Path "dist/DiskCleanupAuto/assets"
-          if (Test-Path "assets") { Copy-Item -Recurse -Force "assets/*" "dist/DiskCleanupAuto/assets" }
+          if (Test-Path "assets/app.ico") { Copy-Item -Force "assets/app.ico" "dist/DiskCleanupAuto/assets/app.ico" }
+          elseif (Test-Path "app.ico") { Copy-Item -Force "app.ico" "dist/DiskCleanupAuto/assets/app.ico" }
           if (Test-Path "register_scheduler.bat") { Copy-Item -Force "register_scheduler.bat" "dist/DiskCleanupAuto/" }
+          # 단독 포터블 EXE는 Inno Setup 언팩 디렉터리와 섞이지 않도록 사전에 release_artifacts로 이동
           if (Test-Path "dist/DiskCleanupAuto_v1.5.0.exe") {
-            New-Item -ItemType Directory -Force -Path "Release"
-            Copy-Item -Force "dist/DiskCleanupAuto_v1.5.0.exe" "Release/DiskCleanupAuto_v1.5.0.exe"
+            Move-Item -Force "dist/DiskCleanupAuto_v1.5.0.exe" "release_artifacts/DiskCleanupAuto_v1.5.0.exe"
           }
 
       - name: 6. Install Inno Setup Compiler
         shell: pwsh
         run: |
           choco install innosetup --no-progress --yes
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: 7. Compile Inno Setup Installer (.iss)
         shell: pwsh
@@ -109,10 +112,12 @@ jobs:
             $isccCmd = Get-Command iscc -ErrorAction SilentlyContinue
             if ($isccCmd) { $isccPath = $isccCmd.Source }
           }
+          if (-not $isccPath) { throw "ISCC.exe not found" }
           Write-Host "Using Inno Setup Compiler: $isccPath"
 
           New-Item -ItemType Directory -Force -Path "Output"
           & $isccPath installer.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: 8. Consolidate Release Binaries
         shell: pwsh
@@ -122,11 +127,6 @@ jobs:
           Get-ChildItem -Path "Output" -Filter "*.exe" | ForEach-Object {
             Copy-Item -Force $_.FullName "release_artifacts/"
             Write-Host "Collected Installer: $($_.Name)"
-          }
-          # 단독 포터블 실행 파일 복사
-          if (Test-Path "dist/DiskCleanupAuto_v1.5.0.exe") {
-            Copy-Item -Force "dist/DiskCleanupAuto_v1.5.0.exe" "release_artifacts/"
-            Write-Host "Collected Standalone Portable EXE: DiskCleanupAuto_v1.5.0.exe"
           }
           Write-Host "=== Final Artifacts List ==="
           Get-ChildItem -Path "release_artifacts"
@@ -141,16 +141,20 @@ jobs:
       - name: 10. Determine Release Tag
         id: tag_info
         shell: pwsh
+        env:
+          INPUT_RELEASE_VERSION: ${{ github.event.inputs.release_version }}
+          GH_REF: ${{ github.ref }}
+          GH_REF_NAME: ${{ github.ref_name }}
         run: |
-          $tag = "${{ github.event.inputs.release_version }}"
-          if (-not $tag -and "${{ github.ref }}".StartsWith("refs/tags/v")) {
-            $tag = "${{ github.ref_name }}"
+          $tag = $env:INPUT_RELEASE_VERSION
+          if (-not $tag -and $env:GH_REF -and $env:GH_REF.StartsWith("refs/tags/v")) {
+            $tag = $env:GH_REF_NAME
           }
           if (-not $tag) {
             $tag = "v1.5.0"
           }
           Write-Host "Resolved Target Tag: $tag"
-          "release_tag=$tag" >> $env:GITHUB_OUTPUT
+          "release_tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: 11. Publish to GitHub Releases (Both Setup & Standalone EXE)
         uses: softprops/action-gh-release@v2
@@ -168,7 +172,7 @@ jobs:
             ---
             - **개발자**: AhBiYout (GitHub: [@AhBiYout-all](https://github.com/AhBiYout-all))
             - **공식 블로그**: [AhBiYoutVibe](https://ahbiyoutvibe.blogspot.com/)
-            - **소속**: [AhBiYout](https://www.cisnet.co.kr)
+            - **라이선스**: MIT License · Copyright (c) 2026 AhBiYout. All rights reserved.
           files: release_artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

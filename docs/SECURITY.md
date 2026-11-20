@@ -10,10 +10,8 @@
 - **개인 이메일 및 실명 노출 금지**:
   - 개인 개발자의 이메일 주소(예: 개인 Google/Naver 이메일)는 소스 코드, 커밋 기록, 패치 노트, 문서에 일절 기재하지 않습니다.
   - 모든 Git 커밋은 깃허브 공식 보호 계정(`AhBiYout-all@users.noreply.github.com`)과 공식 개발자명(`AhBiYout`)으로 서명됩니다.
-- **사전 누출 검사기 (`git_push.bat`)**:
-  - `git_push.bat` 실행 시 스테이징된 변경 사항에서 개인 이메일 정규식을 사전에 스캔(`diff --cached | findstr`)하여 누출 감지 시 푸시를 즉시 차단합니다.
-- **`.gitignore` 보안 배제**:
-  - 로컬 환경설정(`.env`), 빌드 산출물(`Release/`, `Output/`, `dist/`), 임시 로그 파일 등은 형상 관리에서 완전 배제됩니다.
+- **`.gitignore` 보안 및 아티팩트 배제**:
+  - 로컬 환경설정(`.env*`), 개인/민감 파일(`*private*`, `*personal*`, `*.pem`, `*.key`, `credentials.*`, `secrets.*`), 로컬 푸시 유틸리티(`git_push.bat`, `*.ps1`), 빌드 산출물(`Release/`, `Output/`, `dist/`, `build/`, `release_artifacts/`, `__pycache__/`, `*.spec`)은 형상 관리에서 완전 배제됩니다.
 
 ---
 

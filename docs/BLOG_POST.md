@@ -43,7 +43,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 |                                                                       |
 |  💾 C: 드라이브 여유 공간: 142.35 GB (+8.42 GB 확보 중)               |
 +-----------------------------------------------------------------------+
-|  개발자: AhBiYout | CISNET CORPORATION | 공식 블로그: AhBiYoutVibe     |
+|  개발자: AhBiYout | 공식 블로그: AhBiYoutVibe                        |
 +-----------------------------------------------------------------------+
 ```
 
@@ -66,7 +66,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 - **파일 설명 (FileDescription)**: AhBiYout Windows 디스크 클린 오토
 - **제품 이름 (ProductName)**: AhBiYout Windows 디스크 클린 오토 (DiskCleanupAuto)
 - **등록 상표 (LegalTrademarks)**: AhBiYout
-- **저작권 (Copyright)**: Copyright (C) 2026 AhBiYout. All rights reserved.
+- **저작권 (Copyright)**: Copyright (c) 2026 AhBiYout. All rights reserved. (MIT License)
 
 ---
 
@@ -82,7 +82,6 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 - **제작자 (개발자)**: AhBiYout
 - **공식 깃허브 저장소**: [https://github.com/AhBiYout-all/windows-disk-cleanup-builder](https://github.com/AhBiYout-all/windows-disk-cleanup-builder)
 - **공식 구글 블로그**: [https://ahbiyoutvibe.blogspot.com/](https://ahbiyoutvibe.blogspot.com/) (AhBiYoutVibe)
-- **소속 / 파트너**: [CISNET CORPORATION (시스넷)](http://www.cisnet.co.kr/)
 
 ---
 
@@ -90,14 +89,14 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 
 | 버전 | 일자 | 구분 | 주요 변경 내역 요약 |
 | :---: | :---: | :---: | :--- |
-| **`v1.5.0`** | 2026-10-11 | **MAJOR** | • Windows 11 Windows.old 권한 탈취 및 100% 완전 삭제 (`takeown` + `icacls`)<br>• C:\Windows.old\Users 개인 문서 보존 안전 가드레일 탑재<br>• Inno Setup 언팩 설치기 및 방화벽 인바운드 규칙 자동 조용히 등록<br>• Node.js 22 LTS 전환 및 인스톨러 배포 일원화<br>• 스마트 깃허브 푸시 유틸리티(`git_push.bat`) 및 개인정보 3중 스캔<br>• 휴지통 직접 비우기 API(`SHEmptyRecycleBinW`) 연동 및 로컬라이즈 키 자동 호환<br>• 파일 속성 등록 상표를 'AhBiYout'으로 표준화 |
+| **`v1.5.0`** | 2026-10-11 | **MINOR** | • Windows 11 Windows.old 권한 탈취 및 100% 완전 삭제 (`takeown` + `icacls`)<br>• C:\Windows.old\Users 개인 문서 보존 안전 가드레일 탑재<br>• Inno Setup 언팩 설치기 및 방화벽 인바운드 규칙 자동 조용히 등록<br>• 고화질 멀티 해상도 `app.ico` 적용 및 제어판(설치된 앱) 정식 등록<br>• GitHub Actions 단일 통합 빌드(`WindowsDiskCleanup_Setup_v1.5.0.exe` + `DiskCleanupAuto_v1.5.0.exe`)<br>• 휴지통 직접 비우기 API(`SHEmptyRecycleBinW`) 연동 및 MIT 라이선스/AhBiYout 단독 저작권 표준화 |
 | **`v1.4.0`** | 2026-09-07 | **MINOR** | • Win32 커널 동기화(`WaitForSingleObject`) 및 HWND 창 라이프사이클 실시간 후킹 (CPU 0%)<br>• 컴퓨터실/전산실 무인 대량 배포용 2초 주기 쉘 새로고침 및 트레이 가상 스위프<br>• C: 드라이브 여유 공간 실시간 계산 및 확보 용량 안내 (`GetDiskFreeSpaceExW`)<br>• 마우스 호버 즉시 닫기 제스처 & 5초 자동 카운트다운 종료 |
 | **`v1.3.4`** | 2026-08-29 | **PATCH** | • 화면 상단(Top 22% Golden Ratio) 최적 배치로 작업표시줄 겹침 방지<br>• 실행 즉시 전면 윈도우 활성화 (`lift` & `wm_attributes`) |
 | **`v1.3.3`** | 2026-08-29 | **PATCH** | • 대용량 Windows 업데이트 정리(WinSxS) 25초 타임아웃 제거 후 100% 완주 보장<br>• 실제 백그라운드 엔진 단계와 일치하는 상태 안내 및 실시간 타이머 |
 | **`v1.3.2`** | 2026-08-19 | **PATCH** | • Python 3.12+ `SyntaxWarning` 예방 및 Release 폴더 파일 잠금 방어 |
 | **`v1.3.1`** | 2026-08-19 | **PATCH** | • PyInstaller 빌드 결과물 EXE 파일명에 버전 자동 접미사 부여 |
 | **`v1.3.0`** | 2026-08-19 | **MINOR** | • 0.2초 초고속 완료 감지 루프 및 진행 시간/소요 시간 실시간 타이머 |
-| **`v1.2.0`** | 2026-08-19 | **MINOR** | • `cleanmgr.exe` 잔류 세션 및 OLE/COM 고착 강제 해제 (`taskkill` + `os._exit(0)`)<br>• 개발자(AhBiYout) 및 소속사(CISNET) 브랜딩 연동 |
+| **`v1.2.0`** | 2026-08-19 | **MINOR** | • `cleanmgr.exe` 잔류 세션 및 OLE/COM 고착 강제 해제 (`taskkill` + `os._exit(0)`)<br>• 개발자(AhBiYout) 공식 브랜딩 및 블로그 링크 연동 |
 | **`v1.1.0`** | 2026-08-19 | **MINOR** | • Tkinter GUI 모드 및 다중 실행 모드 탑재, 단일 포터블 EXE 빌더 지원 |
 | **`v1.0.0`** | 2026-08-19 | **MAJOR** | • Windows `VolumeCaches` 레지스트리 기반 자동화 코어 엔진 최초 릴리즈 |
 
@@ -107,5 +106,5 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 > **구글 블로그(Blogger) 우측 라벨 입력란용 (15개 / 153자, 한글+영어 포함)**
 
 ```text
-디스크정리, cleanmgr, Windows11, Windows10, C드라이브용량확보, 디스크클린오토, DiskCleanupAuto, 컴퓨터최적화, WindowsUpdate, WindowsOld, 무인정리, InnoSetup, AhBiYout, CISNET, 트레이잔상제거
+디스크정리, cleanmgr, Windows11, Windows10, C드라이브용량확보, 디스크클린오토, DiskCleanupAuto, 컴퓨터최적화, WindowsUpdate, WindowsOld, 무인정리, InnoSetup, AhBiYout, MIT라이선스, 트레이잔상제거
 ```

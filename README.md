@@ -17,20 +17,23 @@
 
 | 파일 경로 | 카테고리 | 설명 |
 | :--- | :--- | :--- |
-| `disk_cleanup_gui.py` | 소스 코드 | Tkinter GUI 및 커널 레벨 7단계 디스크 정리 엔진 |
-| `build_exe.py` | 빌더 | PyInstaller 연동 파이썬 네이티브 컴파일 스크립트 |
-| `build_exe.bat` | 빌더 | Windows 1-클릭 단일 포터블 EXE 자동 빌드 배치 |
-| `version_info.txt` | 메타데이터 | Windows 탐색기 속성 '자세히' 탭 PE 리소스 정의 (v1.5.0) |
-| `installer.iss` | 인스톨러 | Inno Setup 6.x 언팩 개별 설치 및 방화벽 자동 등록 스크립트 |
-| `.github/workflows/release.yml` | CI/CD | GitHub Actions Node 22 LTS 릴리스 자동화 워크플로 |
-| `git_push.bat` | 배포도구 | 개인정보 보호 및 릴리스 태그 동기화 푸시 스크립트 |
-| `docs/` | 가이드 | 설치(`INSTALL.md`), 빌드(`BUILD.md`), 보안(`SECURITY.md`) 가이드 |
+| `disk_cleanup_gui.py` | 소스 코드 | Tkinter GUI 및 Win32 커널 연동 Windows 디스크 정리 엔진 |
+| `build_exe.py` | 빌더 | PyInstaller & Inno Setup 연동 파이썬 네이티브 컴파일 스크립트 |
+| `build_exe.bat` | 빌더 | Windows 1-클릭 단일 포터블 EXE 및 인스톨러 자동 빌드 배치 |
+| `version_info.txt` | 메타데이터 | Windows 탐색기 속성 '자세히' 탭 PE 리소스 정의 (`v1.5.0`) |
+| `installer.iss` | 인스톨러 | Inno Setup 6.x 언팩 개별 설치 및 방화벽 규칙 자동 등록 스크립트 |
+| `register_scheduler.bat` | 스케줄러 | Windows 작업 스케줄러 주간 자동 정리 등록 스크립트 |
+| `app.ico` / `assets/app.ico` | 리소스 | 멀티 해상도 Windows 앱/인스톨러/바로가기 아이콘 |
+| `LICENSE` | 라이선스 | MIT License (`Copyright (c) 2026 AhBiYout`) |
+| `.github/workflows/release.yml` | CI/CD | GitHub Actions Windows 단독 EXE + 인스톨러 통합 자동 배포 워크플로 |
+| `docs/` | 가이드 | 설치(`INSTALL.md`), 빌드(`BUILD.md`), 보안(`SECURITY.md`), 패치노트(`PATCH_NOTES.md`) |
+| `server.js` / `package.json` | 프리뷰 | 로컬 프로젝트 소개 및 파일 구성 미리보기용 경량 Node.js 서버 (포트 3000) |
 
 ---
 
 ## 🔨 빌드 방법
 
-### 1. 단일 실행 파일 (Portable EXE) 빌드
+### 1. 단일 실행 파일 (Portable EXE) 및 설치 파일 일괄 빌드
 ```cmd
 build_exe.bat
 ```
@@ -38,10 +41,12 @@ build_exe.bat
 ```cmd
 python build_exe.py
 ```
-- 결과물: `Release\DiskCleanupAuto_v1.5.0.exe`
+- 결과물:
+  - `Release\DiskCleanupAuto_v1.5.0.exe` (무설치 단독 포터블 실행 파일)
+  - `Release\WindowsDiskCleanup_Setup_v1.5.0.exe` (Inno Setup 설치 프로그램, ISCC 설치 시 자동 생성)
 
-### 2. Inno Setup 설치 프로그램 패키징
-Inno Setup 컴파일러(ISCC.exe)로 `installer.iss`를 컴파일합니다:
+### 2. Inno Setup 설치 프로그램 단독 패키징
+Inno Setup 컴파일러(`ISCC.exe`)로 `installer.iss`를 직접 컴파일합니다:
 ```cmd
 iscc installer.iss
 ```
@@ -50,6 +55,6 @@ iscc installer.iss
 
 ---
 
-## 🛡️ 개인정보 보호 & 보안
-- 모든 커밋은 개발자 공식 No-Reply 이메일(`AhBiYout-all@users.noreply.github.com`)을 사용합니다.
-- 개인 이메일 및 로컬 계정 정보가 포함되지 않도록 사전 스캔을 통과한 파일만 포함되어 있습니다.
+## 🛡️ 라이선스 & 보안 정책
+- **라이선스**: MIT License (`Copyright (c) 2026 AhBiYout. All rights reserved.`) — 자세한 내용은 [`LICENSE`](./LICENSE)를 참고하세요.
+- **개인정보 보호**: 모든 커밋은 공식 No-Reply 이메일(`AhBiYout-all@users.noreply.github.com`)을 사용하며, `.gitignore`를 통해 로컬 유틸리티(`git_push.bat`), `.env*`, 빌드 임시 산출물(`dist/`, `build/`, `Release/`, `Output/`)을 저장소에서 자동 배제합니다.

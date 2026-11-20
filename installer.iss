@@ -1,9 +1,9 @@
-; =============================================================================
+﻿; =============================================================================
 ; Inno Setup 6.x Deployment Script
 ; Project: Windows Disk Cleanup Automation Builder (v1.5.0)
 ; Developer: AhBiYout (GitHub: AhBiYout-all)
 ; Official Blog: https://ahbiyoutvibe.blogspot.com/
-; Affiliation: https://www.cisnet.co.kr
+; Copyright (c) 2026 AhBiYout. All rights reserved.
 ;
 ; [배포/설치 규격]
 ; 1. 폴더 풀림(Unpacked Multi-File) 개별파일 설치 구성 (불필요 문서 및 포터블 파일 제외)
@@ -20,7 +20,8 @@
 #define MyAppSupportURL "https://ahbiyoutvibe.blogspot.com/"
 #define MyAppUpdatesURL "https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases"
 #define MyAppExeName "DiskCleanupAuto.exe"
-#define MyAppId "{{E1D4A760-936B-4D12-9F89-A2BB5B30DE8C}}"
+#define MyAppRawId "{E1D4A760-936B-4D12-9F89-A2BB5B30DE8C}"
+#define MyAppId "{{E1D4A760-936B-4D12-9F89-A2BB5B30DE8C}"
 
 [Setup]
 AppId={#MyAppId}
@@ -47,7 +48,7 @@ UninstallDisplayName={#MyAppName} v{#MyAppVersion}
 VersionInfoVersion={#MyAppVersion}.0
 VersionInfoCompany=AhBiYout
 VersionInfoDescription={#MyAppName} Setup
-VersionInfoCopyright=Copyright (C) 2026 {#MyAppPublisher}. All rights reserved.
+VersionInfoCopyright=Copyright (c) 2026 {#MyAppPublisher}. All rights reserved.
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
 
@@ -72,8 +73,8 @@ Source: "dist\DiskCleanupAuto\*"; DestDir: "{app}"; Flags: ignoreversion recurse
 Source: "dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "dist\DiskCleanupAuto_v{#MyAppVersion}.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "Release\DiskCleanupAuto_v{#MyAppVersion}.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion skipifsourcedoesntexist
-; 필수 에셋 폴더 개별 파일 전개 (app.ico 포함)
-Source: "assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+; 필수 아이콘 에셋 전개 (.aistudio 등 불필요 파일 제외)
+Source: "assets\app.ico"; DestDir: "{app}\assets"; Flags: ignoreversion skipifsourcedoesntexist
 ; 루트 app.ico 폴백 복사
 Source: "app.ico"; DestDir: "{app}\assets"; DestName: "app.ico"; Flags: ignoreversion skipifsourcedoesntexist
 ; 윈도우 작업 스케줄러 등록 스크립트
@@ -95,7 +96,7 @@ Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#MyApp
 ; 2. 버전 정보 부착된 앱 이름 방화벽 규칙 조용히 등록
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#MyAppName} v{#MyAppVersion}"" dir=in action=allow program=""{app}\{#MyAppExeName}"" enable=yes profile=any"; Flags: runhidden waituntilterminated
 ; 설치 완료 후 앱 실행 (옵션)
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent runascurrentuser
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent shellexec
 
 ; =============================================================================
 ; [UninstallRun] 제거 시 방화벽 규칙 자동 소거 (Clean Uninstall)
@@ -114,12 +115,12 @@ var
   InstalledVer: String;
 begin
   InstalledVer := '';
-  if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppId}_is1', 'DisplayVersion', InstalledVer) then
+  if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppRawId}_is1', 'DisplayVersion', InstalledVer) then
   begin
     Result := InstalledVer;
     Exit;
   end;
-  if RegQueryStringValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppId}_is1', 'DisplayVersion', InstalledVer) then
+  if RegQueryStringValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppRawId}_is1', 'DisplayVersion', InstalledVer) then
   begin
     Result := InstalledVer;
     Exit;
@@ -137,7 +138,7 @@ begin
   PrevVersion := GetInstalledVersion();
 
   // 기존 설치가 감지된 경우
-  if (PrevVersion <> '') or FileExists(ExpandConstant('{pf}\{#MyAppName}\{#MyAppExeName}')) then
+  if (PrevVersion <> '') or FileExists(ExpandConstant('{autopf}\{#MyAppName}\{#MyAppExeName}')) then
   begin
     // 무인/자동 설치 모드(/SILENT, /VERYSILENT)인 경우 묻지 않고 자동 덮어쓰기 진행
     if WizardSilent() then
@@ -146,15 +147,29 @@ begin
       Exit;
     end;
 
-    // 사용자에게 삭제/덮어쓰기 확인 대화상자 표시
-    if PrevVersion <> '' then
-      PromptMsg := Format('기존 버전(v%s)이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
-                          '기존 버전을 최신 버전(v{#MyAppVersion})으로 덮어쓰고 계속 진행하시겠습니까?' + #13#10 +
-                          '(취소 클릭 시 설치가 중단됩니다.)', [PrevVersion])
+    // 사용자에게 삭제/덮어쓰기 확인 대화상자 표시 (언어 자동 대응)
+    if ActiveLanguage() = 'english' then
+    begin
+      if PrevVersion <> '' then
+        PromptMsg := Format('An existing version (v%s) is already installed.' + #13#10 + #13#10 +
+                            'Do you want to overwrite it and continue installing v{#MyAppVersion}?' + #13#10 +
+                            '(Click No to cancel installation.)', [PrevVersion])
+      else
+        PromptMsg := 'An existing installation was detected in the target folder.' + #13#10 + #13#10 +
+                     'Do you want to overwrite it with v{#MyAppVersion}?' + #13#10 +
+                     '(Click No to cancel installation.)';
+    end
     else
-      PromptMsg := '동일한 경로에 기존 앱이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
-                   '기존 앱을 새 버전(v{#MyAppVersion})으로 덮어쓰시겠습니까?' + #13#10 +
-                   '(취소 클릭 시 설치가 중단됩니다.)';
+    begin
+      if PrevVersion <> '' then
+        PromptMsg := Format('기존 버전(v%s)이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
+                            '기존 버전을 최신 버전(v{#MyAppVersion})으로 덮어쓰고 계속 진행하시겠습니까?' + #13#10 +
+                            '(아니오 클릭 시 설치가 중단됩니다.)', [PrevVersion])
+      else
+        PromptMsg := '동일한 경로에 기존 앱이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
+                     '기존 앱을 새 버전(v{#MyAppVersion})으로 덮어쓰시겠습니까?' + #13#10 +
+                     '(아니오 클릭 시 설치가 중단됩니다.)';
+    end;
 
     UserResponse := MsgBox(PromptMsg, mbConfirmation, MB_YESNO);
     if UserResponse = IDYES then

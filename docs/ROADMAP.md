@@ -17,12 +17,14 @@
 | **Phase 7** | Win32 커널 동기화 & 트레이 스위프 | ✅ 완료 | `v1.4.0` | WaitForSingleObject, HWND 후킹, 무인 트레이 스위프 |
 | **Phase 8** | Windows 11 Windows.old 강제 소거 | ✅ 완료 | `v1.5.0` | takeown + icacls + rmtree, Users 가드레일 |
 | **Phase 9** | Inno Setup 개별 파일 설치 구성 | ✅ 완료 | `v1.5.0` | 덮어쓰기 감지, 무인 설치 스위치, 방화벽 사전 등록 |
-| **Phase 10** | GitHub Actions CI/CD 최신화 | ✅ 완료 | `v1.5.0` | Node.js 22 LTS 전환, 릴리스 인스톨러 전용 에셋 |
-| **Phase 11** | GitHub 자동 푸시 스크립트 | ✅ 완료 | `v1.5.0` | `git_push.bat`, 개인정보/이메일 누출 방지 프리-스캔 |
+| **Phase 10** | GitHub Actions CI/CD 최신화 | ✅ 완료 | `v1.5.0` | `node24` 러너 강제 적용 및 단일 통합 빌드 워크플로 구축 |
+| **Phase 11** | `.gitignore` 기반 민감정보 배제 | ✅ 완료 | `v1.5.0` | 로컬 푸시 스크립트(`git_push.bat`), `.env*`, 빌드 임시 산출물 원천 제외 |
 | **Phase 12** | GitHub Releases 실시간 업데이트 감지 | ✅ 완료 | `v1.5.0` | 클라이언트 자동 업데이트 감지 팝업 연동 |
-| **Phase 13** | 빌드 핵심 파일 전용 격리 관리 | ✅ 완료 | `v1.5.0` | `DiskCleanupAuto_v1.5.0_Core/`, `export_core_files.bat`, 매니페스트 |
-| **Phase 14** | Actions 듀얼 트리거 & 태그 갱신 | ✅ 완료 | `v1.5.0` | 브랜치 푸시 CI 빌드 및 강제 태그 동기화로 릴리스 미실행 이슈 해결 |
-| **Phase 15** | Windows 전용 인스톨러 단일화 | ✅ 완료 | `v1.5.0` | 데스크톱 전용 인스톨러 배포 강화, Inno Setup `.exe` 인스톨러 배포 단일화, git_push 배치 파싱 안정화 |
+| **Phase 13** | 순수 데스크톱 핵심 저장소 정리 | ✅ 완료 | `v1.5.0` | 불필요한 웹 프론트엔드/중복 스테이징 폴더 제거 및 MIT `LICENSE` 정비 |
+| **Phase 14** | Actions 멀티 트리거 & 태그 갱신 | ✅ 완료 | `v1.5.0` | 브랜치 푸시(`main`/`master`), 태그, 수동 실행(`workflow_dispatch`) 완벽 지원 |
+| **Phase 15** | Windows 인스톨러 + 포터블 동시 배포 | ✅ 완료 | `v1.5.0` | Inno Setup(`WindowsDiskCleanup_Setup_v1.5.0.exe`) & 포터블(`DiskCleanupAuto_v1.5.0.exe`) 통합 배포 |
+| **Phase 16** | 고화질 멀티 해상도 아이콘 임베드 | ✅ 완료 | `v1.5.0` | `app.ico` PE 리소스, Tkinter `_MEIPASS` 런타임, 제어판/바로가기 일괄 적용 |
+| **Phase 17** | AhBiYout 단독 저작권 & 안정성 정비 | ✅ 완료 | `v1.5.0` | `Copyright (c) 2026 AhBiYout`, Tkinter 스레드 안전성 및 Inno Setup `AppId` 버그 수정 |
 
 ---
 
@@ -31,4 +33,4 @@
 1. **Windows 11 신규 스토리지 API 연동**:
    - `Storage Sense`(저장 공간 센스) 네이티브 API 호출 지원
 2. **다국어(영어/일본어) 인터페이스 다변화**:
-   - GUI 및 웹 빌더의 전역 i18n 확장
+   - Tkinter GUI 전역 i18n 확장

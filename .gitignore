@@ -17,6 +17,7 @@ Release/
 Output/
 output_packages/
 release_assets/
+release_artifacts/
 coverage/
 .vite/
 *.tsbuildinfo

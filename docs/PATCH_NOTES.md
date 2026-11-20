@@ -1,6 +1,6 @@
 # 📝 패치 노트 & 버전 변경 이력 (Patch Notes & Changelog)
 
-모든 버전 변경 사항은 [Semantic Versioning(MAJOR.MINOR.PATCH)](./SEMVER_POLICY.md) 원칙에 따라 분류 및 기록됩니다.
+모든 버전 변경 사항은 Semantic Versioning(MAJOR.MINOR.PATCH) 원칙에 따라 분류 및 기록됩니다.
 
 ---
 
@@ -17,28 +17,15 @@
   - 사용자가 업그레이드 전 바탕 화면, 다운로드, 내 문서 등에 미처 백업하지 못한 중요한 개인 파일이 `C:\Windows.old\Users` 경로에 남아있는지 사전 스캔(`scan_windows_old_safety`).
   - 개인 파일이 발견되면 사용자 동의 없는 일방적 삭제를 안전하게 건너뛰고 안내를 출력하는 안전 보호막 기능 기본 탑재 (설정 패널에서 켜기/끄기 지원).
 - **VolumeCaches `Previous Installations` (이전 Windows 설치) 공식 항목 추가**:
-  - `cleanupItems.ts` 및 프리셋 목록에 `Previous Installations` (이전 Windows 설치) 항목을 정식 등록하고 딥 클린(심층 정리) 프리셋에 자동 포함.
-- **다중 스크립트 엔진 일괄 적용**:
-  - `disk_cleanup_gui.py` (파이썬 GUI)
-  - `python_cli` (콘솔 러너)
-  - `python_deep` (시스템 심층 최적화 스크립트)
-  - `powershell` (PowerShell 자동화 스크립트)
-  - `batch` (순차 배치 파일 .bat)
-  - 모든 스크립트 엔진에서 Windows.old 강제 정리 루틴 및 안전 가드레일이 완벽히 동작하도록 동기화.
-- **DiskCleanupAuto v1.5.0 핵심 빌드 파일 전용 관리 체계 구축 (`Phase 13`)**:
-  - **전용 코어 폴더 (`DiskCleanupAuto_v1.5.0_Core/`)**: 웹 프론트엔드 부산물(`node_modules/`, `dist/` 등)을 완전 격리하고 오직 실제 컴파일 및 Inno Setup 패키징에 필요한 파일만 스테이징.
-  - **자동 내보내기 스크립트 (`export_core_files.bat` / `export_core_files.py`)**: 단 한 번의 실행으로 필수 코어 파일 복사, 개인정보/개인 이메일 누출 3중 스캔, SHA-256 무결성 검증 매니페스트(`CORE_MANIFEST.json`) 자동 생성을 완료하는 원클릭 배치 제공.
-  - **웹 UI 실시간 내보내기 뷰어 연동**: 웹 애플리케이션 상에서 `export_core_files.bat` 스크립트 및 매니페스트 검증 상태를 직관적으로 확인하고 다운로드 가능.
-- **GitHub Actions 워크플로 트리거 개편 및 미시작 이슈 해결 (`Phase 14`)**:
-  - **브랜치 푸시 듀얼 트리거 탑재**: 기존 `push.tags: ['v*.*.*']` 단독 트리거에서 `push.branches: [main, master]` 및 `workflow_dispatch`를 추가하여 일반 커밋 푸시 시에도 즉각 웹 빌드 검증과 Windows EXE/Inno Setup 인스톨러 아티팩트가 생성되도록 개편.
-  - **릴리스 발행 조건 분기**: 태그 푸시(`v1.5.0`) 또는 수동 릴리스 실행 시에만 GitHub Releases에 설치 파일이 등록되도록 안전 조건(`if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'`) 적용.
-  - **`git_push.bat` 태그 강제 갱신 동기화**: 로컬 태그 중복 오류를 방지하기 위해 `git tag -fa "v1.5.0"` 및 `git push origin "v1.5.0" --force`로 태그를 확실히 갱신하여 GitHub Actions 릴리스 이벤트가 항상 누락 없이 발동되도록 보장.
-  - **저장소 권한 안내 강화**: GitHub Actions가 비활성화되어 있거나 쓰기 권한이 없는 경우를 위한 가이드(Settings → Actions → General → Allow all actions & Read and write permissions)를 문서 및 스크립트에 탑재.
-- **Windows 데스크톱 전용 설치 프로그램 규격화 및 모바일(APK/iOS) 가상 빌드 전면 제거 (`Phase 15`)**:
-  - **가상 패키징 작업 원천 제거**: Windows 데스크톱 시스템 정리 전용 도구의 본질에 맞추어, 불필요한 Android(APK) 및 iOS 웹앱 아카이브 생성 작업을 워크플로 및 UI에서 전면 제거.
-  - **Inno Setup 개별 파일 언팩 인스톨러 단일화**: GitHub Releases 배포 에셋을 `WindowsDiskCleanup_Setup_v1.5.0.exe` 단일 공식 인스톨러로 통합하여 설치 프로그램 무결성 및 신뢰도 극대화.
-  - **`git_push.bat` 명령행 파싱 안정성 강화**: Windows `cmd.exe`에서 괄호 `( )` 중첩 시 발생하는 예기치 못한 구문 오류(`was unexpected at this time`)를 원천 방지하도록 스크립트 전면 정비.
-  - **클라이언트 업데이트 모달 최적화**: 웹 UI 업데이트 알림 창을 Windows 데스크톱 인스톨러 전용 고화질 카드로 직관화.
+  - `disk_cleanup_gui.py`의 `CLEANUP_ITEMS` 목록 최상단에 `Previous Installations` 항목을 정식 등록하여 자동 정리 대상에 포함.
+- **순수 데스크톱 저장소 정비 및 핵심 파일 관리 체계 확립 (`Phase 13`)**:
+  - **불필요한 프론트엔드 부산물 제거**: 웹 빌드 아티팩트(`node_modules/`, `dist/` 등) 및 중복 스테이징 폴더를 정리하고, 실제 컴파일 및 Inno Setup 패키징에 필요한 핵심 파일만 저장소 루트에서 직접 관리.
+  - **`.gitignore` 기반 보안 배제**: 로컬 전용 스크립트(`git_push.bat`, `*.ps1`), `.env*`, 빌드 임시 산출물(`Release/`, `Output/`, `release_artifacts/`, `__pycache__/`)을 원격 추적에서 원천 제외.
+- **GitHub Actions 워크플로 트리거 개편 및 단일 통합 릴리스 (`Phase 14` & `Phase 15`)**:
+  - **멀티 트리거 탑재**: `push.branches: [main, master]`, `push.tags: ['v*.*.*']`, `workflow_dispatch`를 모두 지원하여 일반 커밋 푸시, 태그 푸시, 수동 실행 시 즉시 빌드 검증.
+  - **단일 통합 Windows 파이프라인 (`build-and-release`)**: `windows-latest` 러너에서 PyInstaller(`--onefile` & `--onedir`) 및 Inno Setup(`ISCC.exe`)을 순차 실행하고 `--onefile` 결과물을 사전에 분리하여 패키징 충돌을 방지.
+  - **표준 인스톨러 + 포터블 EXE 동시 배포**: GitHub Releases에 `WindowsDiskCleanup_Setup_v1.5.0.exe`와 `DiskCleanupAuto_v1.5.0.exe`를 함께 첨부.
+  - **MIT 라이선스 및 단독 저작권 표준화**: 루트 `LICENSE` 파일(MIT License) 생성 및 모든 소스/리소스/문서의 저작권을 `Copyright (c) 2026 AhBiYout. All rights reserved.`로 통일.
 
 
 - **고화질 앱/인스톨러/바로가기 전용 아이콘(app.ico) 시스템 전면 도입 (Phase 16)**:
@@ -155,10 +142,9 @@
 ## 🚀 [v1.2.0] - 2026-08-19 (MINOR Release)
 
 ### 🚀 Added (새로운 기능)
-- **개발자 및 회사 정보 브랜딩 지원**:
-  - 개발자명(`AhBiYout`), 회사 홈페이지(`http://www.cisnet.co.kr/`), 공식 Google 블로그(`https://ahbiyoutvibe.blogspot.com/`) 정보 추가.
+- **개발자 공식 브랜딩 지원**:
+  - 개발자명(`AhBiYout`), 공식 Google 블로그(`https://ahbiyoutvibe.blogspot.com/`), GitHub 저장소(`https://github.com/AhBiYout-all/windows-disk-cleanup-builder`) 정보 추가.
   - Tkinter GUI 상단 서명 배지 및 하단 클릭 가능한 웹 브라우저 바로가기 버튼 탑재.
-  - 웹 UI 설정 패널(`ConfigPanel.tsx`) 및 웹 애플리케이션 푸터에 개발자 정보 및 블로그/홈페이지 링크 연동.
 - **백그라운드 프로세스 완벽 강제 종료 메커니즘**:
   - `kill_lingering_cleanmgr()` 함수 구현 (`taskkill /F /IM cleanmgr.exe /T` 내장).
   - 작업 완료 및 카운트다운 후 파이썬 프로세스를 즉시 탈출시키는 `os._exit(0)` 추가.

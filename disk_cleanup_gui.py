@@ -4,7 +4,7 @@
  Auto-configured Registry VolumeCaches & cleanmgr.exe execution
  ----------------------------------------------------------------------------
  * 개발자: AhBiYout
- * 개발자: AhBiYout
+ * Copyright (c) 2026 AhBiYout. All rights reserved.
  * 공식 Google 블로그: https://ahbiyoutvibe.blogspot.com/
 =============================================================================
 """
@@ -15,12 +15,55 @@ import time
 import json
 import urllib.request
 import ctypes
+from ctypes import wintypes
 import winreg
 import subprocess
 import threading
 import webbrowser
 import tkinter as tk
 from tkinter import ttk, messagebox
+
+_win32_types_initialized = False
+
+def _init_win32_types():
+    """64비트 Windows에서 HANDLE/HWND 포인터 절단 방지를 위한 ctypes 시그니처 초기화"""
+    global _win32_types_initialized
+    if _win32_types_initialized or os.name != "nt":
+        return
+    try:
+        user32 = ctypes.windll.user32
+        kernel32 = ctypes.windll.kernel32
+        shell32 = ctypes.windll.shell32
+
+        user32.FindWindowW.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR]
+        user32.FindWindowW.restype = wintypes.HWND
+        user32.FindWindowExW.argtypes = [wintypes.HWND, wintypes.HWND, wintypes.LPCWSTR, wintypes.LPCWSTR]
+        user32.FindWindowExW.restype = wintypes.HWND
+        user32.IsWindow.argtypes = [wintypes.HWND]
+        user32.IsWindow.restype = wintypes.BOOL
+        user32.IsWindowVisible.argtypes = [wintypes.HWND]
+        user32.IsWindowVisible.restype = wintypes.BOOL
+        user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+        user32.GetWindowThreadProcessId.restype = wintypes.DWORD
+        user32.GetClientRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+        user32.GetClientRect.restype = wintypes.BOOL
+        user32.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+        user32.PostMessageW.restype = wintypes.BOOL
+        user32.RedrawWindow.argtypes = [wintypes.HWND, ctypes.c_void_p, ctypes.c_void_p, wintypes.UINT]
+        user32.RedrawWindow.restype = wintypes.BOOL
+
+        kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        kernel32.OpenProcess.restype = wintypes.HANDLE
+        kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        kernel32.WaitForSingleObject.restype = wintypes.DWORD
+        kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+        kernel32.CloseHandle.restype = wintypes.BOOL
+
+        shell32.SHEmptyRecycleBinW.argtypes = [wintypes.HWND, wintypes.LPCWSTR, wintypes.DWORD]
+        shell32.SHEmptyRecycleBinW.restype = ctypes.c_long
+        _win32_types_initialized = True
+    except Exception:
+        pass
 
 # =============================================================================
 # 1. 관리자 권한 (UAC Elevation) 자동 확인 및 승격
@@ -34,13 +77,16 @@ def is_admin():
 def elevate_admin():
     """관리자 권한이 없으면 UAC 승격 창을 띄워 다시 실행합니다."""
     if not is_admin():
-        script = os.path.abspath(sys.argv[0])
         params = " ".join([f'"{arg}"' for arg in sys.argv[1:]])
-        # runas 동사로 재실행
+        if getattr(sys, "frozen", False):
+            arg_str = params
+        else:
+            script = os.path.abspath(sys.argv[0])
+            arg_str = f'"{script}" {params}'.strip()
         ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", sys.executable, f'"{script}" {params}', None, 1
+            None, "runas", sys.executable, arg_str, None, 1
         )
-        sys.exit(0)
+        os._exit(0)
 
 # =============================================================================
 # 2. 프로그램 정보 및 정리 대상 설정
@@ -55,7 +101,6 @@ GITHUB_REPO = "windows-disk-cleanup-builder"
 GITHUB_REPO_URL = f"https://github.com/{GITHUB_USER}/{GITHUB_REPO}"
 GITHUB_RELEASES_URL = f"{GITHUB_REPO_URL}/releases"
 GITHUB_API_LATEST = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/releases/latest"
-COMPANY_URL = "http://www.cisnet.co.kr/"
 BLOG_URL = "https://ahbiyoutvibe.blogspot.com/"
 UI_TITLE = f"AhBiYout Windows 디스크 클린 오토 ({CURRENT_VERSION})"
 AUTO_CLOSE_SEC = 5
@@ -123,6 +168,7 @@ def sweep_tray_ghost_icons():
     가상 마우스 스위프(Virtual WM_MOUSEMOVE)를 보내 죽은 고스트 아이콘과 잔상을 100% 자동 소멸시킵니다.
     """
     try:
+        _init_win32_types()
         user32 = ctypes.windll.user32
         tray_targets = [
             ("Shell_TrayWnd", "TrayNotifyWnd", "SysPager", "ToolbarWindow32"),
@@ -135,20 +181,20 @@ def sweep_tray_ghost_icons():
             if not hwnd:
                 continue
             if c1:
-                hwnd = user32.FindWindowExW(hwnd, 0, c1, None)
+                hwnd = user32.FindWindowExW(hwnd, None, c1, None)
             if c2 and hwnd:
-                hwnd = user32.FindWindowExW(hwnd, 0, c2, None)
+                hwnd = user32.FindWindowExW(hwnd, None, c2, None)
             if target_cls and hwnd:
-                tb = user32.FindWindowExW(hwnd, 0, target_cls, None)
+                tb = user32.FindWindowExW(hwnd, None, target_cls, None)
                 if tb:
                     toolbars.append(tb)
 
         WM_MOUSEMOVE = 0x0200
         for tb in toolbars:
-            rect = (ctypes.c_long * 4)()
+            rect = wintypes.RECT()
             if user32.GetClientRect(tb, ctypes.byref(rect)):
-                w = max(1, rect[2] - rect[0])
-                h = max(1, rect[3] - rect[1])
+                w = max(1, rect.right - rect.left)
+                h = max(1, rect.bottom - rect.top)
                 mid_y = h // 2
                 for x in range(0, w, 15):
                     lparam = (mid_y << 16) | (x & 0xFFFF)
@@ -162,6 +208,7 @@ def refresh_windows_shell():
     가상 트레이 스위프를 수행하여 고스트 윈도우 및 트레이 잔상을 즉시 소거합니다.
     """
     try:
+        _init_win32_types()
         user32 = ctypes.windll.user32
         tray_hwnd = user32.FindWindowW("Shell_TrayWnd", None)
         if tray_hwnd:
@@ -171,7 +218,7 @@ def refresh_windows_shell():
         if sec_tray:
             user32.RedrawWindow(sec_tray, None, None, 0x0185)
 
-        user32.RedrawWindow(0, None, None, 0x0185)
+        user32.RedrawWindow(None, None, None, 0x0185)
         sweep_tray_ghost_icons()
     except Exception:
         pass
@@ -235,12 +282,13 @@ def get_cleanmgr_hwnds(target_pid):
     """지정된 cleanmgr PID가 소유한 모든 윈도우 핸들(HWND) 목록을 조회합니다."""
     hwnds = []
     try:
+        _init_win32_types()
         user32 = ctypes.windll.user32
         
         def enum_cb(hwnd, extra):
             try:
                 if user32.IsWindow(hwnd):
-                    w_pid = ctypes.c_ulong()
+                    w_pid = wintypes.DWORD()
                     user32.GetWindowThreadProcessId(hwnd, ctypes.byref(w_pid))
                     if w_pid.value == target_pid:
                         hwnds.append(hwnd)
@@ -248,8 +296,9 @@ def get_cleanmgr_hwnds(target_pid):
                 pass
             return True
 
-        WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
-        user32.EnumWindows(WNDENUMPROC(enum_cb), 0)
+        WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        cb_ref = WNDENUMPROC(enum_cb)
+        user32.EnumWindows(cb_ref, 0)
     except Exception:
         pass
     return hwnds
@@ -261,6 +310,7 @@ def monitor_and_wait_cleanmgr(proc, update_status_cb, max_timeout_sec=1800):
     2. cleanmgr 소유 HWND(창 핸들)의 가시성(IsWindowVisible) 및 파괴(Destroy) 상태 후킹
     3. 창이 닫혔거나 작업 완료 후 프로세스가 지연 해제될 경우 즉각적인 핸들 해제 및 닫기 유도
     """
+    _init_win32_types()
     start_time = time.time()
     pid = proc.pid
     kernel32 = ctypes.windll.kernel32
@@ -294,6 +344,10 @@ def monitor_and_wait_cleanmgr(proc, update_status_cb, max_timeout_sec=1800):
                 wait_res = kernel32.WaitForSingleObject(h_process, 250)
                 if wait_res == 0:  # WAIT_OBJECT_0: 프로세스 종료 시그널 즉시 감지
                     break
+                if wait_res == 0xFFFFFFFF:  # WAIT_FAILED: 핸들 오류 시 폴백
+                    if proc.poll() is not None:
+                        break
+                    time.sleep(0.25)
             else:
                 if proc.poll() is not None:
                     break
@@ -359,8 +413,14 @@ def kill_lingering_cleanmgr():
         pass
     refresh_windows_shell()
 
+_exit_started = [False]
+
 def force_cleanup_and_exit(root):
-    """프로세스 완전 정리 및 즉시 종료"""
+    """프로세스 완전 정리 및 즉시 종료 (중복 진입 방지)"""
+    if _exit_started[0]:
+        return
+    _exit_started[0] = True
+    _periodic_refresh_flag[0] = False
     kill_lingering_cleanmgr()
     refresh_windows_shell()
     try:
@@ -456,17 +516,21 @@ def force_purge_windows_old(update_ui_cb=None):
     if update_ui_cb:
         update_ui_cb("Windows.old 강제 정리 [3/3]: 디렉터리 트리 완전 소거 중 (rd /s /q)...", "읽기 전용/시스템 속성 해제 및 Windows.old 폴더 영구 삭제를 진행합니다.")
 
-    # 3. attrib 해제 및 rd /s /q 실행
-    try:
-        subprocess.run(
-            ["attrib", "-r", "-a", "-s", "-h", f"{target_dir}\\*.*", "/s", "/d"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            creationflags=creation_flags,
-            timeout=60
-        )
-    except Exception:
-        pass
+    # 3. attrib 해제 (루트 폴더 및 하위 트리) 및 rd /s /q 실행
+    for attrib_cmd in (
+        ["attrib", "-r", "-a", "-s", "-h", target_dir],
+        ["attrib", "-r", "-a", "-s", "-h", f"{target_dir}\\*.*", "/s", "/d"],
+    ):
+        try:
+            subprocess.run(
+                attrib_cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=creation_flags,
+                timeout=60
+            )
+        except Exception:
+            pass
 
     try:
         subprocess.run(
@@ -500,11 +564,15 @@ def force_purge_windows_old(update_ui_cb=None):
 
 def perform_cleanup(status_label, progress_bar, detail_label, root):
     def update_ui(status_text, detail_text=""):
+        def _apply():
+            try:
+                status_label.config(text=status_text)
+                if detail_text:
+                    detail_label.config(text=detail_text)
+            except Exception:
+                pass
         try:
-            root.after(0, lambda: [
-                status_label.config(text=status_text),
-                detail_label.config(text=detail_text) if detail_text else None
-            ])
+            root.after(0, _apply)
         except Exception:
             pass
 
@@ -524,6 +592,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
         rem_secs = secs % 60
         return f"{mins}분 {rem_secs:.1f}초"
 
+    is_closing = [False]
     try:
         # [1단계] 관리자 권한 및 실행 환경 확인
         time.sleep(0.2)
@@ -550,10 +619,14 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
         # (컴퓨터실 무인 대량 실행 대비: 2초 주기 쉘 & 가상 트레이 자동 새로고침 워커 가동)
         start_periodic_shell_refresher(interval_sec=2.0)
 
-        progress_bar.config(mode="indeterminate")
-        progress_bar.start(12)
+        try:
+            root.after(0, lambda: [
+                progress_bar.config(mode="indeterminate"),
+                progress_bar.start(12),
+            ])
+        except Exception:
+            pass
 
-        
         # [Direct API] 휴지통 비우기 직접 실행 (SHEmptyRecycleBinW) 보완
         if "Recycle Bin" in CLEANUP_ITEMS:
             try:
@@ -565,7 +638,6 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
                 print(f"휴지통 직접 비우기 예외: {e}")
 
         cleanmgr_cmd = ["cleanmgr.exe", f"/sagerun:{SAGESET_ID}"]
-        start_cleanmgr_time = time.time()
         has_update_cleanup = "Update Cleanup" in CLEANUP_ITEMS
 
         def on_cleanmgr_progress(elapsed, saw_visible, win_closed):
@@ -639,17 +711,23 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
                 freed_str = f" · 💾 현재 C: 여유 {final_free_gb:.1f} GB"
 
         play_completion_sound()
-        progress_bar.stop()
-        progress_bar.config(mode="determinate", value=100)
+        try:
+            root.after(0, lambda: [
+                progress_bar.stop(),
+                progress_bar.config(mode="determinate", value=100),
+            ])
+        except Exception:
+            pass
 
         # [마우스 동작 응용] 완료 상태에서 마우스가 창 위로 올라오거나 클릭 시 즉시 닫기 플래그
-        is_closing = [False]
         def on_mouse_action(event=None):
             if not is_closing[0]:
                 is_closing[0] = True
                 update_ui("✨ 디스크 정리 완료!", "마우스 감지: 창을 즉시 닫습니다...")
-                time.sleep(0.2)
-                force_cleanup_and_exit(root)
+                try:
+                    root.after(150, lambda: force_cleanup_and_exit(root))
+                except Exception:
+                    force_cleanup_and_exit(root)
 
         root.after(0, lambda: [
             root.bind("<Enter>", on_mouse_action),
@@ -666,12 +744,20 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
             time.sleep(1)
 
     except Exception as e:
-        progress_bar.stop()
+        try:
+            root.after(0, progress_bar.stop)
+        except Exception:
+            pass
         update_ui("❌ 오류 발생", str(e))
         time.sleep(3)
 
     finally:
-        force_cleanup_and_exit(root)
+        if not is_closing[0]:
+            try:
+                root.after(0, lambda: force_cleanup_and_exit(root))
+            except Exception:
+                kill_lingering_cleanmgr()
+                os._exit(0)
 
 # =============================================================================
 # 5. Tkinter GUI 생성 및 메인 진입점
@@ -704,7 +790,7 @@ def main():
                 break
             except Exception:
                 pass
-    root.geometry("480x290")
+    root.geometry("480x310")
     root.resizable(False, False)
 
     # 화면 해상도에 맞춰 화면 상단 22% 영역에 배치
@@ -712,7 +798,7 @@ def main():
     screen_w = root.winfo_screenwidth()
     screen_h = root.winfo_screenheight()
     win_w = 480
-    win_h = 290
+    win_h = 310
     x = max(0, (screen_w - win_w) // 2)
     y = max(40, int((screen_h - win_h) * 0.22))
     root.geometry(f"{win_w}x{win_h}+{x}+{y}")
@@ -730,10 +816,10 @@ def main():
     container = tk.Frame(root, bg=card_color, padx=20, pady=16, relief="groove", bd=1)
     container.pack(fill="both", expand=True, padx=12, pady=12)
 
-    # 프로그램 및 회사 헤더
+    # 프로그램 헤더
     header_label = tk.Label(
         container,
-        text=f"{COMPANY_NAME}\n{UI_TITLE}",
+        text=UI_TITLE,
         font=("Segoe UI", 11, "bold"),
         fg="#0f172a",
         bg=card_color,
@@ -757,7 +843,8 @@ def main():
         text="디스크 정리 작업을 준비하는 중...",
         font=("Segoe UI", 10, "bold"),
         fg="#2563eb",
-        bg=card_color
+        bg=card_color,
+        wraplength=420
     )
     status_label.pack(pady=2)
 
@@ -781,17 +868,17 @@ def main():
     footer_frame = tk.Frame(container, bg=card_color)
     footer_frame.pack(fill="x", side="bottom", pady=(6, 0))
 
-    # 홈페이지 링크 버튼
-    btn_home = tk.Label(
+    # 릴리스 페이지 링크 버튼
+    btn_releases = tk.Label(
         footer_frame,
-        text="🌐 CISNET 홈페이지",
+        text="📦 최신 릴리스",
         font=("Segoe UI", 8, "underline"),
         fg="#0284c7",
         bg=card_color,
         cursor="hand2"
     )
-    btn_home.pack(side="left", padx=4)
-    btn_home.bind("<Button-1>", lambda e: open_url(COMPANY_URL))
+    btn_releases.pack(side="left", padx=4)
+    btn_releases.bind("<Button-1>", lambda e: open_url(GITHUB_RELEASES_URL))
 
     sep_label = tk.Label(footer_frame, text="|", font=("Segoe UI", 8), fg="#cbd5e1", bg=card_color)
     sep_label.pack(side="left", padx=2)
@@ -928,6 +1015,17 @@ def show_update_dialog(root, latest_version, release_url, release_notes=""):
     except Exception:
         pass
 
+def parse_semver(tag):
+    """'v1.5.0' 형태 문자열을 (1, 5, 0) 정수 튜플로 변환"""
+    try:
+        clean = tag.strip().lstrip("vV").split("-")[0]
+        parts = [int(p) for p in clean.split(".") if p.isdigit()]
+        while len(parts) < 3:
+            parts.append(0)
+        return tuple(parts[:3])
+    except Exception:
+        return (0, 0, 0)
+
 def check_github_update_realtime(root):
     """GitHub Releases API를 백그라운드 호출하여 최신 버전 확인"""
     def _worker():
@@ -942,7 +1040,7 @@ def check_github_update_realtime(root):
                     latest_tag = data.get("tag_name", "").strip()
                     html_url = data.get("html_url", GITHUB_RELEASES_URL)
                     body_notes = data.get("name", "")
-                    if latest_tag and latest_tag != CURRENT_VERSION:
+                    if latest_tag and parse_semver(latest_tag) > parse_semver(CURRENT_VERSION):
                         root.after(500, lambda: show_update_dialog(root, latest_tag, html_url, body_notes))
         except Exception:
             pass

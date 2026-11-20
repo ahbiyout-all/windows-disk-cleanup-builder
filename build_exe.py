@@ -18,7 +18,7 @@ DEFAULT_GUI_SOURCE = '''"""
  Auto-configured Registry VolumeCaches & cleanmgr.exe execution
  ----------------------------------------------------------------------------
  * 개발자: AhBiYout
- * 개발자: AhBiYout
+ * Copyright (c) 2026 AhBiYout. All rights reserved.
  * 공식 Google 블로그: https://ahbiyoutvibe.blogspot.com/
 =============================================================================
 """
@@ -27,12 +27,48 @@ import os
 import sys
 import time
 import ctypes
+from ctypes import wintypes
 import winreg
 import subprocess
 import threading
 import webbrowser
 import tkinter as tk
 from tkinter import ttk
+
+_win32_types_initialized = False
+
+def _init_win32_types():
+    global _win32_types_initialized
+    if _win32_types_initialized or os.name != "nt":
+        return
+    try:
+        user32 = ctypes.windll.user32
+        kernel32 = ctypes.windll.kernel32
+        user32.FindWindowW.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR]
+        user32.FindWindowW.restype = wintypes.HWND
+        user32.FindWindowExW.argtypes = [wintypes.HWND, wintypes.HWND, wintypes.LPCWSTR, wintypes.LPCWSTR]
+        user32.FindWindowExW.restype = wintypes.HWND
+        user32.IsWindow.argtypes = [wintypes.HWND]
+        user32.IsWindow.restype = wintypes.BOOL
+        user32.IsWindowVisible.argtypes = [wintypes.HWND]
+        user32.IsWindowVisible.restype = wintypes.BOOL
+        user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+        user32.GetWindowThreadProcessId.restype = wintypes.DWORD
+        user32.GetClientRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+        user32.GetClientRect.restype = wintypes.BOOL
+        user32.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+        user32.PostMessageW.restype = wintypes.BOOL
+        user32.RedrawWindow.argtypes = [wintypes.HWND, ctypes.c_void_p, ctypes.c_void_p, wintypes.UINT]
+        user32.RedrawWindow.restype = wintypes.BOOL
+        kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        kernel32.OpenProcess.restype = wintypes.HANDLE
+        kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        kernel32.WaitForSingleObject.restype = wintypes.DWORD
+        kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+        kernel32.CloseHandle.restype = wintypes.BOOL
+        _win32_types_initialized = True
+    except Exception:
+        pass
 
 def is_admin():
     try:
@@ -42,23 +78,29 @@ def is_admin():
 
 def elevate_admin():
     if not is_admin():
-        script = os.path.abspath(sys.argv[0])
         params = " ".join([f'"{arg}"' for arg in sys.argv[1:]])
+        if getattr(sys, "frozen", False):
+            arg_str = params
+        else:
+            script = os.path.abspath(sys.argv[0])
+            arg_str = f'"{script}" {params}'.strip()
         ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", sys.executable, f'"{script}" {params}', None, 1
+            None, "runas", sys.executable, arg_str, None, 1
         )
-        sys.exit(0)
+        os._exit(0)
 
 FLAG_NAME = "StateFlags0064"
 SAGESET_ID = 64
 COMPANY_NAME = "AhBiYout"
 DEVELOPER_NAME = "AhBiYout"
-COMPANY_URL = "http://www.cisnet.co.kr/"
+GITHUB_URL = "https://github.com/AhBiYout-all/windows-disk-cleanup-builder"
+RELEASES_URL = f"{GITHUB_URL}/releases"
 BLOG_URL = "https://ahbiyoutvibe.blogspot.com/"
-UI_TITLE = "AhBiYout Windows 디스크 클린 오토"
+UI_TITLE = "AhBiYout Windows 디스크 클린 오토 (v1.5.0)"
 AUTO_CLOSE_SEC = 5
 
 CLEANUP_ITEMS = [
+    "Previous Installations",
     "Update Cleanup",
     "Delivery Optimization Files",
     "Temporary Files",
@@ -103,6 +145,7 @@ def configure_registry(log_callback=None):
 
 def sweep_tray_ghost_icons():
     try:
+        _init_win32_types()
         user32 = ctypes.windll.user32
         tray_targets = [
             ("Shell_TrayWnd", "TrayNotifyWnd", "SysPager", "ToolbarWindow32"),
@@ -115,20 +158,20 @@ def sweep_tray_ghost_icons():
             if not hwnd:
                 continue
             if c1:
-                hwnd = user32.FindWindowExW(hwnd, 0, c1, None)
+                hwnd = user32.FindWindowExW(hwnd, None, c1, None)
             if c2 and hwnd:
-                hwnd = user32.FindWindowExW(hwnd, 0, c2, None)
+                hwnd = user32.FindWindowExW(hwnd, None, c2, None)
             if target_cls and hwnd:
-                tb = user32.FindWindowExW(hwnd, 0, target_cls, None)
+                tb = user32.FindWindowExW(hwnd, None, target_cls, None)
                 if tb:
                     toolbars.append(tb)
 
         WM_MOUSEMOVE = 0x0200
         for tb in toolbars:
-            rect = (ctypes.c_long * 4)()
+            rect = wintypes.RECT()
             if user32.GetClientRect(tb, ctypes.byref(rect)):
-                w = max(1, rect[2] - rect[0])
-                h = max(1, rect[3] - rect[1])
+                w = max(1, rect.right - rect.left)
+                h = max(1, rect.bottom - rect.top)
                 mid_y = h // 2
                 for x in range(0, w, 15):
                     lparam = (mid_y << 16) | (x & 0xFFFF)
@@ -138,6 +181,7 @@ def sweep_tray_ghost_icons():
 
 def refresh_windows_shell():
     try:
+        _init_win32_types()
         user32 = ctypes.windll.user32
         tray_hwnd = user32.FindWindowW("Shell_TrayWnd", None)
         if tray_hwnd:
@@ -145,7 +189,7 @@ def refresh_windows_shell():
         sec_tray = user32.FindWindowW("Shell_SecondaryTrayWnd", None)
         if sec_tray:
             user32.RedrawWindow(sec_tray, None, None, 0x0185)
-        user32.RedrawWindow(0, None, None, 0x0185)
+        user32.RedrawWindow(None, None, None, 0x0185)
         sweep_tray_ghost_icons()
     except Exception:
         pass
@@ -201,24 +245,27 @@ def play_completion_sound():
 def get_cleanmgr_hwnds(target_pid):
     hwnds = []
     try:
+        _init_win32_types()
         user32 = ctypes.windll.user32
         def enum_cb(hwnd, extra):
             try:
                 if user32.IsWindow(hwnd):
-                    w_pid = ctypes.c_ulong()
+                    w_pid = wintypes.DWORD()
                     user32.GetWindowThreadProcessId(hwnd, ctypes.byref(w_pid))
                     if w_pid.value == target_pid:
                         hwnds.append(hwnd)
             except Exception:
                 pass
             return True
-        WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
-        user32.EnumWindows(WNDENUMPROC(enum_cb), 0)
+        WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        cb_ref = WNDENUMPROC(enum_cb)
+        user32.EnumWindows(cb_ref, 0)
     except Exception:
         pass
     return hwnds
 
 def monitor_and_wait_cleanmgr(proc, update_status_cb, max_timeout_sec=1800):
+    _init_win32_types()
     start_time = time.time()
     pid = proc.pid
     kernel32 = ctypes.windll.kernel32
@@ -250,6 +297,10 @@ def monitor_and_wait_cleanmgr(proc, update_status_cb, max_timeout_sec=1800):
                 wait_res = kernel32.WaitForSingleObject(h_process, 250)
                 if wait_res == 0:
                     break
+                if wait_res == 0xFFFFFFFF:
+                    if proc.poll() is not None:
+                        break
+                    time.sleep(0.25)
             else:
                 if proc.poll() is not None:
                     break
@@ -305,7 +356,13 @@ def kill_lingering_cleanmgr():
         pass
     refresh_windows_shell()
 
+_exit_started = [False]
+
 def force_cleanup_and_exit(root):
+    if _exit_started[0]:
+        return
+    _exit_started[0] = True
+    _periodic_refresh_flag[0] = False
     kill_lingering_cleanmgr()
     refresh_windows_shell()
     try:
@@ -320,11 +377,15 @@ def force_cleanup_and_exit(root):
 
 def perform_cleanup(status_label, progress_bar, detail_label, root):
     def update_ui(status_text, detail_text=""):
+        def _apply():
+            try:
+                status_label.config(text=status_text)
+                if detail_text:
+                    detail_label.config(text=detail_text)
+            except Exception:
+                pass
         try:
-            root.after(0, lambda: [
-                status_label.config(text=status_text),
-                detail_label.config(text=detail_text) if detail_text else None
-            ])
+            root.after(0, _apply)
         except Exception:
             pass
 
@@ -344,6 +405,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
         rem_secs = secs % 60
         return f"{mins}분 {rem_secs:.1f}초"
 
+    is_closing = [False]
     try:
         time.sleep(0.2)
         update_ui("1단계: 관리자 권한 및 실행 환경 확인 완료", "Windows 디스크 정리 설정을 준비 중입니다...")
@@ -356,11 +418,15 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
         time.sleep(0.6)
 
         start_periodic_shell_refresher(interval_sec=2.0)
-        progress_bar.config(mode="indeterminate")
-        progress_bar.start(12)
+        try:
+            root.after(0, lambda: [
+                progress_bar.config(mode="indeterminate"),
+                progress_bar.start(12),
+            ])
+        except Exception:
+            pass
 
         cleanmgr_cmd = ["cleanmgr.exe", f"/sagerun:{SAGESET_ID}"]
-        start_cleanmgr_time = time.time()
         has_update_cleanup = "Update Cleanup" in CLEANUP_ITEMS
 
         def on_cleanmgr_progress(elapsed, saw_visible, win_closed):
@@ -408,16 +474,22 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
                 freed_str = f" · 💾 현재 C: 여유 {final_free_gb:.1f} GB"
 
         play_completion_sound()
-        progress_bar.stop()
-        progress_bar.config(mode="determinate", value=100)
+        try:
+            root.after(0, lambda: [
+                progress_bar.stop(),
+                progress_bar.config(mode="determinate", value=100),
+            ])
+        except Exception:
+            pass
 
-        is_closing = [False]
         def on_mouse_action(event=None):
             if not is_closing[0]:
                 is_closing[0] = True
                 update_ui("✨ 디스크 정리 완료!", "마우스 감지: 창을 즉시 닫습니다...")
-                time.sleep(0.2)
-                force_cleanup_and_exit(root)
+                try:
+                    root.after(150, lambda: force_cleanup_and_exit(root))
+                except Exception:
+                    force_cleanup_and_exit(root)
 
         root.after(0, lambda: [
             root.bind("<Enter>", on_mouse_action),
@@ -433,11 +505,19 @@ def perform_cleanup(status_label, progress_bar, detail_label, root):
             time.sleep(1)
 
     except Exception as e:
-        progress_bar.stop()
+        try:
+            root.after(0, progress_bar.stop)
+        except Exception:
+            pass
         update_ui("❌ 오류 발생", str(e))
         time.sleep(3)
     finally:
-        force_cleanup_and_exit(root)
+        if not is_closing[0]:
+            try:
+                root.after(0, lambda: force_cleanup_and_exit(root))
+            except Exception:
+                kill_lingering_cleanmgr()
+                os._exit(0)
 
 def open_url(url):
     try:
@@ -468,14 +548,14 @@ def main():
             except Exception:
                 pass
 
-    root.geometry("480x290")
+    root.geometry("480x310")
     root.resizable(False, False)
 
     root.update_idletasks()
     screen_w = root.winfo_screenwidth()
     screen_h = root.winfo_screenheight()
     win_w = 480
-    win_h = 290
+    win_h = 310
     x = max(0, (screen_w - win_w) // 2)
     y = max(40, int((screen_h - win_h) * 0.22))
     root.geometry(f"{win_w}x{win_h}+{x}+{y}")
@@ -493,7 +573,7 @@ def main():
 
     header_label = tk.Label(
         container,
-        text=f"{COMPANY_NAME}\\n{UI_TITLE}",
+        text=UI_TITLE,
         font=("Segoe UI", 11, "bold"),
         fg="#0f172a",
         bg=card_color,
@@ -515,7 +595,8 @@ def main():
         text="디스크 정리 작업을 준비하는 중...",
         font=("Segoe UI", 10, "bold"),
         fg="#2563eb",
-        bg=card_color
+        bg=card_color,
+        wraplength=420
     )
     status_label.pack(pady=2)
 
@@ -536,16 +617,16 @@ def main():
     footer_frame = tk.Frame(container, bg=card_color)
     footer_frame.pack(fill="x", side="bottom", pady=(6, 0))
 
-    btn_home = tk.Label(
+    btn_releases = tk.Label(
         footer_frame,
-        text="🌐 CISNET 홈페이지",
+        text="📦 최신 릴리스",
         font=("Segoe UI", 8, "underline"),
         fg="#0284c7",
         bg=card_color,
         cursor="hand2"
     )
-    btn_home.pack(side="left", padx=4)
-    btn_home.bind("<Button-1>", lambda e: open_url(COMPANY_URL))
+    btn_releases.pack(side="left", padx=4)
+    btn_releases.bind("<Button-1>", lambda e: open_url(RELEASES_URL))
 
     sep_label = tk.Label(footer_frame, text="|", font=("Segoe UI", 8), fg="#cbd5e1", bg=card_color)
     sep_label.pack(side="left", padx=2)
@@ -611,14 +692,14 @@ VSVersionInfo(
           '041204b0',
           [
             StringStruct('CompanyName', 'AhBiYout'),
-            StringStruct('FileDescription', 'AhBiYout Windows 디스크 클린 오토'),
+            StringStruct('FileDescription', 'Windows 디스크 클린 오토'),
             StringStruct('FileVersion', '{ver_str}'),
             StringStruct('InternalName', '{APP_INTERNAL_NAME}'),
-            StringStruct('LegalCopyright', 'Copyright (C) 2026 AhBiYout. All rights reserved.'),
+            StringStruct('LegalCopyright', 'Copyright (c) 2026 AhBiYout. All rights reserved.'),
             StringStruct('OriginalFilename', '{exe_name}.exe'),
-            StringStruct('ProductName', 'AhBiYout Windows 디스크 클린 오토 ({APP_INTERNAL_NAME})'),
+            StringStruct('ProductName', 'Windows 디스크 클린 오토 ({APP_INTERNAL_NAME})'),
             StringStruct('ProductVersion', '{ver_str}'),
-            StringStruct('Comments', 'Windows VolumeCaches 및 cleanmgr.exe 자동화 순차 정리 도구 (개발자: AhBiYout / http://www.cisnet.co.kr/)'),
+            StringStruct('Comments', 'Windows VolumeCaches 및 cleanmgr.exe 자동화 순차 정리 도구 (개발자: AhBiYout / https://ahbiyoutvibe.blogspot.com/)'),
             StringStruct('LegalTrademarks', 'AhBiYout'),
           ]
         ),
@@ -629,7 +710,7 @@ VSVersionInfo(
             StringStruct('FileDescription', 'Windows Disk Cleanup Auto Runner'),
             StringStruct('FileVersion', '{ver_str}'),
             StringStruct('InternalName', '{APP_INTERNAL_NAME}'),
-            StringStruct('LegalCopyright', 'Copyright (C) 2026 AhBiYout. All rights reserved.'),
+            StringStruct('LegalCopyright', 'Copyright (c) 2026 AhBiYout. All rights reserved.'),
             StringStruct('OriginalFilename', '{exe_name}.exe'),
             StringStruct('ProductName', 'Windows Disk Cleanup Auto'),
             StringStruct('ProductVersion', '{ver_str}'),
@@ -671,7 +752,7 @@ def main():
     print(f"Python Version   : {sys.version.split()[0]} ({sys.executable})")
 
     # 1. Check / Install PyInstaller
-    print_header("[1/4] Checking PyInstaller Compiler")
+    print_header("[1/5] Checking PyInstaller Compiler")
     try:
         import PyInstaller
         print(f"[OK] PyInstaller is already installed: {PyInstaller.__version__}")
@@ -687,7 +768,7 @@ def main():
         print("[OK] PyInstaller installed successfully.")
 
     # 2. Find Target Python Source
-    print_header("[2/4] Detecting Target Python Script")
+    print_header("[2/5] Detecting Target Python Script")
     candidates = [
         "disk_cleanup_gui.py",
         "disk_cleanup.py",
@@ -729,7 +810,7 @@ def main():
         try:
             with open(version_file, "r", encoding="utf-8") as vf:
                 v_content = vf.read()
-            if APP_VERSION_STR not in v_content or APP_EXE_NAME not in v_content:
+            if APP_VERSION_STR not in v_content or APP_EXE_NAME not in v_content or "cisnet" in v_content.lower():
                 need_version_write = True
                 print(f"[*] Updating Windows Version Resource to current version ({APP_VERSION_STR})...")
         except Exception:
@@ -746,11 +827,16 @@ def main():
         print(f"[OK] Version Info Resource up-to-date: {version_file} (v{APP_VERSION_STR})")
 
     # 3. Compile EXE with PyInstaller
-    print_header("[3/4] Compiling Single Standalone EXE with Windows File Details")
+    print_header("[3/5] Compiling Single Standalone EXE with Windows File Details")
     exe_name = APP_EXE_NAME
     dist_dir = os.path.join(script_dir, "dist")
     build_dir = os.path.join(script_dir, "build")
     release_dir = os.path.join(script_dir, "Release")
+
+    # 이전 빌드 잔류 디렉터리 사전 정리 (Inno Setup 충돌 방지)
+    for d in (dist_dir, build_dir):
+        if os.path.exists(d):
+            shutil.rmtree(d, ignore_errors=True)
 
     cmd = [
         sys.executable, "-m", "PyInstaller",
@@ -762,24 +848,25 @@ def main():
         f"--distpath={dist_dir}",
         f"--workpath={build_dir}",
         f"--specpath={script_dir}",
-            ]
+    ]
 
     icon_path = os.path.join(script_dir, "app.ico")
     if not os.path.exists(icon_path):
         icon_path = os.path.join(script_dir, "assets", "app.ico")
     if os.path.exists(icon_path):
         cmd.append(f"--icon={icon_path}")
+        cmd.append(f"--add-data={icon_path}{os.pathsep}assets")
         print(f"  - [아이콘 리소스] 앱 및 실행 파일 아이콘 적용: {icon_path}")
 
     if os.path.exists(version_file):
         cmd.append(f"--version-file={version_file}")
-        print("  - [자세히 속성] 파일 설명 : AhBiYout Windows 디스크 클린 오토")
-        print(f"  - [자세히 속성] 제품 이름 : AhBiYout Windows 디스크 클린 오토 ({APP_INTERNAL_NAME})")
+        print("  - [자세히 속성] 파일 설명 : Windows 디스크 클린 오토")
+        print(f"  - [자세히 속성] 제품 이름 : Windows 디스크 클린 오토 ({APP_INTERNAL_NAME})")
         print(f"  - [자세히 속성] 파일 버전 : {APP_VERSION_STR}")
         print(f"  - [자세히 속성] 제품 버전 : {APP_VERSION_STR}")
         print(f"  - [자세히 속성] 원본 파일 : {exe_name}.exe")
-        print("  - [자세히 속성] 저 작 권  : Copyright (C) 2026 AhBiYout. All rights reserved.")
-        print("  - [자세히 속성] 회 사 명  : CISNET CORPORATION (http://www.cisnet.co.kr/)")
+        print("  - [자세히 속성] 저 작 권  : Copyright (c) 2026 AhBiYout. All rights reserved.")
+        print("  - [자세히 속성] 회 사 명  : AhBiYout (https://ahbiyoutvibe.blogspot.com/)")
         print("  - [자세히 속성] 언    어  : 한국어 (대한민국) / Unicode\n")
 
     cmd.append(target_file)
@@ -791,8 +878,8 @@ def main():
         input("\nPress Enter to exit...")
         sys.exit(1)
 
-    # 4. Copy to Release folder & Clean artifacts
-    print_header("[4/4] Finalizing Executable Deployment")
+    # 4. Move to Release folder (prevent duplicate dist+Release packaging during ISCC)
+    print_header("[4/5] Finalizing Executable Deployment")
     os.makedirs(release_dir, exist_ok=True)
     source_exe = os.path.join(dist_dir, f"{exe_name}.exe")
     final_exe = os.path.join(release_dir, f"{exe_name}.exe")
@@ -801,7 +888,7 @@ def main():
         try:
             subprocess.run(["taskkill", "/F", "/IM", f"{exe_name}.exe"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             time.sleep(0.5)
-            shutil.copy2(source_exe, final_exe)
+            shutil.move(source_exe, final_exe)
             print(f"[OK] Output binary saved to: {final_exe}")
         except Exception as e:
             print(f"[WARN] Could not move to Release folder ({e}). Exe is located at: {source_exe}")
