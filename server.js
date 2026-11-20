@@ -140,8 +140,13 @@ const HTML_CONTENT = `<!DOCTYPE html>
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800 py-6 bg-slate-950 text-xs text-slate-500 text-center">
-        Copyright (c) 2026 <span class="text-slate-400">AhBiYout</span>. All rights reserved.
+    <footer class="border-t border-slate-800 py-6 bg-slate-950 text-xs text-slate-500 text-center space-y-1.5">
+        <div>
+            Copyright (c) 2026 <span class="text-slate-400">AhBiYout</span>. All rights reserved.
+        </div>
+        <div class="text-slate-400">
+            소속회사: <span class="text-slate-300 font-medium">(주)청운정보시스템</span> ( <a href="http://cisnet.co.kr" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition">cisnet.co.kr</a> )
+        </div>
     </footer>
 </body>
 </html>

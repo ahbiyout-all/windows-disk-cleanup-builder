@@ -58,3 +58,4 @@ iscc installer.iss
 ## 🛡️ 라이선스 & 보안 정책
 - **라이선스**: MIT License (`Copyright (c) 2026 AhBiYout. All rights reserved.`) — 자세한 내용은 [`LICENSE`](./LICENSE)를 참고하세요.
 - **개인정보 보호**: 모든 커밋은 공식 No-Reply 이메일(`AhBiYout-all@users.noreply.github.com`)을 사용하며, `.gitignore`를 통해 로컬 유틸리티(`git_push.bat`), `.env*`, 빌드 임시 산출물(`dist/`, `build/`, `Release/`, `Output/`)을 저장소에서 자동 배제합니다.
+- **소속회사**: [(주)청운정보시스템](http://cisnet.co.kr) ( `cisnet.co.kr` )

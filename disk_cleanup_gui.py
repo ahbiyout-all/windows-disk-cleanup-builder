@@ -102,6 +102,7 @@ GITHUB_REPO_URL = f"https://github.com/{GITHUB_USER}/{GITHUB_REPO}"
 GITHUB_RELEASES_URL = f"{GITHUB_REPO_URL}/releases"
 GITHUB_API_LATEST = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/releases/latest"
 BLOG_URL = "https://ahbiyoutvibe.blogspot.com/"
+AFFILIATION_URL = "http://cisnet.co.kr"
 UI_TITLE = f"AhBiYout Windows 디스크 클린 오토 ({CURRENT_VERSION})"
 AUTO_CLOSE_SEC = 5
 
@@ -790,7 +791,7 @@ def main():
                 break
             except Exception:
                 pass
-    root.geometry("480x310")
+    root.geometry("480x330")
     root.resizable(False, False)
 
     # 화면 해상도에 맞춰 화면 상단 22% 영역에 배치
@@ -798,7 +799,7 @@ def main():
     screen_w = root.winfo_screenwidth()
     screen_h = root.winfo_screenheight()
     win_w = 480
-    win_h = 310
+    win_h = 330
     x = max(0, (screen_w - win_w) // 2)
     y = max(40, int((screen_h - win_h) * 0.22))
     root.geometry(f"{win_w}x{win_h}+{x}+{y}")
@@ -863,6 +864,18 @@ def main():
     progress = ttk.Progressbar(container, length=420, mode="indeterminate")
     progress.pack(pady=10)
     progress.start(10)
+
+    # 최하단 소속회사 표시
+    affiliation_label = tk.Label(
+        container,
+        text="소속회사: (주)청운정보시스템 ( cisnet.co.kr )",
+        font=("Segoe UI", 8),
+        fg="#64748b",
+        bg=card_color,
+        cursor="hand2"
+    )
+    affiliation_label.pack(side="bottom", pady=(4, 0))
+    affiliation_label.bind("<Button-1>", lambda e: open_url(AFFILIATION_URL))
 
     # 링크 푸터 프레임
     footer_frame = tk.Frame(container, bg=card_color)
