@@ -39,10 +39,15 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <a href="https://github.com/AhBiYout-all/windows-disk-cleanup-builder" target="_blank" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                <select id="langSelect" onchange="changeLang(this.value)" class="text-xs bg-slate-800 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700 focus:outline-none cursor-pointer">
+                    <option value="ko">한국어 (KO)</option>
+                    <option value="en">English (EN)</option>
+                    <option value="ja">日本語 (JA)</option>
+                </select>
+                <a href="https://github.com/AhBiYout-all/windows-disk-cleanup-builder" target="_blank" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5" data-i18n="github_repo">
                     GitHub Repo
                 </a>
-                <a href="https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases" target="_blank" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow">
+                <a href="https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases" target="_blank" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow" data-i18n="releases">
                     Releases
                 </a>
             </div>
@@ -56,13 +61,13 @@ const HTML_CONTENT = `<!DOCTYPE html>
             <div class="max-w-3xl space-y-3">
                 <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Windows 11 24H2 / 26H1 Windows.old 강제 권한 탈취 및 소거 지원
+                    <span data-i18n="hero_badge">Windows 11 24H2 / 26H1 Windows.old 강제 권한 탈취 및 소거 지원</span>
                 </div>
-                <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight" data-i18n="hero_title">
                     무인 자동화 정품 Windows 디스크 클리너 & 인스톨러 빌더
                 </h2>
-                <p class="text-sm md:text-base text-slate-300 leading-relaxed">
-                    본 저장소는 Windows 공식 <code class="text-indigo-300 font-mono">cleanmgr.exe</code> 엔진 및 커널 동기화 API를 제어하여 C: 드라이브의 시스템 캐시, 휴지통, WinSxS 업데이트 찌꺼기, 잠긴 Windows.old 폴더를 안전하게 100% 소거합니다.
+                <p class="text-sm md:text-base text-slate-300 leading-relaxed" data-i18n="hero_desc">
+                    본 저장소는 Windows 공식 cleanmgr.exe 엔진 및 커널 동기화 API를 제어하여 C: 드라이브의 시스템 캐시, 휴지통, WinSxS 업데이트 찌꺼기, 잠긴 Windows.old 폴더를 안전하게 100% 소거합니다.
                 </p>
             </div>
         </div>
@@ -71,8 +76,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-lg font-bold text-white">📦 GitHub 저장소 핵심 배포 구성</h3>
-                    <p class="text-xs text-slate-400">웹 프론트엔드 부산물 없이 순수 데스크톱 앱과 빌드 도구만 엄선되었습니다.</p>
+                    <h3 class="text-lg font-bold text-white" data-i18n="core_title">📦 GitHub 저장소 핵심 배포 구성</h3>
+                    <p class="text-xs text-slate-400" data-i18n="core_desc">웹 프론트엔드 부산물 없이 순수 데스크톱 앱과 빌드 도구만 엄선되었습니다.</p>
                 </div>
             </div>
 
@@ -123,17 +128,17 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
         <!-- Build Instructions -->
         <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-6 space-y-4">
-            <h3 class="text-md font-bold text-white flex items-center gap-2">
+            <h3 class="text-md font-bold text-white flex items-center gap-2" data-i18n="build_title">
                 🔨 로컬 빌드 및 배포 방법
             </h3>
             <div class="space-y-3 text-xs md:text-sm text-slate-300">
                 <div class="flex items-start gap-2">
                     <span class="bg-slate-800 text-indigo-400 font-mono px-2 py-0.5 rounded">1</span>
-                    <p>Windows 로컬에서 <code class="text-indigo-300 font-mono">build_exe.bat</code>를 실행하면 <code class="text-slate-200 font-mono">Release\DiskCleanupAuto_v1.5.0.exe</code> 및 <code class="text-slate-200 font-mono">Release\WindowsDiskCleanup_Setup_v1.5.0.exe</code>가 자동 생성됩니다.</p>
+                    <p data-i18n="build_1">Windows 로컬에서 build_exe.bat를 실행하면 Release\\DiskCleanupAuto_v1.5.0.exe 및 Release\\WindowsDiskCleanup_Setup_v1.5.0.exe가 자동 생성됩니다.</p>
                 </div>
                 <div class="flex items-start gap-2">
                     <span class="bg-slate-800 text-indigo-400 font-mono px-2 py-0.5 rounded">2</span>
-                    <p><code class="text-indigo-300 font-mono">git push</code> 또는 버전 태그(<code class="text-slate-200 font-mono">v1.5.0</code>) 푸시 시 <code class="text-slate-200 font-mono">.gitignore</code>로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.</p>
+                    <p data-i18n="build_2">git push 또는 버전 태그(v1.5.0) 푸시 시 .gitignore로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.</p>
                 </div>
             </div>
         </div>
@@ -145,9 +150,72 @@ const HTML_CONTENT = `<!DOCTYPE html>
             Copyright (c) 2026 <span class="text-slate-400">AhBiYout</span>. All rights reserved.
         </div>
         <div class="text-slate-400">
-            소속회사: <span class="text-slate-300 font-medium">(주)청운정보시스템</span> ( <a href="http://cisnet.co.kr" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition">cisnet.co.kr</a> )
+            <span data-i18n="affiliation">소속회사</span>: <span class="text-slate-300 font-medium">(주)청운정보시스템</span> ( <a href="http://cisnet.co.kr" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition">cisnet.co.kr</a> )
         </div>
     </footer>
+    <script>
+        const i18n = {
+            ko: {
+                github_repo: "GitHub Repo",
+                releases: "Releases",
+                hero_badge: "Windows 11 24H2 / 26H1 Windows.old 강제 권한 탈취 및 소거 지원",
+                hero_title: "무인 자동화 정품 Windows 디스크 클리너 & 인스톨러 빌더",
+                hero_desc: "본 저장소는 Windows 공식 cleanmgr.exe 엔진 및 커널 동기화 API를 제어하여 C: 드라이브의 시스템 캐시, 휴지통, WinSxS 업데이트 찌꺼기, 잠긴 Windows.old 폴더를 안전하게 100% 소거합니다.",
+                core_title: "📦 GitHub 저장소 핵심 배포 구성",
+                core_desc: "웹 프론트엔드 부산물 없이 순수 데스크톱 앱과 빌드 도구만 엄선되었습니다.",
+                build_title: "🔨 로컬 빌드 및 배포 방법",
+                build_1: "Windows 로컬에서 build_exe.bat를 실행하면 Release\\DiskCleanupAuto_v1.5.0.exe 및 Release\\WindowsDiskCleanup_Setup_v1.5.0.exe가 자동 생성됩니다.",
+                build_2: "git push 또는 버전 태그(v1.5.0) 푸시 시 .gitignore로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.",
+                affiliation: "소속회사"
+            },
+            en: {
+                github_repo: "GitHub Repo",
+                releases: "Releases",
+                hero_badge: "Supports Windows 11 24H2 / 26H1 Windows.old Forced Takeown & Purge",
+                hero_title: "Automated Native Windows Disk Cleaner & Installer Builder",
+                hero_desc: "This repository safely purges 100% of system caches, recycle bin, WinSxS update residue, and locked Windows.old folders on C: drive using official cleanmgr.exe engine and kernel sync APIs.",
+                core_title: "📦 Core GitHub Deployment Manifest",
+                core_desc: "Pure desktop application & build tools strictly curated without web frontend clutter.",
+                build_title: "🔨 Local Build & Deployment",
+                build_1: "Run build_exe.bat locally on Windows to automatically generate Release\\DiskCleanupAuto_v1.5.0.exe and Release\\WindowsDiskCleanup_Setup_v1.5.0.exe.",
+                build_2: "Pushing git commits or version tags (v1.5.0) automatically excludes temp files via .gitignore and triggers GitHub Actions to build & release official binaries.",
+                affiliation: "Affiliation"
+            },
+            ja: {
+                github_repo: "GitHub Repo",
+                releases: "Releases",
+                hero_badge: "Windows 11 24H2 / 26H1 Windows.old 強制権限奪取・完全削除対応",
+                hero_title: "無人自動化・純正Windowsディスククリーナー ＆ インストーラービルダー",
+                hero_desc: "本リポジトリは、Windows公式cleanmgr.exeエンジンおよびカーネル同期APIを制御し、Cドライブのシステムキャッシュ、ごみ箱、WinSxSアップデート残骸、ロックされたWindows.oldフォルダを安全に100%消去します。",
+                core_title: "📦 GitHubリポジトリ主要デプロイ構成",
+                core_desc: "ウェブフロントエンドの成果物を除外し、純粋なデスクトップアプリとビルドツールのみを厳選。",
+                build_title: "🔨 ローカルビルドとデプロイ方法",
+                build_1: "Windowsローカルで build_exe.bat を実行すると、Release\\DiskCleanupAuto_v1.5.0.exe および Release\\WindowsDiskCleanup_Setup_v1.5.0.exe が自動生成されます。",
+                build_2: "git push またはバージョンタグ (v1.5.0) のプッシュ時、.gitignoreにより一時ファイルが自動除外され、GitHub Actionsが公式バイナリを自動ビルド・リリースします。",
+                affiliation: "所属企業"
+            }
+        };
+
+        function changeLang(lang) {
+            const dict = i18n[lang] || i18n.ko;
+            document.querySelectorAll("[data-i18n]").forEach(el => {
+                const key = el.getAttribute("data-i18n");
+                if (dict[key]) {
+                    el.textContent = dict[key];
+                }
+            });
+            localStorage.setItem("disk_cleanup_lang", lang);
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const saved = localStorage.getItem("disk_cleanup_lang") || "ko";
+            const sel = document.getElementById("langSelect");
+            if (sel) {
+                sel.value = saved;
+                changeLang(saved);
+            }
+        });
+    </script>
 </body>
 </html>
 `;

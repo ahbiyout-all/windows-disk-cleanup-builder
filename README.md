@@ -26,7 +26,7 @@
 | `app.ico` / `assets/app.ico` | 리소스 | 멀티 해상도 Windows 앱/인스톨러/바로가기 아이콘 |
 | `LICENSE` | 라이선스 | MIT License (`Copyright (c) 2026 AhBiYout`) |
 | `.github/workflows/release.yml` | CI/CD | GitHub Actions Windows 단독 EXE + 인스톨러 통합 자동 배포 워크플로 |
-| `docs/` | 가이드 | 설치(`INSTALL.md`), 빌드(`BUILD.md`), 보안(`SECURITY.md`), 패치노트(`PATCH_NOTES.md`) |
+| `docs/` | 가이드 | 설치(`INSTALL.md`), 빌드(`BUILD.md`), 영문 가이드(`README_EN.md`), 일문 가이드(`README_JA.md`), 보안(`SECURITY.md`), 패치노트(`PATCH_NOTES.md`) |
 | `server.js` / `package.json` | 프리뷰 | 로컬 프로젝트 소개 및 파일 구성 미리보기용 경량 Node.js 서버 (포트 3000) |
 
 ---

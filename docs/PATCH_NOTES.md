@@ -28,6 +28,10 @@
   - **MIT 라이선스 및 단독 저작권 표준화**: 루트 `LICENSE` 파일(MIT License) 생성 및 모든 소스/리소스/문서의 저작권을 `Copyright (c) 2026 AhBiYout. All rights reserved.`로 통일.
 
 
+- **다국어 인터페이스(한국어, English, 日本語) 공식 지원 (Phase 18)**:
+  - **Tkinter GUI & 웹 프리뷰 다국어 전환**: 데스크톱 GUI 및 웹 서버 프리뷰 상단에 한국어(KO), 영어(EN), 일본어(JA) 즉시 전환 기능 및 번역 딕셔너리 탑재.
+  - **문서 및 블로그 원고 고도화**: 설치/빌드 가이드 및 Blogger 포스팅 템플릿에 글로벌 다국어 사용 지침 및 청운정보시스템 소속 표기 반영.
+
 - **고화질 앱/인스톨러/바로가기 전용 아이콘(app.ico) 시스템 전면 도입 (Phase 16)**:
   - **Windows 표준 멀티 해상도 아이콘 구축**: 1024x1024 마스터 그래픽 자산(icon.png)을 기반으로 고해상도 무손실 app.ico 및 assets/app.ico 자동 생성 및 번들링.
   - **PyInstaller 바이너리 임베드**: 단독 포터블 실행 파일(DiskCleanupAuto_v1.5.0.exe) 및 Onedir 패키지 자체의 PE 리소스 아이콘으로 공식 임베드.

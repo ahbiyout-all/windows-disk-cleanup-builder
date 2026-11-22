@@ -106,6 +106,83 @@ AFFILIATION_URL = "http://cisnet.co.kr"
 UI_TITLE = f"AhBiYout Windows 디스크 클린 오토 ({CURRENT_VERSION})"
 AUTO_CLOSE_SEC = 5
 
+import locale
+
+def detect_system_lang():
+    try:
+        if os.name == 'nt':
+            try:
+                windll = ctypes.windll.kernel32
+                lang_id = windll.GetUserDefaultUILanguage()
+                primary = lang_id & 0x3FF
+                if primary == 0x11:
+                    return "ja"
+                elif primary == 0x09:
+                    return "en"
+                elif primary == 0x12:
+                    return "ko"
+            except Exception:
+                pass
+        
+        loc, _ = locale.getdefaultlocale()
+        if loc:
+            lc = loc.lower()
+            if "ja" in lc or "jp" in lc:
+                return "ja"
+            elif "en" in lc:
+                return "en"
+            elif "ko" in lc:
+                return "ko"
+    except Exception:
+        pass
+    return "ko"
+
+TRANSLATIONS = {
+    "ko": {
+        "title": f"AhBiYout Windows 디스크 클린 오토 ({CURRENT_VERSION})",
+        "preparing": "디스크 정리 작업을 준비하는 중...",
+        "step1": "1단계: 관리자 권한 및 실행 환경 확인 완료",
+        "step2": "2단계: 레지스트리 정리 항목 활성화 시작...",
+        "step3": "3단계: Windows 디스크 정리 순차 실행 중...",
+        "step4": "4단계: 백그라운드 프로세스 및 윈도우 잔상 갱신 중...",
+        "step5": "✨ 모든 디스크 정리 완료!",
+        "releases": "📦 최신 릴리스",
+        "blog": "📝 AhBiYoutVibe 블로그",
+        "github": "🐙 GitHub",
+        "affiliation": "소속회사: (주)청운정보시스템 ( cisnet.co.kr )",
+        "comment_prefix": "자동 생성된 디스크 정리 스크립트 (AhBiYout Windows Disk Cleanup Auto)"
+    },
+    "en": {
+        "title": f"AhBiYout Windows Disk Cleanup Auto ({CURRENT_VERSION})",
+        "preparing": "Preparing disk cleanup tasks...",
+        "step1": "Step 1: Admin privileges and environment confirmed",
+        "step2": "Step 2: Activating registry cleanup items...",
+        "step3": "Step 3: Running Windows Disk Cleanup sequentially...",
+        "step4": "Step 4: Cleaning background processes & refreshing shell...",
+        "step5": "✨ All disk cleanup tasks completed!",
+        "releases": "📦 Latest Releases",
+        "blog": "📝 AhBiYoutVibe Blog",
+        "github": "🐙 GitHub",
+        "affiliation": "Affiliation: Chungun Info Systems ( cisnet.co.kr )",
+        "comment_prefix": "Auto-generated Disk Cleanup Script (AhBiYout Windows Disk Cleanup Auto)"
+    },
+    "ja": {
+        "title": f"AhBiYout Windows ディスククリーンオート ({CURRENT_VERSION})",
+        "preparing": "ディスククリーンアップの準備中...",
+        "step1": "ステップ1: 管理者権限と実行環境の確認完了",
+        "step2": "ステップ2: レジストリクリーンアップ項目の有効化...",
+        "step3": "ステップ3: Windowsディスククリーンアップを実行中...",
+        "step4": "ステップ4: バックグラウンドプロセスの整理とシェル更新中...",
+        "step5": "✨ すべてのディスククリーンアップが完了しました！",
+        "releases": "📦 最新リリース",
+        "blog": "📝 AhBiYoutVibe ブログ",
+        "github": "🐙 GitHub",
+        "affiliation": "所属企業: 青雲情報システム ( cisnet.co.kr )",
+        "comment_prefix": "自動生成されたディスククリーンアップスクリプト (AhBiYout Windows Disk Cleanup Auto)"
+    }
+}
+current_lang = [detect_system_lang()]
+
 CLEANUP_ITEMS = [
     "Previous Installations",
     "Update Cleanup",
@@ -817,16 +894,50 @@ def main():
     container = tk.Frame(root, bg=card_color, padx=20, pady=16, relief="groove", bd=1)
     container.pack(fill="both", expand=True, padx=12, pady=12)
 
-    # 프로그램 헤더
+    # 프로그램 헤더 프레임 (타이틀 + 언어 선택기)
+    header_frame = tk.Frame(container, bg=card_color)
+    header_frame.pack(fill="x", pady=(0, 4))
+
     header_label = tk.Label(
-        container,
-        text=UI_TITLE,
+        header_frame,
+        text=TRANSLATIONS[current_lang]["title"],
         font=("Segoe UI", 11, "bold"),
         fg="#0f172a",
         bg=card_color,
         justify="center"
     )
-    header_label.pack(pady=(0, 4))
+    header_label.pack(side="left", expand=True)
+
+    # 언어 선택 콤보박스
+    lang_var = tk.StringVar(value="한국어 (KO)")
+    lang_combo = ttk.Combobox(
+        header_frame,
+        textvariable=lang_var,
+        values=["한국어 (KO)", "English (EN)", "日本語 (JA)"],
+        width=14,
+        state="readonly"
+    )
+    lang_combo.pack(side="right", padx=(4, 0))
+
+    def on_lang_change(event=None):
+        sel = lang_var.get()
+        if "EN" in sel:
+            current_lang[0] = "en"
+        elif "JA" in sel:
+            current_lang[0] = "ja"
+        else:
+            current_lang[0] = "ko"
+        
+        t = TRANSLATIONS[current_lang[0]]
+        root.title(t["title"])
+        header_label.config(text=t["title"])
+        status_label.config(text=t["preparing"])
+        btn_releases.config(text=t["releases"])
+        btn_blog.config(text=t["blog"])
+        btn_github.config(text=t["github"])
+        affiliation_label.config(text=t["affiliation"])
+
+    lang_combo.bind("<<ComboboxSelected>>", on_lang_change)
 
     # 개발자 서명
     dev_label = tk.Label(
@@ -841,7 +952,7 @@ def main():
     # 상태 텍스트
     status_label = tk.Label(
         container,
-        text="디스크 정리 작업을 준비하는 중...",
+        text=TRANSLATIONS["ko"]["preparing"],
         font=("Segoe UI", 10, "bold"),
         fg="#2563eb",
         bg=card_color,
@@ -868,7 +979,7 @@ def main():
     # 최하단 소속회사 표시
     affiliation_label = tk.Label(
         container,
-        text="소속회사: (주)청운정보시스템 ( cisnet.co.kr )",
+        text=TRANSLATIONS["ko"]["affiliation"],
         font=("Segoe UI", 8),
         fg="#64748b",
         bg=card_color,
@@ -884,7 +995,7 @@ def main():
     # 릴리스 페이지 링크 버튼
     btn_releases = tk.Label(
         footer_frame,
-        text="📦 최신 릴리스",
+        text=TRANSLATIONS["ko"]["releases"],
         font=("Segoe UI", 8, "underline"),
         fg="#0284c7",
         bg=card_color,
@@ -899,7 +1010,7 @@ def main():
     # 블로그 링크 버튼
     btn_blog = tk.Label(
         footer_frame,
-        text="📝 AhBiYoutVibe 블로그",
+        text=TRANSLATIONS["ko"]["blog"],
         font=("Segoe UI", 8, "underline"),
         fg="#0284c7",
         bg=card_color,
@@ -914,7 +1025,7 @@ def main():
     # GitHub 저장소 링크 버튼
     btn_github = tk.Label(
         footer_frame,
-        text="🐙 GitHub",
+        text=TRANSLATIONS["ko"]["github"],
         font=("Segoe UI", 8, "underline"),
         fg="#0284c7",
         bg=card_color,
