@@ -18,14 +18,15 @@
 ## 2. 로컬 빌드 절차 (Local Build)
 
 ### 2.1 독립 실행형 Windows 바이너리 및 인스톨러 일괄 빌드 (`build_exe.bat` / `build_exe.py`)
-프로젝트 루트의 `build_exe.bat` 또는 `python build_exe.py`를 실행합니다:
+프로젝트 루트의 `build_exe.bat` 또는 `python build_exe.py`를 실행합니다 (`build_exe.bat`는 우선 `build_exe.py`를 호출하며, 미존재 시 7단계 순수 배치 폴백 파이프라인으로 전환됩니다):
 ```cmd
 :: PyInstaller 단일 EXE + Inno Setup 설치 파일 순차 자동 빌드
 build_exe.bat
 ```
 - **포터블 빌드 결과물**: `Release\DiskCleanupAuto_v1.5.0.exe`
-- **인스톨러 빌드 결과물**: `Release\WindowsDiskCleanup_Setup_v1.5.0.exe` (시스템에 Inno Setup 6 설치 시 자동 생성)
+- **인스톨러 빌드 결과물**: `Release\WindowsDiskCleanup_Setup_v1.5.0.exe` (시스템에 Inno Setup 6 설치 시 자동 생성, 한/영/일 다국어 포함)
 - **적용 메타데이터**: `version_info.txt`에 명시된 버전(`1.5.0.0`), 제작자(`AhBiYout`), 저작권(`Copyright (c) 2026 AhBiYout. All rights reserved.`) 자동 임베드.
+- **자체 복구 소스 내장**: `build_exe.py` 내부 `DEFAULT_GUI_SOURCE`가 `disk_cleanup_gui.py`와 동일하게 다국어 자동 감지 및 `Windows.old` 안전 소거 루틴으로 동기화되어 있습니다.
 
 ### 2.2 Inno Setup 설치 프로그램 단독 패키징
 Inno Setup 컴파일러(`ISCC.exe`)를 통해 배포용 설치 파일을 단독으로 생성할 수 있습니다:
@@ -88,7 +89,7 @@ GitHub Actions 러너의 Node.js 20 지원 종료에 대응하여, `.github/work
 
 저장소 루트에는 실제 컴파일 및 패키징에 필요한 핵심 파일만 유지되며, 로컬 전용 스크립트(`git_push.bat`, `*.ps1`), 환경설정(`.env*`), 빌드 부산물(`node_modules/`, `dist/`, `build/`, `Release/`, `Output/`, `release_artifacts/`, `__pycache__/`, `*.spec`)은 `.gitignore`를 통해 원격 저장소에서 원천 배제됩니다.
 
-로컬 개발 컨테이너에서 프로젝트 안내 페이지를 확인하려면 다음 명령어로 경량 Node.js 서버(포트 `3000`)를 실행할 수 있습니다:
+로컬 개발 컨테이너에서 다국어 자동 감지(`navigator.language`) 및 동적 스크립트 주석 미리보기 페이지를 확인하려면 다음 명령어로 경량 Node.js 서버(포트 `3000`)를 실행할 수 있습니다:
 ```bash
 npm run dev
 ```

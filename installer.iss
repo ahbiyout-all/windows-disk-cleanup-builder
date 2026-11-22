@@ -60,6 +60,7 @@ DisableProgramGroupPage=auto
 [Languages]
 Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -81,7 +82,7 @@ Source: "app.ico"; DestDir: "{app}\assets"; DestName: "app.ico"; Flags: ignoreve
 Source: "register_scheduler.bat"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\app.ico"; Comment: "{#MyAppName} 실행"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\app.ico"; Comment: "{#MyAppName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"; IconFilename: "{app}\assets\app.ico"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\app.ico"; Tasks: desktopicon
 
@@ -158,6 +159,17 @@ begin
         PromptMsg := 'An existing installation was detected in the target folder.' + #13#10 + #13#10 +
                      'Do you want to overwrite it with v{#MyAppVersion}?' + #13#10 +
                      '(Click No to cancel installation.)';
+    end
+    else if ActiveLanguage() = 'japanese' then
+    begin
+      if PrevVersion <> '' then
+        PromptMsg := Format('旧バージョン (v%s) がすでにインストールされています。' + #13#10 + #13#10 +
+                            '上書きして最新バージョン (v{#MyAppVersion}) のインストールを続行しますか？' + #13#10 +
+                            '(「いいえ」をクリックするとインストールを中止します。)', [PrevVersion])
+      else
+        PromptMsg := '同じフォルダに既存のインストールが検出されました。' + #13#10 + #13#10 +
+                     '新バージョン (v{#MyAppVersion}) で上書きインストールしますか？' + #13#10 +
+                     '(「いいえ」をクリックするとインストールを中止します。)';
     end
     else
     begin

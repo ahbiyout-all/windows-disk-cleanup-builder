@@ -17,17 +17,17 @@
 
 | 파일 경로 | 카테고리 | 설명 |
 | :--- | :--- | :--- |
-| `disk_cleanup_gui.py` | 소스 코드 | Tkinter GUI 및 Win32 커널 연동 Windows 디스크 정리 엔진 |
+| `disk_cleanup_gui.py` | 소스 코드 | Tkinter GUI(한/영/일 자동 감지) 및 Win32 커널 연동 Windows 디스크 정리 엔진 |
 | `build_exe.py` | 빌더 | PyInstaller & Inno Setup 연동 파이썬 네이티브 컴파일 스크립트 |
 | `build_exe.bat` | 빌더 | Windows 1-클릭 단일 포터블 EXE 및 인스톨러 자동 빌드 배치 |
 | `version_info.txt` | 메타데이터 | Windows 탐색기 속성 '자세히' 탭 PE 리소스 정의 (`v1.5.0`) |
-| `installer.iss` | 인스톨러 | Inno Setup 6.x 언팩 개별 설치 및 방화벽 규칙 자동 등록 스크립트 |
+| `installer.iss` | 인스톨러 | Inno Setup 6.x 언팩 개별 설치(한/영/일 지원) 및 방화벽 규칙 자동 등록 스크립트 |
 | `register_scheduler.bat` | 스케줄러 | Windows 작업 스케줄러 주간 자동 정리 등록 스크립트 |
 | `app.ico` / `assets/app.ico` | 리소스 | 멀티 해상도 Windows 앱/인스톨러/바로가기 아이콘 |
 | `LICENSE` | 라이선스 | MIT License (`Copyright (c) 2026 AhBiYout`) |
 | `.github/workflows/release.yml` | CI/CD | GitHub Actions Windows 단독 EXE + 인스톨러 통합 자동 배포 워크플로 |
-| `docs/` | 가이드 | 설치(`INSTALL.md`), 빌드(`BUILD.md`), 영문 가이드(`README_EN.md`), 일문 가이드(`README_JA.md`), 보안(`SECURITY.md`), 패치노트(`PATCH_NOTES.md`) |
-| `server.js` / `package.json` | 프리뷰 | 로컬 프로젝트 소개 및 파일 구성 미리보기용 경량 Node.js 서버 (포트 3000) |
+| `docs/` | 가이드 | 다국어 문서(`README.md`, `README_EN.md`, `README_JA.md`), 설치/빌드/보안/패치노트 |
+| `server.js` / `package.json` | 프리뷰 | `navigator.language` 자동 감지 및 동적 스크립트 주석 미리보기 경량 Node.js 서버 (포트 3000) |
 
 ---
 

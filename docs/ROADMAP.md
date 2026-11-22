@@ -25,6 +25,7 @@
 | **Phase 15** | Windows 인스톨러 + 포터블 동시 배포 | ✅ 완료 | `v1.5.0` | Inno Setup(`WindowsDiskCleanup_Setup_v1.5.0.exe`) & 포터블(`DiskCleanupAuto_v1.5.0.exe`) 통합 배포 |
 | **Phase 16** | 고화질 멀티 해상도 아이콘 임베드 | ✅ 완료 | `v1.5.0` | `app.ico` PE 리소스, Tkinter `_MEIPASS` 런타임, 제어판/바로가기 일괄 적용 |
 | **Phase 17** | AhBiYout 단독 저작권 & 안정성 정비 | ✅ 완료 | `v1.5.0` | `Copyright (c) 2026 AhBiYout`, Tkinter 스레드 안전성 및 Inno Setup `AppId` 버그 수정 |
+| **Phase 18** | 시스템 로케일 자동 감지 & 한/영/일 다국어 지원 | ✅ 완료 | `v1.5.0` | Win32 `GetUserDefaultUILanguage`/`navigator.language` 자동 감지, GUI·인스톨러·문서(`README_EN`/`README_JA`) 한/영/일 완전 지원 |
 
 ---
 
@@ -32,5 +33,5 @@
 
 1. **Windows 11 신규 스토리지 API 연동**:
    - `Storage Sense`(저장 공간 센스) 네이티브 API 호출 지원
-2. **다국어(영어/일본어) 인터페이스 다변화**:
-   - Tkinter GUI 전역 i18n 확장
+2. **오프라인 스크립트 내보내기 프리셋 확장**:
+   - GUI 내 원클릭 `.bat` / `.ps1` 다국어 주석 스크립트 파일 저장 기능 추가

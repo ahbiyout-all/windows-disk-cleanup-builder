@@ -22,7 +22,7 @@
 4. **[보안 및 개인정보 보호 정책 (Security & Privacy Policy)](./SECURITY.md)**
    - 커밋 작성자 고정, `.gitignore` 보안 배제, 관리자 권한(UAC) 및 개인 데이터 보존 안전 가드레일
 5. **[개발 로드맵 및 구현 현황 (Roadmap & Status)](./ROADMAP.md)**
-   - Phase 1~17 구현 완료 내역 및 향후 개발 계획
+   - Phase 1~18 구현 완료 내역 및 향후 개발 계획
 6. **[Google 블로그 소개 포스팅 템플릿 (Blog Post)](./BLOG_POST.md)**
    - Google Blogger 및 기술 블로그 게시용 마크다운 원고 템플릿 (`v1.5.0`)
 7. **[공식 MIT 라이선스 (MIT License)](../LICENSE)**
@@ -35,10 +35,11 @@
 - **프로그램명**: Windows Disk Cleanup Automation Builder
 - **현재 버전**: `v1.5.0` (Semantic Versioning)
 - **개발자**: `AhBiYout` (GitHub: `AhBiYout-all`)
+- **소속회사**: [(주)청운정보시스템](http://cisnet.co.kr) (`cisnet.co.kr`)
 - **저작권**: `Copyright (c) 2026 AhBiYout. All rights reserved.`
 - **라이선스**: MIT License ([`LICENSE`](../LICENSE))
 - **저장소**: `https://github.com/AhBiYout-all/windows-disk-cleanup-builder`
 - **공식 블로그**: https://ahbiyoutvibe.blogspot.com/
 - **권장 파이썬 버전**: Python 3.10 ~ 3.13+ (빌드 시 권장: Python 3.12)
 - **권장 PyInstaller 버전**: PyInstaller 6.x+
-- **배포 인스톨러**: Inno Setup 6.x (개별 파일 풀림 설치 & 포터블 EXE 병행 배포)
+- **배포 인스톨러**: Inno Setup 6.x (개별 파일 풀림 설치 & 포터블 EXE 병행 배포, 한/영/일 다국어 지원)

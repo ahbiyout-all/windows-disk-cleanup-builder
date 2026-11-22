@@ -25,6 +25,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 - **Inno Setup 개별 파일 언팩 인스톨러 배포**: 단일 포터블 실행 파일뿐 아니라, 깔끔한 언팩형 인스톨러(.exe) 지원 및 무인 설치 스위치(`/VERYSILENT`) 완벽 지원.
 - **Windows 방화벽 인바운드 규칙 자동 조용히 등록**: 컴퓨터실/사내 네트워크 환경에서 방화벽 경고 팝업 없이 원활하게 구동되도록 인스톨러 내 자동 등록.
 - **휴지통 비우기 직접 API (`SHEmptyRecycleBinW`) 연동**: 레지스트리 플래그 외에 Win32 API를 직접 호출하여 전 드라이브 휴지통 비우기 신뢰성 100% 보장.
+- **시스템 언어 자동 감지 및 한/영/일 다국어 지원**: OS UI 언어(`GetUserDefaultUILanguage`) 및 브라우저 로케일을 자동 감지하여 UI, 진행 로그, 스크립트 주석을 한국어·영어·일본어로 동적 표시 (수동 전환 콤보박스 및 `README_EN.md`/`README_JA.md` 공식 문서 제공).
 - **브랜딩 및 등록 상표 통일**: 파일 속성 및 UI 명칭을 'AhBiYout Windows 디스크 클린 오토', 등록 상표를 'AhBiYout'으로 공식 지정.
 
 ---
@@ -44,6 +45,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 |  💾 C: 드라이브 여유 공간: 142.35 GB (+8.42 GB 확보 중)               |
 +-----------------------------------------------------------------------+
 |  개발자: AhBiYout | 공식 블로그: AhBiYoutVibe                        |
+|  소속회사: (주)청운정보시스템 ( cisnet.co.kr )                         |
 +-----------------------------------------------------------------------+
 ```
 
@@ -80,6 +82,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 
 ### 8. 제작자 및 공식 채널 안내
 - **제작자 (개발자)**: AhBiYout
+- **소속회사**: [(주)청운정보시스템](http://cisnet.co.kr) (`cisnet.co.kr`)
 - **공식 깃허브 저장소**: [https://github.com/AhBiYout-all/windows-disk-cleanup-builder](https://github.com/AhBiYout-all/windows-disk-cleanup-builder)
 - **공식 구글 블로그**: [https://ahbiyoutvibe.blogspot.com/](https://ahbiyoutvibe.blogspot.com/) (AhBiYoutVibe)
 
@@ -89,7 +92,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 
 | 버전 | 일자 | 구분 | 주요 변경 내역 요약 |
 | :---: | :---: | :---: | :--- |
-| **`v1.5.0`** | 2026-10-11 | **MINOR** | • Windows 11 Windows.old 권한 탈취 및 100% 완전 삭제 (`takeown` + `icacls`)<br>• C:\Windows.old\Users 개인 문서 보존 안전 가드레일 탑재<br>• Inno Setup 언팩 설치기 및 방화벽 인바운드 규칙 자동 조용히 등록<br>• 고화질 멀티 해상도 `app.ico` 적용 및 제어판(설치된 앱) 정식 등록<br>• GitHub Actions 단일 통합 빌드(`WindowsDiskCleanup_Setup_v1.5.0.exe` + `DiskCleanupAuto_v1.5.0.exe`)<br>• 휴지통 직접 비우기 API(`SHEmptyRecycleBinW`) 연동 및 MIT 라이선스/AhBiYout 단독 저작권 표준화 |
+| **`v1.5.0`** | 2026-11-22 | **MINOR** | • Windows 11 Windows.old 권한 탈취 및 100% 완전 삭제 (`takeown` + `icacls`)<br>• C:\Windows.old\Users 개인 문서 보존 안전 가드레일 탑재<br>• OS/브라우저 언어 자동 감지 및 한/영/일 3개 국어 UI·인스톨러(`Japanese.isl` 포함)·문서(`README_EN`/`README_JA`) 지원<br>• Inno Setup 언팩 설치기 및 방화벽 인바운드 규칙 자동 조용히 등록<br>• 고화질 멀티 해상도 `app.ico` 적용 및 제어판(설치된 앱) 정식 등록<br>• GitHub Actions 단일 통합 빌드(`WindowsDiskCleanup_Setup_v1.5.0.exe` + `DiskCleanupAuto_v1.5.0.exe`)<br>• 휴지통 직접 비우기 API(`SHEmptyRecycleBinW`) 연동 및 MIT 라이선스/AhBiYout 단독 저작권 표준화 |
 | **`v1.4.0`** | 2026-09-07 | **MINOR** | • Win32 커널 동기화(`WaitForSingleObject`) 및 HWND 창 라이프사이클 실시간 후킹 (CPU 0%)<br>• 컴퓨터실/전산실 무인 대량 배포용 2초 주기 쉘 새로고침 및 트레이 가상 스위프<br>• C: 드라이브 여유 공간 실시간 계산 및 확보 용량 안내 (`GetDiskFreeSpaceExW`)<br>• 마우스 호버 즉시 닫기 제스처 & 5초 자동 카운트다운 종료 |
 | **`v1.3.4`** | 2026-08-29 | **PATCH** | • 화면 상단(Top 22% Golden Ratio) 최적 배치로 작업표시줄 겹침 방지<br>• 실행 즉시 전면 윈도우 활성화 (`lift` & `wm_attributes`) |
 | **`v1.3.3`** | 2026-08-29 | **PATCH** | • 대용량 Windows 업데이트 정리(WinSxS) 25초 타임아웃 제거 후 100% 완주 보장<br>• 실제 백그라운드 엔진 단계와 일치하는 상태 안내 및 실시간 타이머 |

@@ -171,6 +171,7 @@ jobs:
 
             ---
             - **개발자**: AhBiYout (GitHub: [@AhBiYout-all](https://github.com/AhBiYout-all))
+            - **소속회사**: [(주)청운정보시스템](http://cisnet.co.kr) (`cisnet.co.kr`)
             - **공식 블로그**: [AhBiYoutVibe](https://ahbiyoutvibe.blogspot.com/)
             - **라이선스**: MIT License · Copyright (c) 2026 AhBiYout. All rights reserved.
           files: release_artifacts/*

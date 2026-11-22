@@ -15,7 +15,7 @@
   - **3단계: 파일 속성 해제 및 완전 소거**: `attrib -r -a -s -h`로 읽기 전용/시스템 잠금을 해제하고 `rd /s /q` 및 파이썬 `shutil.rmtree`를 연쇄 호출하여 C:\Windows.old를 100% 영구 삭제 (15~40GB 이상의 대규모 C: 여유 공간 즉시 확보).
 - **데이터 유실 방지: 사용자 개인 문서 안전 가드레일 (Safe-Guard)**:
   - 사용자가 업그레이드 전 바탕 화면, 다운로드, 내 문서 등에 미처 백업하지 못한 중요한 개인 파일이 `C:\Windows.old\Users` 경로에 남아있는지 사전 스캔(`scan_windows_old_safety`).
-  - 개인 파일이 발견되면 사용자 동의 없는 일방적 삭제를 안전하게 건너뛰고 안내를 출력하는 안전 보호막 기능 기본 탑재 (설정 패널에서 켜기/끄기 지원).
+  - 개인 파일이 발견되면 사용자 동의 없는 일방적 삭제를 안전하게 건너뛰고 안내를 출력하는 안전 보호막 기능 기본 내장 (자동 스캔 가드레일).
 - **VolumeCaches `Previous Installations` (이전 Windows 설치) 공식 항목 추가**:
   - `disk_cleanup_gui.py`의 `CLEANUP_ITEMS` 목록 최상단에 `Previous Installations` 항목을 정식 등록하여 자동 정리 대상에 포함.
 - **순수 데스크톱 저장소 정비 및 핵심 파일 관리 체계 확립 (`Phase 13`)**:
@@ -28,9 +28,15 @@
   - **MIT 라이선스 및 단독 저작권 표준화**: 루트 `LICENSE` 파일(MIT License) 생성 및 모든 소스/리소스/문서의 저작권을 `Copyright (c) 2026 AhBiYout. All rights reserved.`로 통일.
 
 
-- **다국어 인터페이스(한국어, English, 日本語) 공식 지원 (Phase 18)**:
-  - **Tkinter GUI & 웹 프리뷰 다국어 전환**: 데스크톱 GUI 및 웹 서버 프리뷰 상단에 한국어(KO), 영어(EN), 일본어(JA) 즉시 전환 기능 및 번역 딕셔너리 탑재.
-  - **문서 및 블로그 원고 고도화**: 설치/빌드 가이드 및 Blogger 포스팅 템플릿에 글로벌 다국어 사용 지침 및 청운정보시스템 소속 표기 반영.
+- **다국어 자동 감지(한국어, English, 日本語) 및 자아성찰/심층 오류 수정 (Phase 18)**:
+  - **OS/브라우저 기본 언어 자동 감지**: 데스크톱 GUI(`disk_cleanup_gui.py`)에서 Win32 `GetUserDefaultUILanguage()` 및 POSIX `locale.getlocale()`(Python 3.11+ `DeprecationWarning` 제거)을 통해 사용자 기본 언어를 자동 판별하며, 웹 프리뷰(`server.js`)는 `navigator.language`를 자동 감지해 초기 언어 및 동적 생성 스크립트(`.bat`/`.ps1`) 주석을 자동 변환합니다.
+  - **전체 런타임 메시지 및 다이얼로그 다국어 통합**: 초기 타이틀·드롭다운·푸터뿐 아니라 1~5단계 정리 진행 로그, `Windows.old` 가드레일/3단계 소거 로그, 소요 시간 포맷, 완료 카운트다운, GitHub 업데이트 팝업까지 100% 다국어(`ko`/`en`/`ja`) 실시간 전환을 지원합니다.
+  - **심층 감사(Self-Reflection & Deep Audit) 주요 버그 수정**:
+    - `disk_cleanup_gui.py` 실행 시 `TRANSLATIONS[current_lang]` 리스트 인덱싱으로 발생하던 `TypeError` 기동 크래시 수정 (`current_lang[0]` 및 `tr()` 헬퍼 도입).
+    - `build_exe.py`의 `DEFAULT_GUI_SOURCE` 폴백 소스를 최신 v1.5.0 다국어·`Windows.old` 사양으로 동기화하고 비-Windows 환경 `taskkill`/`EOFError` 예외 방어 추가.
+    - `server.js` 템플릿 리터럴 내 `\\` 이스케이프 손실로 브라우저 경로 백슬래시가 누락되던 버그 수정, 6개 핵심 카드 전체 i18n 적용 및 동적 스크립트 주석 미리보기 탑재.
+    - `installer.iss`에 일본어(`Japanese.isl`) 및 `InitializeSetup()` 일본어 덮어쓰기 안내 대화상자 추가 (`UTF-8 BOM + CRLF` 유지).
+  - **다국어 공식 문서 및 소속회사 표기 완비**: 영어 가이드(`docs/README_EN.md`), 일본어 가이드(`docs/README_JA.md`, 오탈자 수정 포함) 신설 및 전체 UI·문서·릴리스 노트에 소속회사 `(주)청운정보시스템 ( cisnet.co.kr )` 표기 반영.
 
 - **고화질 앱/인스톨러/바로가기 전용 아이콘(app.ico) 시스템 전면 도입 (Phase 16)**:
   - **Windows 표준 멀티 해상도 아이콘 구축**: 1024x1024 마스터 그래픽 자산(icon.png)을 기반으로 고해상도 무손실 app.ico 및 assets/app.ico 자동 생성 및 번들링.

@@ -13,6 +13,7 @@
 - **설치 기본 디렉터리**: `{autopf}\Windows Disk Cleanup Automation Builder` (`C:\Program Files\...`)
 - **실행 권한 요구사항**: 관리자 권한 (`PrivilegesRequired=admin`)
 - **아키텍처 지원**: 64비트 최적화 (`x64compatible`) 및 32비트 호환
+- **다국어 설치 지원**: 한국어(`Korean.isl`), 영어(`Default.isl`), 일본어(`Japanese.isl`) 및 언어별 기존 설치 덮어쓰기 대화상자 지원
 
 ---
 
@@ -64,22 +65,22 @@ WindowsDiskCleanup_Setup_v1.5.0.exe /VERYSILENT /SUPPRESSMSGBOXES /DIR="C:\Tools
 
 ## 4. Windows 방화벽 규칙 사전 조용 등록 (Firewall Pre-Registration)
 
-설치 단계(`CurStepChanged(ssPostInstall)`)에서 사용자의 추가 보안 경고창 없이 Windows Defender 방화벽 인바운드 규칙을 조용히 등록합니다.
+설치 완료 직전 `[Run]` 섹션(`runhidden waituntilterminated`)을 통해 사용자의 추가 보안 경고창 없이 Windows Defender 방화벽 인바운드 규칙을 조용히 등록합니다.
 
 ### 이중 등록 정책 (기본 이름 + 버전 포함 이름)
 운영체제 방화벽 제어판 및 관리 도구 식별성을 위해 두 가지 규칙을 모두 등록합니다:
 
 1. **기본 이름 규칙**:
    ```cmd
-   netsh advfirewall firewall add rule name="Windows Disk Cleanup Automation Builder" dir=in action=allow program="C:\Program Files\Windows Disk Cleanup Automation Builder\DiskCleanupAuto.exe" enable=yes
+   netsh advfirewall firewall add rule name="Windows Disk Cleanup Automation Builder" dir=in action=allow program="C:\Program Files\Windows Disk Cleanup Automation Builder\DiskCleanupAuto.exe" enable=yes profile=any
    ```
 2. **버전 포함 이름 규칙**:
    ```cmd
-   netsh advfirewall firewall add rule name="Windows Disk Cleanup Automation Builder v1.5.0" dir=in action=allow program="C:\Program Files\Windows Disk Cleanup Automation Builder\DiskCleanupAuto.exe" enable=yes
+   netsh advfirewall firewall add rule name="Windows Disk Cleanup Automation Builder v1.5.0" dir=in action=allow program="C:\Program Files\Windows Disk Cleanup Automation Builder\DiskCleanupAuto.exe" enable=yes profile=any
    ```
 
 ### 안전한 언인스톨 정리
-프로그램을 제거할 때(`CurUninstallStepChanged(usPostUninstall)`), 위에서 등록한 방화벽 규칙 2개를 모두 자동으로 검색하여 깨끗하게 삭제합니다:
+프로그램을 제거할 때(`[UninstallRun]` 섹션), 위에서 등록한 방화벽 규칙 2개를 모두 자동으로 검색하여 깨끗하게 삭제합니다:
 ```cmd
 netsh advfirewall firewall delete rule name="Windows Disk Cleanup Automation Builder"
 netsh advfirewall firewall delete rule name="Windows Disk Cleanup Automation Builder v1.5.0"
