@@ -43,6 +43,7 @@ python build_exe.py
 ```
 - 결과물:
   - `Release\DiskCleanupAuto_v1.5.0.exe` (무설치 단독 포터블 실행 파일)
+  - `Release\WindowsDiskCleanup_Portable_v1.5.0.zip` (무설치 포터블 ZIP 패키지 — EXE·스케줄러·라이선스·다국어 가이드 포함)
   - `Release\WindowsDiskCleanup_Setup_v1.5.0.exe` (Inno Setup 설치 프로그램, ISCC 설치 시 자동 생성)
 
 ### 2. Inno Setup 설치 프로그램 단독 패키징

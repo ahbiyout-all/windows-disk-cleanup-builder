@@ -11,6 +11,7 @@ import os
 import subprocess
 import shutil
 import time
+import zipfile
 
 DEFAULT_GUI_SOURCE = r'''"""
 =============================================================================
@@ -1170,6 +1171,33 @@ def main():
             print(f"[WARN] Could not move to Release folder ({e}). Exe is located at: {source_exe}")
             final_exe = source_exe
 
+    # 4.5. Create Portable ZIP bundle (WindowsDiskCleanup_Portable_v1.5.0.zip)
+    final_portable_zip = None
+    if os.path.exists(final_exe):
+        portable_zip_path = os.path.join(release_dir, f"WindowsDiskCleanup_Portable_{APP_VERSION}.zip")
+        try:
+            with zipfile.ZipFile(portable_zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                zf.write(final_exe, arcname=os.path.basename(final_exe))
+                optional_files = [
+                    (os.path.join(script_dir, "register_scheduler.bat"), "register_scheduler.bat"),
+                    (os.path.join(script_dir, "LICENSE"), "LICENSE"),
+                    (os.path.join(script_dir, "README.md"), "README.md"),
+                    (os.path.join(script_dir, "docs", "README_EN.md"), os.path.join("docs", "README_EN.md")),
+                    (os.path.join(script_dir, "docs", "README_JA.md"), os.path.join("docs", "README_JA.md")),
+                ]
+                ico_src = os.path.join(script_dir, "assets", "app.ico")
+                if not os.path.exists(ico_src):
+                    ico_src = os.path.join(script_dir, "app.ico")
+                if os.path.exists(ico_src):
+                    optional_files.append((ico_src, os.path.join("assets", "app.ico")))
+                for src_path, arc_name in optional_files:
+                    if os.path.exists(src_path):
+                        zf.write(src_path, arcname=arc_name)
+            final_portable_zip = portable_zip_path
+            print(f"[OK] Portable ZIP archive created: {final_portable_zip}")
+        except Exception as e:
+            print(f"[WARN] Could not create Portable ZIP archive ({e}).")
+
     # 5. Inno Setup Installer Compilation (if ISCC is available and installer.iss exists)
     installer_iss = os.path.join(script_dir, "installer.iss")
     final_installer = None
@@ -1216,9 +1244,11 @@ def main():
 
     print_header("[SUCCESS] Build Complete!")
     print(f"  [1] Portable Single EXE : {final_exe}")
+    if final_portable_zip and os.path.exists(final_portable_zip):
+        print(f"  [2] Portable ZIP Bundle : {final_portable_zip}")
     if final_installer and os.path.exists(final_installer):
-        print(f"  [2] Windows Installer  : {final_installer}")
-    print("- Standalone Single EXE & Inno Setup Installer")
+        print(f"  [3] Windows Installer   : {final_installer}")
+    print("- Standalone Single EXE, Portable ZIP & Inno Setup Installer")
     print("- Built-in UAC Administrator privileges & Quiet Firewall Registration")
     print("=" * 79)
 

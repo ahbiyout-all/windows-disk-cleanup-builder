@@ -16,7 +16,7 @@
 ## ⚡ クイックスタート (Quick Start)
 
 ### 1. インストール・サイレント導入
-[GitHub Releases](https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases) から `WindowsDiskCleanup_Setup_v1.5.0.exe` または `DiskCleanupAuto_v1.5.0.exe` をダウンロードしてください。
+[GitHub Releases](https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases) から `WindowsDiskCleanup_Setup_v1.5.0.exe`、`DiskCleanupAuto_v1.5.0.exe`、または `WindowsDiskCleanup_Portable_v1.5.0.zip` をダウンロードしてください。
 
 ```cmd
 :: 完全サイレントインストール（PC教室・社内一括展開向け）

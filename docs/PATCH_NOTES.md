@@ -24,7 +24,7 @@
 - **GitHub Actions 워크플로 트리거 개편 및 단일 통합 릴리스 (`Phase 14` & `Phase 15`)**:
   - **멀티 트리거 탑재**: `push.branches: [main, master]`, `push.tags: ['v*.*.*']`, `workflow_dispatch`를 모두 지원하여 일반 커밋 푸시, 태그 푸시, 수동 실행 시 즉시 빌드 검증.
   - **단일 통합 Windows 파이프라인 (`build-and-release`)**: `windows-latest` 러너에서 PyInstaller(`--onefile` & `--onedir`) 및 Inno Setup(`ISCC.exe`)을 순차 실행하고 `--onefile` 결과물을 사전에 분리하여 패키징 충돌을 방지.
-  - **표준 인스톨러 + 포터블 EXE 동시 배포**: GitHub Releases에 `WindowsDiskCleanup_Setup_v1.5.0.exe`와 `DiskCleanupAuto_v1.5.0.exe`를 함께 첨부.
+  - **표준 인스톨러 + 포터블 EXE + 포터블 ZIP 동시 배포**: GitHub Releases에 `WindowsDiskCleanup_Setup_v1.5.0.exe`, `DiskCleanupAuto_v1.5.0.exe`, `WindowsDiskCleanup_Portable_v1.5.0.zip`(스케줄러/라이선스/다국어 문서 동봉)을 함께 첨부.
   - **MIT 라이선스 및 단독 저작권 표준화**: 루트 `LICENSE` 파일(MIT License) 생성 및 모든 소스/리소스/문서의 저작권을 `Copyright (c) 2026 AhBiYout. All rights reserved.`로 통일.
 
 

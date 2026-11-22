@@ -13,7 +13,7 @@ color 0B
 
 echo ===============================================================================
 echo   [AhBiYout] DiskCleanupAuto EXE ^& Inno Setup Installer Builder (v1.5.0)
-echo   Targets: DiskCleanupAuto_v1.5.0.exe ^& WindowsDiskCleanup_Setup_v1.5.0.exe
+echo   Targets: DiskCleanupAuto_v1.5.0.exe, Portable ZIP ^& Setup EXE
 echo   Folder : %SCRIPT_DIR%
 echo ===============================================================================
 echo.
@@ -194,7 +194,27 @@ taskkill /F /IM DiskCleanupAuto_v1.5.0.exe >nul 2>&1
 if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" attrib -r "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
 
 if exist "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" move /y "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
-if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" echo [OK] Output file: "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe"
+if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" (
+    echo [OK] Output file: "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe"
+    set "PORTABLE_STAGE=%SCRIPT_DIR%portable_staging"
+    if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
+    mkdir "%PORTABLE_STAGE%\assets" >nul 2>&1
+    mkdir "%PORTABLE_STAGE%\docs" >nul 2>&1
+    copy /y "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" "%PORTABLE_STAGE%\" >nul 2>&1
+    if exist "%SCRIPT_DIR%register_scheduler.bat" copy /y "%SCRIPT_DIR%register_scheduler.bat" "%PORTABLE_STAGE%\" >nul 2>&1
+    if exist "%SCRIPT_DIR%LICENSE" copy /y "%SCRIPT_DIR%LICENSE" "%PORTABLE_STAGE%\" >nul 2>&1
+    if exist "%SCRIPT_DIR%README.md" copy /y "%SCRIPT_DIR%README.md" "%PORTABLE_STAGE%\" >nul 2>&1
+    if exist "%SCRIPT_DIR%docs\README_EN.md" copy /y "%SCRIPT_DIR%docs\README_EN.md" "%PORTABLE_STAGE%\docs\" >nul 2>&1
+    if exist "%SCRIPT_DIR%docs\README_JA.md" copy /y "%SCRIPT_DIR%docs\README_JA.md" "%PORTABLE_STAGE%\docs\" >nul 2>&1
+    if exist "%SCRIPT_DIR%assets\app.ico" (
+        copy /y "%SCRIPT_DIR%assets\app.ico" "%PORTABLE_STAGE%\assets\app.ico" >nul 2>&1
+    ) else if exist "%SCRIPT_DIR%app.ico" (
+        copy /y "%SCRIPT_DIR%app.ico" "%PORTABLE_STAGE%\assets\app.ico" >nul 2>&1
+    )
+    powershell -NoProfile -Command "Compress-Archive -Path '%PORTABLE_STAGE%\*' -DestinationPath '%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip' -Force" >nul 2>&1
+    if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip" echo [OK] Portable ZIP: "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip"
+    if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
+)
 echo.
 
 REM -------------------------------------------------------------------------------

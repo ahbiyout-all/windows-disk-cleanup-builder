@@ -16,7 +16,7 @@ Starting with **v1.5.0**, Disk Cleanup Automation Builder includes **automatic s
 ## ⚡ Quick Start
 
 ### 1. Installation & Silent Deployment
-Download `WindowsDiskCleanup_Setup_v1.5.0.exe` or `DiskCleanupAuto_v1.5.0.exe` from [GitHub Releases](https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases).
+Download `WindowsDiskCleanup_Setup_v1.5.0.exe`, `DiskCleanupAuto_v1.5.0.exe`, or `WindowsDiskCleanup_Portable_v1.5.0.zip` from [GitHub Releases](https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases).
 
 ```cmd
 :: Silent unattended installation (ideal for lab/enterprise deployment)

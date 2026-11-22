@@ -107,7 +107,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
                     <div class="text-amber-400 font-mono text-sm font-semibold mb-1">.github/workflows/release.yml</div>
                     <p class="text-xs text-slate-400 mb-3" data-i18n="card4_desc">GitHub Actions CI/CD 릴리스 자동화 (단일 통합 잡)</p>
-                    <div class="text-[11px] text-slate-500 font-mono" data-i18n="card4_tag">Windows-latest 런너 · Setup & Portable EXE</div>
+                    <div class="text-[11px] text-slate-500 font-mono" data-i18n="card4_tag">Windows-latest 런너 · Setup, Portable EXE & ZIP</div>
                 </div>
 
                 <!-- Card 5 -->
@@ -150,7 +150,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
             <div class="space-y-3 text-xs md:text-sm text-slate-300">
                 <div class="flex items-start gap-2">
                     <span class="bg-slate-800 text-indigo-400 font-mono px-2 py-0.5 rounded">1</span>
-                    <p data-i18n="build_1">Windows 로컬에서 build_exe.bat를 실행하면 Release\\DiskCleanupAuto_v1.5.0.exe 및 Release\\WindowsDiskCleanup_Setup_v1.5.0.exe가 자동 생성됩니다.</p>
+                    <p data-i18n="build_1">Windows 로컬에서 build_exe.bat를 실행하면 Release\\DiskCleanupAuto_v1.5.0.exe, WindowsDiskCleanup_Portable_v1.5.0.zip 및 WindowsDiskCleanup_Setup_v1.5.0.exe가 자동 생성됩니다.</p>
                 </div>
                 <div class="flex items-start gap-2">
                     <span class="bg-slate-800 text-indigo-400 font-mono px-2 py-0.5 rounded">2</span>
@@ -188,7 +188,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 card3_desc: "원클릭 단독 포터블 EXE 및 Inno Setup 인스톨러 자동 컴파일러",
                 card3_tag: "PyInstaller + ISCC 자동 연동",
                 card4_desc: "GitHub Actions CI/CD 릴리스 자동화 (단일 통합 잡)",
-                card4_tag: "Windows-latest 런너 · Setup & Portable EXE",
+                card4_tag: "Windows-latest 런너 · Setup, Portable EXE & ZIP",
                 card5_desc: "PE 리소스 속성 '자세히' 탭 메타데이터 및 멀티 해상도 아이콘",
                 card5_tag: "16x16 ~ 256x256 멀티 아이콘",
                 card6_desc: "다국어 문서(KO/EN/JA), 설치/빌드/보안 가이드 및 MIT 라이선스",
@@ -198,7 +198,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 copy_btn: "복사",
                 copied_btn: "복사됨!",
                 build_title: "🔨 로컬 빌드 및 배포 방법",
-                build_1: "Windows 로컬에서 build_exe.bat를 실행하면 Release\\\\DiskCleanupAuto_v1.5.0.exe 및 Release\\\\WindowsDiskCleanup_Setup_v1.5.0.exe가 자동 생성됩니다.",
+                build_1: "Windows 로컬에서 build_exe.bat를 실행하면 Release\\\\DiskCleanupAuto_v1.5.0.exe, WindowsDiskCleanup_Portable_v1.5.0.zip 및 WindowsDiskCleanup_Setup_v1.5.0.exe가 자동 생성됩니다.",
                 build_2: "git push 또는 버전 태그(v1.5.0) 푸시 시 .gitignore로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.",
                 affiliation: "소속회사",
                 c_header: "자동 생성된 디스크 정리 스크립트 (AhBiYout Windows Disk Cleanup Auto v1.5.0)",
@@ -223,7 +223,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 card3_desc: "One-click portable EXE & Inno Setup installer automated compiler",
                 card3_tag: "PyInstaller + ISCC Integration",
                 card4_desc: "GitHub Actions CI/CD automated release pipeline (Unified Job)",
-                card4_tag: "windows-latest · Setup & Portable EXE",
+                card4_tag: "windows-latest · Setup, Portable EXE & ZIP",
                 card5_desc: "Windows PE Details metadata & multi-resolution app icon assets",
                 card5_tag: "16x16 ~ 256x256 Multi-Icon",
                 card6_desc: "Multilingual docs (KO/EN/JA), Install/Build/Security guides & MIT License",
@@ -233,7 +233,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 copy_btn: "Copy",
                 copied_btn: "Copied!",
                 build_title: "🔨 Local Build & Deployment",
-                build_1: "Run build_exe.bat locally on Windows to automatically generate Release\\\\DiskCleanupAuto_v1.5.0.exe and Release\\\\WindowsDiskCleanup_Setup_v1.5.0.exe.",
+                build_1: "Run build_exe.bat locally on Windows to automatically generate Release\\\\DiskCleanupAuto_v1.5.0.exe, WindowsDiskCleanup_Portable_v1.5.0.zip, and WindowsDiskCleanup_Setup_v1.5.0.exe.",
                 build_2: "Pushing git commits or version tags (v1.5.0) automatically excludes temp files via .gitignore and triggers GitHub Actions to build & release official binaries.",
                 affiliation: "Affiliation",
                 c_header: "Auto-generated Disk Cleanup Script (AhBiYout Windows Disk Cleanup Auto v1.5.0)",
@@ -258,7 +258,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 card3_desc: "ワンクリック単体ポータブルEXEおよびインストーラー自動コンパイラ",
                 card3_tag: "PyInstaller + ISCC 自動連携",
                 card4_desc: "GitHub Actions CI/CD リリース自動化 (単一統合ジョブ)",
-                card4_tag: "windows-latest · Setup & Portable EXE",
+                card4_tag: "windows-latest · Setup, Portable EXE & ZIP",
                 card5_desc: "PEリソースプロパティ「詳細」メタデータおよび高解像度マルチアイコン",
                 card5_tag: "16x16 ~ 256x256 マルチアイコン",
                 card6_desc: "多言語ドキュメント(KO/EN/JA)、導入/ビルド/セキュリティガイド & MITライセンス",
@@ -268,7 +268,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 copy_btn: "コピー",
                 copied_btn: "コピー完了!",
                 build_title: "🔨 ローカルビルドとデプロイ方法",
-                build_1: "Windowsローカルで build_exe.bat を実行すると、Release\\\\DiskCleanupAuto_v1.5.0.exe および Release\\\\WindowsDiskCleanup_Setup_v1.5.0.exe が自動生成されます。",
+                build_1: "Windowsローカルで build_exe.bat を実行すると、Release\\\\DiskCleanupAuto_v1.5.0.exe、WindowsDiskCleanup_Portable_v1.5.0.zip、および WindowsDiskCleanup_Setup_v1.5.0.exe が自動生成されます。",
                 build_2: "git push またはバージョンタグ (v1.5.0) のプッシュ時、.gitignoreにより一時ファイルが自動除外され、GitHub Actionsが公式バイナリを自動ビルド・リリースします。",
                 affiliation: "所属会社",
                 c_header: "自動生成されたディスククリーンアップスクリプト (AhBiYout Windows Disk Cleanup Auto v1.5.0)",

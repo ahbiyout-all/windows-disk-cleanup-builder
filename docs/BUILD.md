@@ -23,7 +23,7 @@
 :: PyInstaller 단일 EXE + Inno Setup 설치 파일 순차 자동 빌드
 build_exe.bat
 ```
-- **포터블 빌드 결과물**: `Release\DiskCleanupAuto_v1.5.0.exe`
+- **포터블 빌드 결과물**: `Release\DiskCleanupAuto_v1.5.0.exe` (단독 EXE) 및 `Release\WindowsDiskCleanup_Portable_v1.5.0.zip` (포터블 ZIP 패키지)
 - **인스톨러 빌드 결과물**: `Release\WindowsDiskCleanup_Setup_v1.5.0.exe` (시스템에 Inno Setup 6 설치 시 자동 생성, 한/영/일 다국어 포함)
 - **적용 메타데이터**: `version_info.txt`에 명시된 버전(`1.5.0.0`), 제작자(`AhBiYout`), 저작권(`Copyright (c) 2026 AhBiYout. All rights reserved.`) 자동 임베드.
 - **자체 복구 소스 내장**: `build_exe.py` 내부 `DEFAULT_GUI_SOURCE`가 `disk_cleanup_gui.py`와 동일하게 다국어 자동 감지 및 `Windows.old` 안전 소거 루틴으로 동기화되어 있습니다.
@@ -52,10 +52,11 @@ GitHub Actions 러너의 Node.js 20 지원 종료에 대응하여, `.github/work
        [Single Unified Job: build-and-release]
        (Runner: windows-latest)
         ├─ 1. PyInstaller --onefile → release_artifacts/DiskCleanupAuto_v1.5.0.exe
-        ├─ 2. PyInstaller --onedir  → dist/DiskCleanupAuto/ (assets/app.ico 포함)
-        ├─ 3. ISCC installer.iss    → Output/WindowsDiskCleanup_Setup_v1.5.0.exe
-        ├─ 4. GitHub Actions Artifact 업로드 (windows-binaries-v1.5.0)
-        └─ 5. GitHub Releases 자동 발행 (Setup EXE + Portable EXE 동시 첨부)
+        ├─ 2. Portable ZIP Bundle   → release_artifacts/WindowsDiskCleanup_Portable_v1.5.0.zip
+        ├─ 3. PyInstaller --onedir  → dist/DiskCleanupAuto/ (assets/app.ico 포함)
+        ├─ 4. ISCC installer.iss    → Output/WindowsDiskCleanup_Setup_v1.5.0.exe
+        ├─ 5. GitHub Actions Artifact 업로드 (windows-binaries-v1.5.0)
+        └─ 6. GitHub Releases 자동 발행 (Setup EXE + Portable EXE + Portable ZIP 동시 첨부)
 ```
 
 > **주의 (패키징 충돌 방지)**: `installer.iss` 패키징 전에 `--onefile` 결과물(`dist/DiskCleanupAuto_v1.5.0.exe`)은 `release_artifacts/`로 즉시 이동시켜, `--onedir` 폴더(`dist/DiskCleanupAuto/*`)와 중복 패킹되지 않도록 격리합니다.
@@ -79,9 +80,10 @@ GitHub Actions 러너의 Node.js 20 지원 종료에 대응하여, `.github/work
    - 워크플로 파일은 반드시 저장소 최상위 루트의 **`.github/workflows/release.yml`** 에 위치해야 합니다.
 
 ### 릴리스 에셋 정책
-- GitHub Releases에는 다음 두 가지 공식 Windows 바이너리가 자동 첨부됩니다:
+- GitHub Releases에는 다음 세 가지 공식 Windows 바이너리 및 포터블 패키지가 자동 첨부됩니다:
   1. **`WindowsDiskCleanup_Setup_v1.5.0.exe`** (표준 Inno Setup 설치 프로그램)
   2. **`DiskCleanupAuto_v1.5.0.exe`** (무설치 단독 포터블 실행 파일)
+  3. **`WindowsDiskCleanup_Portable_v1.5.0.zip`** (무설치 포터블 ZIP 패키지 — EXE·스케줄러·라이선스·다국어 가이드 포함)
 
 ---
 
