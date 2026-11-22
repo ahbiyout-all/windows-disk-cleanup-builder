@@ -5,12 +5,14 @@
 ; Official Blog: https://ahbiyoutvibe.blogspot.com/
 ; Copyright (c) 2026 AhBiYout. All rights reserved.
 ;
-; [배포/설치 규격]
-; 1. 폴더 풀림(Unpacked Multi-File) 개별파일 설치 구성 (불필요 문서 및 포터블 파일 제외)
-; 2. 기존 설치 감지 시 덮어쓰기/삭제 확인 대화상자 표시
-; 3. 무인 설치 지원 (/SILENT, /VERYSILENT, /SUPPRESSMSGBOXES)
-; 4. Windows 방화벽 인바운드 규칙 사전에 조용히 등록 (기본 이름 및 버전 포함 이름 둘 다 등록)
-; 5. 언인스톨 시 방화벽 규칙 및 관련 레지스트리 완전 제거
+; [배포/설치 규격 및 진행 순서]
+; 1. 기존 실행 중인 앱 프로세스 강제 종료 (Force Kill Running App)
+; 2. 기존 설치 감지 시 삭제 후 설치 / 덮어쓰기 확인 대화상자 표시
+; 3. MIT 라이선스 선언 및 동의 (LicenseFile=LICENSE)
+; 4. 폴더 풀림(Unpacked Multi-File) 개별파일 설치 및 방화벽 규칙 자동 등록
+; 5. 바탕화면 바로가기 기본 체크 ([Tasks] desktopicon)
+; 6. 설치 완료 후 앱 자동 실행 ([Run] postinstall)
+; 7. 무인 설치 지원 (/SILENT, /VERYSILENT, /SUPPRESSMSGBOXES) & 언인스톨 시 방화벽/레지스트리 정리
 ; =============================================================================
 
 #define MyAppName "Windows Disk Cleanup Automation Builder"
@@ -52,7 +54,8 @@ VersionInfoCopyright=Copyright (c) 2026 {#MyAppPublisher}. All rights reserved.
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
 
-; 무인 설치 및 인터페이스 설정
+; 라이선스 선언 및 무인 설치/인터페이스 설정
+LicenseFile=LICENSE
 DisableWelcomePage=no
 DisableDirPage=auto
 DisableProgramGroupPage=auto
@@ -63,7 +66,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 ; =============================================================================
@@ -96,8 +99,8 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilen
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#MyAppName}"" dir=in action=allow program=""{app}\{#MyAppExeName}"" enable=yes profile=any"; Flags: runhidden waituntilterminated
 ; 2. 버전 정보 부착된 앱 이름 방화벽 규칙 조용히 등록
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#MyAppName} v{#MyAppVersion}"" dir=in action=allow program=""{app}\{#MyAppExeName}"" enable=yes profile=any"; Flags: runhidden waituntilterminated
-; 설치 완료 후 앱 실행 (옵션)
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent shellexec
+; 설치 완료 후 앱 실행 (기본 체크)
+Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent shellexec
 
 ; =============================================================================
 ; [UninstallRun] 제거 시 방화벽 규칙 자동 소거 (Clean Uninstall)
@@ -107,21 +110,37 @@ Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#My
 Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#MyAppName} v{#MyAppVersion}"""; Flags: runhidden waituntilterminated
 
 ; =============================================================================
-; [Code] 기존 설치 여부 확인 대화상자 & 무인 설치(Silent) 자동 우회 처리
+; [Code] 1) 실행 중인 기존 앱 강제 종료 -> 2) 기존 설치 삭제/덮어쓰기 확인
 ; =============================================================================
 [Code]
+// 실행 중인 기존 앱 프로세스 강제 종료
+procedure ForceKillRunningApp();
+var
+  ResultCode: Integer;
+begin
+  Exec('taskkill.exe', '/F /IM {#MyAppExeName} /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('taskkill.exe', '/F /IM DiskCleanupAuto_v{#MyAppVersion}.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+end;
+
+function GetUninstallKeyPath(): String;
+begin
+  Result := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppRawId}_is1';
+end;
+
 // 이전 버전 설치 여부 검사 함수
 function GetInstalledVersion(): String;
 var
   InstalledVer: String;
+  KeyPath: String;
 begin
   InstalledVer := '';
-  if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppRawId}_is1', 'DisplayVersion', InstalledVer) then
+  KeyPath := GetUninstallKeyPath();
+  if RegQueryStringValue(HKLM, KeyPath, 'DisplayVersion', InstalledVer) then
   begin
     Result := InstalledVer;
     Exit;
   end;
-  if RegQueryStringValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppRawId}_is1', 'DisplayVersion', InstalledVer) then
+  if RegQueryStringValue(HKCU, KeyPath, 'DisplayVersion', InstalledVer) then
   begin
     Result := InstalledVer;
     Exit;
@@ -129,16 +148,58 @@ begin
   Result := '';
 end;
 
+// 기존 언인스톨러 실행 경로 조회
+function GetUninstallString(): String;
+var
+  UninstStr: String;
+  KeyPath: String;
+begin
+  UninstStr := '';
+  KeyPath := GetUninstallKeyPath();
+  if RegQueryStringValue(HKLM, KeyPath, 'UninstallString', UninstStr) then
+  begin
+    Result := UninstStr;
+    Exit;
+  end;
+  if RegQueryStringValue(HKCU, KeyPath, 'UninstallString', UninstStr) then
+  begin
+    Result := UninstStr;
+    Exit;
+  end;
+  Result := '';
+end;
+
+// 기존 설치 무인 제거(삭제) 실행
+function RunExistingUninstaller(): Boolean;
+var
+  UninstExe: String;
+  ResultCode: Integer;
+begin
+  Result := True;
+  UninstExe := RemoveQuotes(GetUninstallString());
+  if (UninstExe <> '') and FileExists(UninstExe) then
+  begin
+    if not Exec(UninstExe, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+      Result := False;
+  end;
+end;
+
 function InitializeSetup(): Boolean;
 var
   PrevVersion: String;
+  HasUninstaller: Boolean;
   PromptMsg: String;
   UserResponse: Integer;
 begin
   Result := True;
-  PrevVersion := GetInstalledVersion();
 
-  // 기존 설치가 감지된 경우
+  // [1단계] 기존 앱 실행 중일 경우 즉시 강제 종료
+  ForceKillRunningApp();
+
+  PrevVersion := GetInstalledVersion();
+  HasUninstaller := (GetUninstallString() <> '');
+
+  // [2단계] 기존 설치가 감지된 경우 삭제/덮어쓰기 사용자 확인
   if (PrevVersion <> '') or FileExists(ExpandConstant('{autopf}\{#MyAppName}\{#MyAppExeName}')) then
   begin
     // 무인/자동 설치 모드(/SILENT, /VERYSILENT)인 경우 묻지 않고 자동 덮어쓰기 진행
@@ -148,49 +209,64 @@ begin
       Exit;
     end;
 
-    // 사용자에게 삭제/덮어쓰기 확인 대화상자 표시 (언어 자동 대응)
-    if ActiveLanguage() = 'english' then
+    if HasUninstaller then
     begin
-      if PrevVersion <> '' then
+      if ActiveLanguage() = 'english' then
         PromptMsg := Format('An existing version (v%s) is already installed.' + #13#10 + #13#10 +
-                            'Do you want to overwrite it and continue installing v{#MyAppVersion}?' + #13#10 +
-                            '(Click No to cancel installation.)', [PrevVersion])
-      else
-        PromptMsg := 'An existing installation was detected in the target folder.' + #13#10 + #13#10 +
-                     'Do you want to overwrite it with v{#MyAppVersion}?' + #13#10 +
-                     '(Click No to cancel installation.)';
-    end
-    else if ActiveLanguage() = 'japanese' then
-    begin
-      if PrevVersion <> '' then
+                            '• [Yes]: Uninstall existing version and install v{#MyAppVersion}' + #13#10 +
+                            '• [No]: Overwrite existing installation directly' + #13#10 +
+                            '• [Cancel]: Abort setup', [PrevVersion])
+      else if ActiveLanguage() = 'japanese' then
         PromptMsg := Format('旧バージョン (v%s) がすでにインストールされています。' + #13#10 + #13#10 +
-                            '上書きして最新バージョン (v{#MyAppVersion}) のインストールを続行しますか？' + #13#10 +
-                            '(「いいえ」をクリックするとインストールを中止します。)', [PrevVersion])
+                            '• [はい]: 旧バージョンを削除してから新規インストール (v{#MyAppVersion})' + #13#10 +
+                            '• [いいえ]: 既存のインストールを上書きして続行' + #13#10 +
+                            '• [キャンセル]: インストールを中止', [PrevVersion])
       else
-        PromptMsg := '同じフォルダに既存のインストールが検出されました。' + #13#10 + #13#10 +
-                     '新バージョン (v{#MyAppVersion}) で上書きインストールしますか？' + #13#10 +
-                     '(「いいえ」をクリックするとインストールを中止します。)';
+        PromptMsg := Format('기존 버전(v%s)이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
+                            '• [예]: 기존 앱을 삭제(제거)한 후 v{#MyAppVersion} 새로 설치' + #13#10 +
+                            '• [아니오]: 기존 설치 위에 바로 덮어쓰기 진행' + #13#10 +
+                            '• [취소]: 설치 중단', [PrevVersion]);
+
+      UserResponse := MsgBox(PromptMsg, mbConfirmation, MB_YESNOCANCEL);
+      if UserResponse = IDYES then
+      begin
+        ForceKillRunningApp();
+        RunExistingUninstaller();
+        Result := True;
+      end
+      else if UserResponse = IDNO then
+      begin
+        Result := True;
+      end
+      else
+      begin
+        Result := False;
+      end;
     end
     else
     begin
-      if PrevVersion <> '' then
-        PromptMsg := Format('기존 버전(v%s)이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
-                            '기존 버전을 최신 버전(v{#MyAppVersion})으로 덮어쓰고 계속 진행하시겠습니까?' + #13#10 +
-                            '(아니오 클릭 시 설치가 중단됩니다.)', [PrevVersion])
+      if ActiveLanguage() = 'english' then
+        PromptMsg := 'An existing installation was detected in the target folder.' + #13#10 + #13#10 +
+                     'Do you want to overwrite it with v{#MyAppVersion}?' + #13#10 +
+                     '(Click No to cancel installation.)'
+      else if ActiveLanguage() = 'japanese' then
+        PromptMsg := '同じフォルダに既存のインストールが検出されました。' + #13#10 + #13#10 +
+                     '新バージョン (v{#MyAppVersion}) で上書きインストールしますか？' + #13#10 +
+                     '(「いいえ」をクリックするとインストールを中止します。)'
       else
         PromptMsg := '동일한 경로에 기존 앱이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
                      '기존 앱을 새 버전(v{#MyAppVersion})으로 덮어쓰시겠습니까?' + #13#10 +
                      '(아니오 클릭 시 설치가 중단됩니다.)';
-    end;
 
-    UserResponse := MsgBox(PromptMsg, mbConfirmation, MB_YESNO);
-    if UserResponse = IDYES then
-    begin
-      Result := True; // 덮어쓰기 계속 진행
-    end
-    else
-    begin
-      Result := False; // 사용자 거부 시 설치 안전 취소
+      UserResponse := MsgBox(PromptMsg, mbConfirmation, MB_YESNO);
+      Result := (UserResponse = IDYES);
     end;
   end;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  // 설치 직전 실행 중인 앱이 다시 열렸을 경우를 대비해 한 번 더 강제 종료
+  ForceKillRunningApp();
+  Result := '';
 end;
