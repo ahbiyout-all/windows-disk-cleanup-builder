@@ -22,7 +22,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 ### 3. 업데이트
 - **Windows.old 강제 권한 탈취 & 영구 소거**: 대규모 버전 업데이트 후 잠긴 `C:\Windows.old`를 `takeown` 및 `icacls`로 Administrators 권한 획득 후 안전 소거 (15~40GB 즉시 확보).
 - **사용자 개인 파일 보존 안전 가드레일**: `C:\Windows.old\Users` 내 백업되지 않은 개인 데이터 유무를 사전 스캔하여 안전 보호.
-- **Inno Setup 개별 파일 언팩 인스톨러 배포**: 단일 포터블 실행 파일뿐 아니라, 깔끔한 언팩형 인스톨러(.exe) 지원 및 무인 설치 스위치(`/VERYSILENT`) 완벽 지원.
+- **Inno Setup 6단계 안전 설치 & 인스톨러 배포**: 설치 시작 시 실행 중인 앱 강제 종료, 기존 설치 감지 시 삭제 후 재설치/덮어쓰기 선택, MIT 라이선스 동의, 바탕화면 바로가기 기본 체크 및 설치 완료 후 즉시 실행 지원(`/VERYSILENT` 무인 설치 호환).
 - **Windows 방화벽 인바운드 규칙 자동 조용히 등록**: 컴퓨터실/사내 네트워크 환경에서 방화벽 경고 팝업 없이 원활하게 구동되도록 인스톨러 내 자동 등록.
 - **휴지통 비우기 직접 API (`SHEmptyRecycleBinW`) 연동**: 레지스트리 플래그 외에 Win32 API를 직접 호출하여 전 드라이브 휴지통 비우기 신뢰성 100% 보장.
 - **시스템 언어 자동 감지 및 한/영/일 다국어 지원**: OS UI 언어(`GetUserDefaultUILanguage`) 및 브라우저 로케일을 자동 감지하여 UI, 진행 로그, 스크립트 주석을 한국어·영어·일본어로 동적 표시 (수동 전환 콤보박스 및 `README_EN.md`/`README_JA.md` 공식 문서 제공).
@@ -59,6 +59,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 - **제공 파일 형식**:
   - `WindowsDiskCleanup_Setup_v1.5.0.exe` (표준 Windows 설치형 프로그램)
   - `DiskCleanupAuto_v1.5.0.exe` (무설치 단독 포터블 실행 파일)
+  - `WindowsDiskCleanup_Portable_v1.5.0.zip` (무설치 포터블 ZIP 패키지 — EXE·스케줄러·라이선스·다국어 가이드 포함)
 
 ---
 
@@ -92,7 +93,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 
 | 버전 | 일자 | 구분 | 주요 변경 내역 요약 |
 | :---: | :---: | :---: | :--- |
-| **`v1.5.0`** | 2026-11-22 | **MINOR** | • Windows 11 Windows.old 권한 탈취 및 100% 완전 삭제 (`takeown` + `icacls`)<br>• C:\Windows.old\Users 개인 문서 보존 안전 가드레일 탑재<br>• OS/브라우저 언어 자동 감지 및 한/영/일 3개 국어 UI·인스톨러(`Japanese.isl` 포함)·문서(`README_EN`/`README_JA`) 지원<br>• Inno Setup 언팩 설치기 및 방화벽 인바운드 규칙 자동 조용히 등록<br>• 고화질 멀티 해상도 `app.ico` 적용 및 제어판(설치된 앱) 정식 등록<br>• GitHub Actions 단일 통합 빌드(`WindowsDiskCleanup_Setup_v1.5.0.exe` + `DiskCleanupAuto_v1.5.0.exe`)<br>• 휴지통 직접 비우기 API(`SHEmptyRecycleBinW`) 연동 및 MIT 라이선스/AhBiYout 단독 저작권 표준화 |
+| **`v1.5.0`** | 2026-11-23 | **MINOR** | • Windows 11 Windows.old 권한 탈취 및 100% 완전 삭제 (`takeown` + `icacls`)<br>• C:\Windows.old\Users 개인 문서 보존 안전 가드레일 탑재<br>• OS/브라우저 언어 자동 감지 및 한/영/일 3개 국어 UI·인스톨러(`Japanese.isl` 포함)·문서(`README_EN`/`README_JA`) 지원<br>• Inno Setup 6단계 안전 설치 흐름(실행 중 강제 종료, 삭제/덮어쓰기 확인, 라이선스, 바탕화면 바로가기 기본 체크, 자동 실행) 및 방화벽 인바운드 규칙 등록<br>• 고화질 멀티 해상도 `app.ico` 적용 및 제어판(설치된 앱) 정식 등록<br>• GitHub Actions 단일 통합 빌드(`WindowsDiskCleanup_Setup_v1.5.0.exe` + `DiskCleanupAuto_v1.5.0.exe` + `WindowsDiskCleanup_Portable_v1.5.0.zip`)<br>• 휴지통 직접 비우기 API(`SHEmptyRecycleBinW`) 연동 및 MIT 라이선스/AhBiYout 단독 저작권 표준화 |
 | **`v1.4.0`** | 2026-09-07 | **MINOR** | • Win32 커널 동기화(`WaitForSingleObject`) 및 HWND 창 라이프사이클 실시간 후킹 (CPU 0%)<br>• 컴퓨터실/전산실 무인 대량 배포용 2초 주기 쉘 새로고침 및 트레이 가상 스위프<br>• C: 드라이브 여유 공간 실시간 계산 및 확보 용량 안내 (`GetDiskFreeSpaceExW`)<br>• 마우스 호버 즉시 닫기 제스처 & 5초 자동 카운트다운 종료 |
 | **`v1.3.4`** | 2026-08-29 | **PATCH** | • 화면 상단(Top 22% Golden Ratio) 최적 배치로 작업표시줄 겹침 방지<br>• 실행 즉시 전면 윈도우 활성화 (`lift` & `wm_attributes`) |
 | **`v1.3.3`** | 2026-08-29 | **PATCH** | • 대용량 Windows 업데이트 정리(WinSxS) 25초 타임아웃 제거 후 100% 완주 보장<br>• 실제 백그라운드 엔진 단계와 일치하는 상태 안내 및 실시간 타이머 |

@@ -37,6 +37,13 @@
     - `server.js` 템플릿 리터럴 내 `\\` 이스케이프 손실로 브라우저 경로 백슬래시가 누락되던 버그 수정, 6개 핵심 카드 전체 i18n 적용 및 동적 스크립트 주석 미리보기 탑재.
     - `installer.iss`에 일본어(`Japanese.isl`) 및 `InitializeSetup()` 일본어 덮어쓰기 안내 대화상자 추가 (`UTF-8 BOM + CRLF` 유지).
   - **다국어 공식 문서 및 소속회사 표기 완비**: 영어 가이드(`docs/README_EN.md`), 일본어 가이드(`docs/README_JA.md`, 오탈자 수정 포함) 신설 및 전체 UI·문서·릴리스 노트에 소속회사 `(주)청운정보시스템 ( cisnet.co.kr )` 표기 반영.
+- **Inno Setup 6단계 안전 설치 흐름, 포터블 ZIP 추가 배포 및 심층 감사 수정 (Phase 19)**:
+  - **Inno Setup 설치 마법사 흐름 고도화 (`installer.iss`)**: 설치 시작/직전 `System32\taskkill.exe` 강제 종료 → 기존 설치 감지 시 삭제 후 재설치(`/VERYSILENT`)/덮어쓰기/취소 선택(`MB_YESNOCANCEL`, 언인스톨러 실존 여부 확인 포함) → MIT 라이선스 동의(`LicenseFile=LICENSE`) → 설치 및 바탕화면 바로가기 기본 체크 → 설치 완료 후 자동 실행(`WorkingDir: "{app}"`) 순으로 정비(`UTF-8 BOM + CRLF` 유지).
+  - **포터블 ZIP 아카이브 추가 (`WindowsDiskCleanup_Portable_v1.5.0.zip`)**: `release.yml`, `build_exe.py`, `build_exe.bat`에서 단독 EXE와 스케줄러(`register_scheduler.bat`), `LICENSE`, `README.md`, 전체 `docs/*.md`, `assets/app.ico`를 포함한 포터블 ZIP 패키지를 함께 생성하여 GitHub Releases 3종 배포 체계를 구축.
+  - **심층 감사(Deep Audit) 핵심 버그 수정**:
+    - `build_exe.bat`: `EnableDelayedExpansion` 미사용 상태에서 `if (...)` 괄호 블록 내부에 `set "PORTABLE_STAGE=..."`를 할당·확장하던 Windows 배치 파싱 결함을 순차 라벨 분기(`goto :SKIP_PORTABLE_ZIP`)로 수정.
+    - `disk_cleanup_gui.py` & `build_exe.py`: `perform_cleanup()` 진입 시 `_init_win32_types()` 선행 호출로 64비트 ctypes `SHEmptyRecycleBinW`/`GetDiskFreeSpaceExW` 초기화 경합(Race Condition) 제거, `detect_system_lang()` 환경변수 탐색 조기 반환 개선, `build_exe.py` `DEFAULT_GUI_SOURCE`에 실시간 GitHub 업데이트 알림(`check_github_update_realtime`) 동기화 및 비대화형 실행 시 `EOFError` 방어(`safe_pause()`) 추가.
+    - `server.js`: 샌드박스/비-HTTPS 환경을 위한 `document.execCommand("copy")` 클립보드 폴백 추가.
 
 - **고화질 앱/인스톨러/바로가기 전용 아이콘(app.ico) 시스템 전면 도입 (Phase 16)**:
   - **Windows 표준 멀티 해상도 아이콘 구축**: 1024x1024 마스터 그래픽 자산(icon.png)을 기반으로 고해상도 무손실 app.ico 및 assets/app.ico 자동 생성 및 번들링.

@@ -22,7 +22,7 @@
 4. **[보안 및 개인정보 보호 정책 (Security & Privacy Policy)](./SECURITY.md)**
    - 커밋 작성자 고정, `.gitignore` 보안 배제, 관리자 권한(UAC) 및 개인 데이터 보존 안전 가드레일
 5. **[개발 로드맵 및 구현 현황 (Roadmap & Status)](./ROADMAP.md)**
-   - Phase 1~18 구현 완료 내역 및 향후 개발 계획
+   - Phase 1~19 구현 완료 내역 및 향후 개발 계획
 6. **[Google 블로그 소개 포스팅 템플릿 (Blog Post)](./BLOG_POST.md)**
    - Google Blogger 및 기술 블로그 게시용 마크다운 원고 템플릿 (`v1.5.0`)
 7. **[공식 MIT 라이선스 (MIT License)](../LICENSE)**
@@ -42,4 +42,4 @@
 - **공식 블로그**: https://ahbiyoutvibe.blogspot.com/
 - **권장 파이썬 버전**: Python 3.10 ~ 3.13+ (빌드 시 권장: Python 3.12)
 - **권장 PyInstaller 버전**: PyInstaller 6.x+
-- **배포 인스톨러**: Inno Setup 6.x (개별 파일 풀림 설치 & 포터블 EXE 병행 배포, 한/영/일 다국어 지원)
+- **배포 패키지**: Inno Setup 6.x (`Setup_v1.5.0.exe`, 6단계 안전 설치 및 한/영/일 지원) · 포터블 EXE (`DiskCleanupAuto_v1.5.0.exe`) · 포터블 ZIP (`WindowsDiskCleanup_Portable_v1.5.0.zip`)

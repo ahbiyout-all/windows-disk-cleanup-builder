@@ -67,6 +67,7 @@ def _init_win32_types():
         user32.PostMessageW.restype = wintypes.BOOL
         user32.RedrawWindow.argtypes = [wintypes.HWND, ctypes.c_void_p, ctypes.c_void_p, wintypes.UINT]
         user32.RedrawWindow.restype = wintypes.BOOL
+        user32.EnumWindows.restype = wintypes.BOOL
 
         kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
         kernel32.OpenProcess.restype = wintypes.HANDLE
@@ -151,7 +152,8 @@ def detect_system_lang():
             env_val = os.environ.get(env_key)
             if env_val and env_val.upper() not in ("C", "POSIX", "C.UTF-8"):
                 matched = _match_lang_code(env_val)
-                return matched if matched else "ko"
+                if matched:
+                    return matched
         try:
             loc, _ = locale.getlocale()
             matched = _match_lang_code(loc)
@@ -216,6 +218,13 @@ TRANSLATIONS = {
         "blog": "📝 AhBiYoutVibe 블로그",
         "github": "🐙 GitHub",
         "affiliation": "소속회사: (주)청운정보시스템 ( cisnet.co.kr )",
+        "upd_win_title": "🚀 새로운 업데이트 알림 (GitHub Releases)",
+        "upd_header": "새로운 버전({latest})이 출시되었습니다!",
+        "upd_sub": "현재 버전: {current}  ->  최신 배포 버전: {latest}",
+        "upd_body": "GitHub Releases에서 최신 인스톨러 파일을 다운로드할 수 있습니다.\n\n• 저장소: {repo}\n• 릴리스: {url}\n• 패치 요약: {notes}",
+        "upd_default_notes": "Windows 11 최신 정리 및 기능 개선",
+        "upd_btn_dl": "🚀 업데이트 다운로드 (GitHub)",
+        "upd_btn_close": "닫기",
     },
     "en": {
         "title": f"AhBiYout Windows Disk Cleanup Auto ({CURRENT_VERSION})",
@@ -267,6 +276,13 @@ TRANSLATIONS = {
         "blog": "📝 AhBiYoutVibe Blog",
         "github": "🐙 GitHub",
         "affiliation": "Affiliation: (주)청운정보시스템 ( cisnet.co.kr )",
+        "upd_win_title": "🚀 New Update Available (GitHub Releases)",
+        "upd_header": "A new version ({latest}) is available!",
+        "upd_sub": "Current: {current}  ->  Latest: {latest}",
+        "upd_body": "Download the latest installer or portable binary from GitHub Releases.\n\n• Repo: {repo}\n• Release: {url}\n• Notes: {notes}",
+        "upd_default_notes": "Latest Windows 11 cleanup & stability improvements",
+        "upd_btn_dl": "🚀 Download Update (GitHub)",
+        "upd_btn_close": "Close",
     },
     "ja": {
         "title": f"AhBiYout Windows ディスククリーンオート ({CURRENT_VERSION})",
@@ -318,6 +334,13 @@ TRANSLATIONS = {
         "blog": "📝 AhBiYoutVibe ブログ",
         "github": "🐙 GitHub",
         "affiliation": "所属会社: (주)청운정보시스템 ( cisnet.co.kr )",
+        "upd_win_title": "🚀 新しいアップデートのお知らせ (GitHub Releases)",
+        "upd_header": "新しいバージョン ({latest}) がリリースされました！",
+        "upd_sub": "現在のバージョン: {current}  ->  最新バージョン: {latest}",
+        "upd_body": "GitHub Releases から最新インストーラーをダウンロードできます。\n\n• リポジトリ: {repo}\n• リリース: {url}\n• 更新内容: {notes}",
+        "upd_default_notes": "Windows 11 最新クリーンアップおよび機能改善",
+        "upd_btn_dl": "🚀 アップデートをダウンロード (GitHub)",
+        "upd_btn_close": "閉じる",
     }
 }
 current_lang = [detect_system_lang()]
@@ -692,6 +715,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         update_ui(tr("step2_reg", idx=idx, total=total), f"HKLM VolumeCaches\\{item} ({FLAG_NAME}=2) [{status}]")
         time.sleep(0.02)
 
+    _init_win32_types()
     start_total_time = time.time()
     initial_free_gb = get_c_drive_free_gb()
 
@@ -922,11 +946,66 @@ def main():
     btn_github.pack(side="left", padx=4)
     btn_github.bind("<Button-1>", lambda e: open_url(GITHUB_REPO_URL))
 
+    check_github_update_realtime(root)
     worker = threading.Thread(target=perform_cleanup, args=(status_label, progress, detail_label, root, work_started), daemon=True)
     worker.start()
 
     root.protocol("WM_DELETE_WINDOW", lambda: force_cleanup_and_exit(root))
     root.mainloop()
+
+def show_update_dialog(root, latest_version, release_url, release_notes=""):
+    try:
+        dialog = tk.Toplevel(root)
+        dialog.title(tr("upd_win_title"))
+        dialog.geometry("450x260")
+        dialog.resizable(False, False)
+        dialog.configure(bg="#f8fafc")
+        dialog.attributes("-topmost", True)
+        dialog.transient(root)
+        dialog.grab_set()
+        header = tk.Frame(dialog, bg="#1e293b", padx=16, pady=12)
+        header.pack(fill="x")
+        tk.Label(header, text=tr("upd_header", latest=latest_version), font=("Segoe UI", 11, "bold"), fg="#38bdf8", bg="#1e293b").pack(anchor="w")
+        tk.Label(header, text=tr("upd_sub", current=CURRENT_VERSION, latest=latest_version), font=("Segoe UI", 9), fg="#94a3b8", bg="#1e293b").pack(anchor="w")
+        body = tk.Frame(dialog, bg="#f8fafc", padx=16, pady=12)
+        body.pack(fill="both", expand=True)
+        info_text = tr("upd_body", repo=GITHUB_REPO_URL, url=release_url or GITHUB_RELEASES_URL, notes=release_notes or tr("upd_default_notes"))
+        tk.Label(body, text=info_text, font=("Segoe UI", 9), fg="#334155", bg="#f8fafc", justify="left", wraplength=410).pack(anchor="w", pady=(0, 10))
+        btn_frame = tk.Frame(body, bg="#f8fafc")
+        btn_frame.pack(fill="x", side="bottom")
+        def open_update():
+            webbrowser.open_new(release_url or GITHUB_RELEASES_URL)
+            dialog.destroy()
+        tk.Button(btn_frame, text=tr("upd_btn_dl"), font=("Segoe UI", 9, "bold"), bg="#0284c7", fg="white", relief="flat", padx=12, pady=6, command=open_update, cursor="hand2").pack(side="right", padx=(6, 0))
+        tk.Button(btn_frame, text=tr("upd_btn_close"), font=("Segoe UI", 9), bg="#e2e8f0", fg="#475569", relief="flat", padx=12, pady=6, command=dialog.destroy, cursor="hand2").pack(side="right")
+    except Exception:
+        pass
+
+def parse_semver(tag):
+    try:
+        clean = tag.strip().lstrip("vV").split("-")[0]
+        parts = [int(p) for p in clean.split(".") if p.isdigit()]
+        while len(parts) < 3:
+            parts.append(0)
+        return tuple(parts[:3])
+    except Exception:
+        return (0, 0, 0)
+
+def check_github_update_realtime(root):
+    def _worker():
+        try:
+            req = urllib.request.Request(GITHUB_API_LATEST, headers={"User-Agent": f"DiskCleanupAuto-{CURRENT_VERSION}"})
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                if resp.status == 200:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    latest_tag = data.get("tag_name", "").strip()
+                    html_url = data.get("html_url", GITHUB_RELEASES_URL)
+                    body_notes = data.get("name", "")
+                    if latest_tag and parse_semver(latest_tag) > parse_semver(CURRENT_VERSION):
+                        root.after(500, lambda: show_update_dialog(root, latest_tag, html_url, body_notes))
+        except Exception:
+            pass
+    threading.Thread(target=_worker, daemon=True).start()
 
 if __name__ == "__main__":
     main()
@@ -1006,6 +1085,12 @@ def print_header(title):
     print(f"  {title}")
     print("=" * 79 + "\n")
 
+def safe_pause():
+    try:
+        input("\nPress Enter to exit...")
+    except EOFError:
+        pass
+
 def run_cmd(cmd_list, description=None):
     if description:
         print(f"[*] {description}...")
@@ -1039,7 +1124,7 @@ def main():
             print("\n[ERROR] Failed to install PyInstaller via pip!")
             print("Please check your internet connection or install manually with:")
             print("  pip install pyinstaller")
-            input("\nPress Enter to exit...")
+            safe_pause()
             sys.exit(1)
         print("[OK] PyInstaller installed successfully.")
 
@@ -1071,7 +1156,7 @@ def main():
             print(f"[OK] Auto-created: {target_path}")
         except Exception as e:
             print(f"[ERROR] Could not auto-generate target file: {e}")
-            input("\nPress Enter to exit...")
+            safe_pause()
             sys.exit(1)
 
     print(f"[OK] Target script ready: {target_file}")
@@ -1151,7 +1236,7 @@ def main():
     build_success = run_cmd(cmd, "PyInstaller Compilation")
     if not build_success:
         print("\n[ERROR] PyInstaller compilation failed!")
-        input("\nPress Enter to exit...")
+        safe_pause()
         sys.exit(1)
 
     # 4. Move to Release folder (prevent duplicate dist+Release packaging during ISCC)
@@ -1182,9 +1267,12 @@ def main():
                     (os.path.join(script_dir, "register_scheduler.bat"), "register_scheduler.bat"),
                     (os.path.join(script_dir, "LICENSE"), "LICENSE"),
                     (os.path.join(script_dir, "README.md"), "README.md"),
-                    (os.path.join(script_dir, "docs", "README_EN.md"), os.path.join("docs", "README_EN.md")),
-                    (os.path.join(script_dir, "docs", "README_JA.md"), os.path.join("docs", "README_JA.md")),
                 ]
+                docs_dir = os.path.join(script_dir, "docs")
+                if os.path.isdir(docs_dir):
+                    for doc_name in sorted(os.listdir(docs_dir)):
+                        if doc_name.lower().endswith(".md"):
+                            optional_files.append((os.path.join(docs_dir, doc_name), os.path.join("docs", doc_name)))
                 ico_src = os.path.join(script_dir, "assets", "app.ico")
                 if not os.path.exists(ico_src):
                     ico_src = os.path.join(script_dir, "app.ico")
@@ -1252,16 +1340,13 @@ def main():
     print("- Built-in UAC Administrator privileges & Quiet Firewall Registration")
     print("=" * 79)
 
-    if os.name == "nt":
+    if os.name == "nt" and os.path.exists(final_exe):
         try:
-            subprocess.Popen(f'explorer.exe /select,"{final_exe}"')
+            subprocess.Popen(["explorer.exe", f"/select,{final_exe}"])
         except Exception:
             pass
 
-    try:
-        input("\nPress Enter to exit...")
-    except EOFError:
-        pass
+    safe_pause()
 
 if __name__ == "__main__":
     try:
@@ -1270,8 +1355,5 @@ if __name__ == "__main__":
         print(f"\n[FATAL ERROR] {exc}")
         import traceback
         traceback.print_exc()
-        try:
-            input("\nPress Enter to exit...")
-        except EOFError:
-            pass
+        safe_pause()
         sys.exit(1)

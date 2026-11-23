@@ -194,27 +194,28 @@ taskkill /F /IM DiskCleanupAuto_v1.5.0.exe >nul 2>&1
 if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" attrib -r "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
 
 if exist "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" move /y "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
-if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" (
-    echo [OK] Output file: "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe"
-    set "PORTABLE_STAGE=%SCRIPT_DIR%portable_staging"
-    if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
-    mkdir "%PORTABLE_STAGE%\assets" >nul 2>&1
-    mkdir "%PORTABLE_STAGE%\docs" >nul 2>&1
-    copy /y "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" "%PORTABLE_STAGE%\" >nul 2>&1
-    if exist "%SCRIPT_DIR%register_scheduler.bat" copy /y "%SCRIPT_DIR%register_scheduler.bat" "%PORTABLE_STAGE%\" >nul 2>&1
-    if exist "%SCRIPT_DIR%LICENSE" copy /y "%SCRIPT_DIR%LICENSE" "%PORTABLE_STAGE%\" >nul 2>&1
-    if exist "%SCRIPT_DIR%README.md" copy /y "%SCRIPT_DIR%README.md" "%PORTABLE_STAGE%\" >nul 2>&1
-    if exist "%SCRIPT_DIR%docs\README_EN.md" copy /y "%SCRIPT_DIR%docs\README_EN.md" "%PORTABLE_STAGE%\docs\" >nul 2>&1
-    if exist "%SCRIPT_DIR%docs\README_JA.md" copy /y "%SCRIPT_DIR%docs\README_JA.md" "%PORTABLE_STAGE%\docs\" >nul 2>&1
-    if exist "%SCRIPT_DIR%assets\app.ico" (
-        copy /y "%SCRIPT_DIR%assets\app.ico" "%PORTABLE_STAGE%\assets\app.ico" >nul 2>&1
-    ) else if exist "%SCRIPT_DIR%app.ico" (
-        copy /y "%SCRIPT_DIR%app.ico" "%PORTABLE_STAGE%\assets\app.ico" >nul 2>&1
-    )
-    powershell -NoProfile -Command "Compress-Archive -Path '%PORTABLE_STAGE%\*' -DestinationPath '%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip' -Force" >nul 2>&1
-    if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip" echo [OK] Portable ZIP: "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip"
-    if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
+if not exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" goto :SKIP_PORTABLE_ZIP
+
+echo [OK] Output file: "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe"
+set "PORTABLE_STAGE=%SCRIPT_DIR%portable_staging"
+if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
+mkdir "%PORTABLE_STAGE%\assets" >nul 2>&1
+mkdir "%PORTABLE_STAGE%\docs" >nul 2>&1
+copy /y "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" "%PORTABLE_STAGE%\" >nul 2>&1
+if exist "%SCRIPT_DIR%register_scheduler.bat" copy /y "%SCRIPT_DIR%register_scheduler.bat" "%PORTABLE_STAGE%\" >nul 2>&1
+if exist "%SCRIPT_DIR%LICENSE" copy /y "%SCRIPT_DIR%LICENSE" "%PORTABLE_STAGE%\" >nul 2>&1
+if exist "%SCRIPT_DIR%README.md" copy /y "%SCRIPT_DIR%README.md" "%PORTABLE_STAGE%\" >nul 2>&1
+if exist "%SCRIPT_DIR%docs\*.md" copy /y "%SCRIPT_DIR%docs\*.md" "%PORTABLE_STAGE%\docs\" >nul 2>&1
+if exist "%SCRIPT_DIR%assets\app.ico" (
+    copy /y "%SCRIPT_DIR%assets\app.ico" "%PORTABLE_STAGE%\assets\app.ico" >nul 2>&1
+) else if exist "%SCRIPT_DIR%app.ico" (
+    copy /y "%SCRIPT_DIR%app.ico" "%PORTABLE_STAGE%\assets\app.ico" >nul 2>&1
 )
+powershell -NoProfile -Command "Compress-Archive -Path '%PORTABLE_STAGE%\*' -DestinationPath '%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip' -Force" >nul 2>&1
+if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip" echo [OK] Portable ZIP: "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip"
+if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
+
+:SKIP_PORTABLE_ZIP
 echo.
 
 REM -------------------------------------------------------------------------------
@@ -260,9 +261,11 @@ echo [OK] Temporary artifacts cleaned.
 color 0A
 echo.
 echo ===============================================================================
-echo   [SUCCESS] Single portable EXE created successfully!
+echo   [SUCCESS] Build completed successfully!
 echo ===============================================================================
-echo   File Location: %RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe
+echo   [1] Portable EXE : %RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe
+if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip" echo   [2] Portable ZIP : %RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip
+if exist "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe" echo   [3] Setup EXE    : %RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe
 echo ===============================================================================
 echo.
 

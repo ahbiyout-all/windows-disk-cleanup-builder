@@ -359,13 +359,28 @@ const HTML_CONTENT = `<!DOCTYPE html>
             const out = document.getElementById("scriptOutput");
             const btn = document.getElementById("btnCopy");
             const dict = i18n[activeLang] || i18n.ko;
-            if (!out || !navigator.clipboard) return;
-            navigator.clipboard.writeText(out.textContent).then(() => {
+            if (!out) return;
+            const markCopied = () => {
                 if (btn) {
                     btn.textContent = dict.copied_btn;
                     setTimeout(() => { btn.textContent = dict.copy_btn; }, 1500);
                 }
-            }).catch(() => {});
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(out.textContent).then(markCopied).catch(() => {});
+                return;
+            }
+            try {
+                const ta = document.createElement("textarea");
+                ta.value = out.textContent;
+                ta.style.position = "fixed";
+                ta.style.opacity = "0";
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand("copy");
+                document.body.removeChild(ta);
+                markCopied();
+            } catch (_) {}
         }
 
         function changeLang(lang, persist = true) {

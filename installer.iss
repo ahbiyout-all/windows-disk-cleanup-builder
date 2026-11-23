@@ -117,9 +117,11 @@ Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#My
 procedure ForceKillRunningApp();
 var
   ResultCode: Integer;
+  TaskkillExe: String;
 begin
-  Exec('taskkill.exe', '/F /IM {#MyAppExeName} /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-  Exec('taskkill.exe', '/F /IM DiskCleanupAuto_v{#MyAppVersion}.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  TaskkillExe := ExpandConstant('{sys}\taskkill.exe');
+  Exec(TaskkillExe, '/F /IM {#MyAppExeName} /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec(TaskkillExe, '/F /IM DiskCleanupAuto_v{#MyAppVersion}.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 function GetUninstallKeyPath(): String;
@@ -197,7 +199,7 @@ begin
   ForceKillRunningApp();
 
   PrevVersion := GetInstalledVersion();
-  HasUninstaller := (GetUninstallString() <> '');
+  HasUninstaller := (GetUninstallString() <> '') and FileExists(RemoveQuotes(GetUninstallString()));
 
   // [2단계] 기존 설치가 감지된 경우 삭제/덮어쓰기 사용자 확인
   if (PrevVersion <> '') or FileExists(ExpandConstant('{autopf}\{#MyAppName}\{#MyAppExeName}')) then

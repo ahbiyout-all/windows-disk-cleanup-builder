@@ -8,7 +8,7 @@
 
 **v1.5.0** より、**システムロケール自動検出機能**（韓国語 `ko`、英語 `en`、日本語 `ja` 対応）が搭載されました：
 - **デスクトップ GUI (`disk_cleanup_gui.py`)**: Win32 API `GetUserDefaultUILanguage()`（および POSIX `locale` フォールバック）により OS の表示言語を自動判別し、UI ラベル、5段階の進行ログ、`Windows.old` 処理状況、GitHub 更新通知ダイアログをすべて日本語表示します。実行中に右上のコンボボックスから手動切り替えも可能です。
-- **Inno Setup インストーラー (`installer.iss`)**: 韓国語 (`Korean.isl`)、英語 (`Default.isl`)、日本語 (`Japanese.isl`) の3言語および上書き確認ダイアログに対応しています。
+- **Inno Setup インストーラー (`installer.iss`)**: 韓国語 (`Korean.isl`)、英語 (`Default.isl`)、日本語 (`Japanese.isl`) に対応し、実行中プロセスの強制終了、既存版のアンインストール／上書き確認ダイアログ、MIT ライセンス同意、デスクトップショートカット既定オン、インストール完了後の自動起動を備えています。
 - **Web プレビューサーバー (`server.js`)**: ブラウザの `navigator.language` を自動検出し、UI や生成される `.bat` / `.ps1` スクリプト内のコメントを動的に日本語化します。
 
 ---
@@ -34,7 +34,7 @@ WindowsDiskCleanup_Setup_v1.5.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 
 ### 3. ローカルビルド手順 (Windows)
 ```cmd
-:: ポータブル EXE および Inno Setup インストーラーを Release\ へ一括生成
+:: ポータブル EXE・ポータブル ZIP・Inno Setup インストーラーを Release\ へ一括生成
 build_exe.bat
 ```
 
@@ -46,7 +46,7 @@ build_exe.bat
 2. **[ビルド・パッケージングガイド](./BUILD.md)** — ローカルバッチビルド、PyInstaller + ISCC、GitHub Actions CI/CD ワークフロー。
 3. **[パッチノート・変更履歴](./PATCH_NOTES.md)** — `v1.0.0` 〜 `v1.5.0` の詳細な更新履歴。
 4. **[セキュリティ・プライバシーポリシー](./SECURITY.md)** — UAC 権限モデル、`.gitignore` 除外、個人データ保護ガードレール。
-5. **[開発ロードマップ](./ROADMAP.md)** — Phase 1〜18 の実装状況と今後の計画。
+5. **[開発ロードマップ](./ROADMAP.md)** — Phase 1〜19 の実装状況と今後の計画。
 6. **[公式ブログ記事テンプレート](./BLOG_POST.md)** — Google Blogger 等の技術ブログ用マークダウン原稿テンプレート。
 
 ---

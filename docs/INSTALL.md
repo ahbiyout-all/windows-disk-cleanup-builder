@@ -19,24 +19,23 @@
 
 ## 2. 인스톨 진행 순서 및 기존 설치 처리
 
-Inno Setup 마법사는 다음 6단계 순서로 안전하게 진행됩니다:
+Inno Setup 마법사는 다음 순서로 안전하게 진행됩니다:
 
 1. **실행 중인 기존 앱 강제 종료 (`ForceKillRunningApp`)**:
-   - 설치 시작 직후(`InitializeSetup`) 및 설치 직전(`PrepareToInstall`)에 실행 중인 `DiskCleanupAuto.exe` 프로세스를 자동 강제 종료(`taskkill /F`)하여 파일 잠금 충돌을 방지합니다.
+   - 설치 시작 직후(`InitializeSetup`) 및 파일 복사 직전(`PrepareToInstall`)에 `System32\taskkill.exe /F /T`를 실행해 구동 중인 `DiskCleanupAuto.exe` 프로세스를 강제 종료하여 파일 잠금 충돌을 방지합니다.
 2. **기존 설치 감지 및 삭제/덮어쓰기 사용자 확인**:
-   - `HKLM` / `HKCU` `SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E1D4A760-936B-4D12-9F89-A2BB5B30DE8C}_is1` 및 설치 경로를 검사합니다.
-   - 기존 설치가 감지되면 대화상자(`MB_YESNOCANCEL`)를 표시합니다(한/영/일 자동 대응):
-     - **[예]**: 기존 앱 무인 삭제(`/VERYSILENT`) 후 새로 설치 진행
-     - **[아니오]**: 기존 설치 위에 바로 덮어쓰기 진행
-     - **[취소]**: 설치 즉시 중단 및 안전 종료
+   - `HKLM` / `HKCU` `SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E1D4A760-936B-4D12-9F89-A2BB5B30DE8C}_is1` 레지스트리와 실제 언인스톨러/실행 파일 존재 여부를 검사합니다.
+   - 기존 설치가 감지되면 대화상자를 표시합니다(한/영/일 자동 대응):
+     - 언인스톨러 존재 시(`MB_YESNOCANCEL`): **[예]** 기존 앱 무인 삭제(`/VERYSILENT`) 후 새로 설치 · **[아니오]** 기존 설치 위에 바로 덮어쓰기 · **[취소]** 설치 중단
+     - 폴더만 존재 시(`MB_YESNO`): 덮어쓰기 진행 여부 확인
 3. **라이선스 선언 및 동의 (`LicenseFile=LICENSE`)**:
    - 공식 MIT 라이선스 전문(`LICENSE`)을 표시하고 사용자 동의 후 다음 단계로 진행합니다.
-4. **바탕화면 바로가기 기본 체크 (`[Tasks]` `desktopicon`)**:
-   - 추가 아이콘 작업 선택 화면에서 바탕화면 바로가기 생성 체크박스가 **기본 체크 상태**로 제공됩니다.
-5. **설치 진행 (`[Files]` / `[Icons]` / 방화벽 등록)**:
-   - 개별 파일 전개, 바로가기 생성 및 Windows Defender 방화벽 인바운드 규칙 사전 등록을 수행합니다.
-6. **설치 완료 후 앱 실행 (`[Run]` `postinstall`)**:
+4. **설치 진행 및 바탕화면 바로가기 기본 체크 (`[Tasks]` `desktopicon`)**:
+   - 추가 아이콘 작업 단계에서 바탕화면 바로가기 생성 체크박스가 **기본 체크 상태**로 제공되며, 이어서 개별 파일 전개, 바로가기 생성 및 Windows Defender 방화벽 인바운드 규칙 사전 등록을 수행합니다.
+5. **설치 완료 후 앱 실행 (`[Run]` `postinstall`)**:
    - 완료 화면에서 앱 실행 옵션이 기본 체크 상태로 표시되어 완료 버튼 클릭 시 `DiskCleanupAuto.exe`가 즉시 실행됩니다.
+
+> 💡 **무설치 사용**: 별도 설치 없이 바로 사용하려면 GitHub Releases의 단일 실행 파일(`DiskCleanupAuto_v1.5.0.exe`) 또는 스케줄러·가이드가 포함된 포터블 패키지(`WindowsDiskCleanup_Portable_v1.5.0.zip`)를 사용할 수 있습니다.
 
 ---
 

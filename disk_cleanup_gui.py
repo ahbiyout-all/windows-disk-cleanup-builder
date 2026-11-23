@@ -23,7 +23,7 @@ import subprocess
 import threading
 import webbrowser
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 
 _win32_types_initialized = False
 
@@ -53,6 +53,7 @@ def _init_win32_types():
         user32.PostMessageW.restype = wintypes.BOOL
         user32.RedrawWindow.argtypes = [wintypes.HWND, ctypes.c_void_p, ctypes.c_void_p, wintypes.UINT]
         user32.RedrawWindow.restype = wintypes.BOOL
+        user32.EnumWindows.restype = wintypes.BOOL
 
         kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
         kernel32.OpenProcess.restype = wintypes.HANDLE
@@ -145,7 +146,8 @@ def detect_system_lang():
             env_val = os.environ.get(env_key)
             if env_val and env_val.upper() not in ("C", "POSIX", "C.UTF-8"):
                 matched = _match_lang_code(env_val)
-                return matched if matched else "ko"
+                if matched:
+                    return matched
 
         try:
             loc, _ = locale.getlocale()
@@ -848,6 +850,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         update_ui(status_text, detail_text)
         time.sleep(0.02)
 
+    _init_win32_types()
     start_total_time = time.time()
     initial_free_gb = get_c_drive_free_gb()
 

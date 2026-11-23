@@ -102,8 +102,7 @@ jobs:
           if (Test-Path "register_scheduler.bat") { Copy-Item -Force "register_scheduler.bat" "portable_staging/" }
           if (Test-Path "LICENSE") { Copy-Item -Force "LICENSE" "portable_staging/" }
           if (Test-Path "README.md") { Copy-Item -Force "README.md" "portable_staging/" }
-          if (Test-Path "docs/README_EN.md") { Copy-Item -Force "docs/README_EN.md" "portable_staging/docs/" }
-          if (Test-Path "docs/README_JA.md") { Copy-Item -Force "docs/README_JA.md" "portable_staging/docs/" }
+          if (Test-Path "docs") { Copy-Item -Force "docs/*.md" "portable_staging/docs/" }
           if (Test-Path "assets/app.ico") { Copy-Item -Force "assets/app.ico" "portable_staging/assets/app.ico" }
           elseif (Test-Path "app.ico") { Copy-Item -Force "app.ico" "portable_staging/assets/app.ico" }
 
