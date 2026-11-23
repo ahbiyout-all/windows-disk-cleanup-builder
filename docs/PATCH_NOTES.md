@@ -90,6 +90,17 @@
   - **빌더 `taskkill` 행 방어 및 배치 ZIP 경로 따옴표 결함 해결 (`build_exe.py`, `build_exe.bat`)**:
     - `build_exe.py`의 `taskkill`에 `creationflags=0x08000000` 및 `timeout=5` 적용, `build_exe.bat`의 PowerShell `Compress-Archive`를 `$env:PORTABLE_STAGE`/`$env:RELEASE_DIR` 환경 변수 직접 참조로 전환해 작은따옴표(`'`)·공백·특수문자 포함 경로에서도 실패하지 않도록 수정.
 
+- **기능·보안·UX 심층 감사(Self-Reflection & Deep Audit) 5차 수정 (Phase 24)**:
+  - **System32 정식 실행 경로 고정으로 CWD 바이너리 하이재킹 원천 차단 (`_sys32_exe`, `installer.iss`)**:
+    - GUI(`disk_cleanup_gui.py`, `build_exe.py`)에서 호출하는 `cleanmgr.exe`, `taskkill.exe`, `takeown.exe`, `icacls.exe`, `attrib.exe`, `cmd.exe`를 `%SystemRoot%\System32` 절대 경로로 우선 해석하도록 개선해 작업 디렉터리 변조/PATH 손상 환경에서의 실행 오류와 하이재킹을 방지.
+    - `installer.iss`의 방화벽 등록(`[Run]`) 및 제거(`[UninstallRun]`) 명령도 `{sys}\netsh.exe` 절대 경로로 변경하고 `[UninstallRun]`에 `RunOnceId`(`DelFwBase`, `DelFwVer`)를 부여해 Inno Setup 컴파일 경고를 제거했으며, 레지스트리 `InstallLocation` 따옴표 제거(`RemoveQuotes`)를 보강.
+  - **최소화·화면 외곽 상태에서 업데이트 모달 화면 이탈 방지 (`show_update_dialog`)**:
+    - 메인 창이 최소화(`iconic`, Windows `-32000` 좌표)되었거나 모니터 경계에 걸쳐 있을 때 `grab_set()` 모달 팝업이 화면 밖에 생성되어 앱이 응답 불가처럼 보이던 결함을 화면 해상도 클램핑 및 중앙 폴백 배치로 해결.
+  - **언어 변경 드롭다운 팝다운·클릭 직후 오작동 즉시 종료 방지 (`on_mouse_action`, `_last_ui_interaction`)**:
+    - 5초 완료 카운트다운 중 `lang_combo` 드롭다운 선택(`popdown`) 직후나 푸터 링크 클릭 직후 발생하는 연쇄 `<Enter>` 이벤트로 창이 의도치 않게 즉시 닫히지 않도록 1.2초 상호작용 유예 시간 및 `popdown` 위젯 보호를 추가.
+  - **빌드 ZIP 경로 슬래시 정규화 및 웹 프리뷰 클립보드 성공 검증 (`build_exe.py`, `server.js`, `BLOG_POST.md`)**:
+    - `build_exe.py`의 포터블 ZIP 내부 경로를 POSIX 슬래시(`docs/...`, `assets/app.ico`)로 표준화하고, `server.js` 폴백 복사 시 `execCommand("copy")` 반환값이 참일 때만 복사 완료 배지를 표시하도록 수정하며 `BLOG_POST.md` PE 메타데이터 설명을 `version_info.txt`와 일치시켰습니다.
+
 ---
 
 ## 🚀 [v1.4.0] - 2026-09-07 (MINOR Release)

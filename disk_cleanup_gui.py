@@ -84,6 +84,14 @@ def is_admin():
     except Exception:
         return False
 
+def _sys32_exe(exe_name):
+    """Windows System32 정식 실행 파일 경로를 반환하여 CWD 하이재킹을 방지합니다."""
+    if os.name == "nt":
+        sys32_path = os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", exe_name)
+        if os.path.exists(sys32_path):
+            return sys32_path
+    return exe_name
+
 def elevate_admin():
     """관리자 권한이 없으면 UAC 승격 창을 띄워 다시 실행합니다."""
     if os.name != "nt":
@@ -691,7 +699,7 @@ def kill_lingering_cleanmgr():
     try:
         creation_flags = 0x08000000 if os.name == 'nt' else 0 # CREATE_NO_WINDOW
         subprocess.run(
-            ["taskkill", "/F", "/IM", "cleanmgr.exe", "/T"],
+            [_sys32_exe("taskkill.exe"), "/F", "/IM", "cleanmgr.exe", "/T"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             creationflags=creation_flags,
@@ -703,6 +711,7 @@ def kill_lingering_cleanmgr():
 
 _exit_started = [False]
 _update_dialog_open = [False]
+_last_ui_interaction = [0.0]
 
 def force_cleanup_and_exit(root):
     """프로세스 완전 정리 및 즉시 종료 (중복 진입 방지)"""
@@ -787,7 +796,7 @@ def force_purge_windows_old(update_ui_cb=None, keyed_ui_cb=None):
     # 1. takeown 실행
     try:
         subprocess.run(
-            ["takeown", "/F", target_dir, "/A", "/R", "/D", "Y"],
+            [_sys32_exe("takeown.exe"), "/F", target_dir, "/A", "/R", "/D", "Y"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             creationflags=creation_flags,
@@ -801,7 +810,7 @@ def force_purge_windows_old(update_ui_cb=None, keyed_ui_cb=None):
     # 2. icacls 실행
     try:
         subprocess.run(
-            ["icacls", target_dir, "/grant", "*S-1-5-32-544:F", "/T", "/C", "/Q"],
+            [_sys32_exe("icacls.exe"), target_dir, "/grant", "*S-1-5-32-544:F", "/T", "/C", "/Q"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             creationflags=creation_flags,
@@ -813,9 +822,10 @@ def force_purge_windows_old(update_ui_cb=None, keyed_ui_cb=None):
     _emit("winold_p3", "winold_p3_detail")
 
     # 3. attrib 해제 (루트 폴더 및 하위 트리) 및 rd /s /q 실행
+    attrib_exe = _sys32_exe("attrib.exe")
     for attrib_cmd in (
-        ["attrib", "-r", "-a", "-s", "-h", target_dir],
-        ["attrib", "-r", "-a", "-s", "-h", f"{target_dir}\\*.*", "/s", "/d"],
+        [attrib_exe, "-r", "-a", "-s", "-h", target_dir],
+        [attrib_exe, "-r", "-a", "-s", "-h", f"{target_dir}\\*.*", "/s", "/d"],
     ):
         try:
             subprocess.run(
@@ -830,7 +840,7 @@ def force_purge_windows_old(update_ui_cb=None, keyed_ui_cb=None):
 
     try:
         subprocess.run(
-            ["cmd.exe", "/c", "rd", "/s", "/q", target_dir],
+            [_sys32_exe("cmd.exe"), "/c", "rd", "/s", "/q", target_dir],
             shell=False,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -976,7 +986,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
             except Exception as e:
                 print(f"SHEmptyRecycleBinW error: {e}")
 
-        cleanmgr_cmd = ["cleanmgr.exe", f"/sagerun:{SAGESET_ID}"]
+        cleanmgr_cmd = [_sys32_exe("cleanmgr.exe"), f"/sagerun:{SAGESET_ID}"]
         has_update_cleanup = "Update Cleanup" in CLEANUP_ITEMS
 
         def on_cleanmgr_progress(elapsed, saw_visible, win_closed):
@@ -1069,10 +1079,15 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         def on_mouse_action(event=None):
             if _update_dialog_open[0]:
                 return
-            if event is not None and getattr(event, "widget", None) is not None:
-                w = event.widget
-                if w in protected_widgets or "combobox" in str(w).lower():
+            if event is not None:
+                is_enter = getattr(event, "type", None) == tk.EventType.Enter or str(getattr(event, "type", "")) == "7"
+                if is_enter and (time.time() - _last_ui_interaction[0] < 1.2):
                     return
+                if getattr(event, "widget", None) is not None:
+                    w = event.widget
+                    w_name = str(w).lower()
+                    if w in protected_widgets or "combobox" in w_name or "popdown" in w_name:
+                        return
             if not is_closing[0]:
                 is_closing[0] = True
                 update_ui_keyed("mouse_close_title", detail_key="mouse_close_detail")
@@ -1125,6 +1140,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
 # 5. Tkinter GUI 생성 및 메인 진입점
 # =============================================================================
 def open_url(url):
+    _last_ui_interaction[0] = time.time()
     try:
         webbrowser.open_new_tab(url)
     except Exception as e:
@@ -1215,6 +1231,7 @@ def main():
     }
 
     def on_lang_change(event=None):
+        _last_ui_interaction[0] = time.time()
         sel = lang_var.get()
         if "EN" in sel:
             current_lang[0] = "en"
@@ -1248,6 +1265,7 @@ def main():
         affiliation_label.config(text=tr("affiliation"))
 
     lang_combo.bind("<<ComboboxSelected>>", on_lang_change)
+    lang_combo.bind("<Button-1>", lambda e: _last_ui_interaction.__setitem__(0, time.time()))
 
     # 개발자 서명
     dev_label = tk.Label(
@@ -1449,8 +1467,18 @@ def show_update_dialog(root, latest_version, release_url, release_notes=""):
 
         dialog.update_idletasks()
         dlg_w, dlg_h = 460, 275
-        rx = root.winfo_rootx() + max(0, (root.winfo_width() - dlg_w) // 2)
-        ry = root.winfo_rooty() + max(0, (root.winfo_height() - dlg_h) // 2)
+        scr_w = dialog.winfo_screenwidth()
+        scr_h = dialog.winfo_screenheight()
+        try:
+            is_minimized = root.state() == "iconic" or root.winfo_rootx() < -1000
+        except Exception:
+            is_minimized = True
+        if is_minimized:
+            rx = max(0, (scr_w - dlg_w) // 2)
+            ry = max(40, int((scr_h - dlg_h) * 0.25))
+        else:
+            rx = max(0, min(root.winfo_rootx() + (root.winfo_width() - dlg_w) // 2, max(0, scr_w - dlg_w)))
+            ry = max(0, min(root.winfo_rooty() + (root.winfo_height() - dlg_h) // 2, max(0, scr_h - dlg_h)))
         dialog.geometry(f"{dlg_w}x{dlg_h}+{rx}+{ry}")
 
         def open_update():

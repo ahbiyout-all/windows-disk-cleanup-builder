@@ -31,6 +31,7 @@
 | **Phase 21** | 인스톨러·배치·빌더 2차 심층 감사 수정 | ✅ 완료 | `v1.5.0` | Inno `unins000` 자식 프로세스 종료 대기, `build_exe.bat` `[6/7]` `%errorlevel%` 분기 및 읽기 전용 덮어쓰기·완료 상태 실시간 언어 재렌더링 |
 | **Phase 22** | 기능 3차 심층 감사 & UI/프로세스 보강 | ✅ 완료 | `v1.5.0` | 업데이트 모달 버튼 클리핑·Esc/중앙 정렬, `_WNDENUMPROC` 캐싱·`WM_CLOSE` 유예, `list2cmdline`/`taskkill` 타임아웃/`shell=False`, 1~4단계 실시간 언어 전환 |
 | **Phase 23** | 기능·인스톨러·배치 4차 심층 감사 수정 | ✅ 완료 | `v1.5.0` | Inno `DiskCleanupAuto*.exe` 종료·`UninstallString` 파서·커스텀 경로 정리, 한/영/일 가드레일 확장, GitHub JSON `null` 방어, 배치 `$env:` ZIP 경로 수정 |
+| **Phase 24** | 기능·보안·UX 5차 심층 감사 수정 | ✅ 완료 | `v1.5.0` | System32 절대 경로(`_sys32_exe`·`{sys}\netsh.exe`)·`RunOnceId`, 최소화 시 모달 오프스크린 클램핑, 콤보박스 `popdown`·1.2초 오클릭 유예 보호 |
 
 ---
 

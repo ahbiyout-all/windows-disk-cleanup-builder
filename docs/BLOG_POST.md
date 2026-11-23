@@ -66,8 +66,8 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 ### 6. 버전정보
 - **소프트웨어 버전**: `v1.5.0` (빌드 번호: `1.5.0.0`)
 - **릴리스 상태**: Stable Production
-- **파일 설명 (FileDescription)**: AhBiYout Windows 디스크 클린 오토
-- **제품 이름 (ProductName)**: AhBiYout Windows 디스크 클린 오토 (DiskCleanupAuto)
+- **파일 설명 (FileDescription)**: Windows 디스크 클린 오토
+- **제품 이름 (ProductName)**: Windows 디스크 클린 오토 (DiskCleanupAuto)
 - **등록 상표 (LegalTrademarks)**: AhBiYout
 - **저작권 (Copyright)**: Copyright (c) 2026 AhBiYout. All rights reserved. (MIT License)
 

@@ -381,9 +381,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
                     ta.style.opacity = "0";
                     document.body.appendChild(ta);
                     ta.select();
-                    document.execCommand("copy");
+                    const ok = document.execCommand("copy");
                     document.body.removeChild(ta);
-                    markCopied();
+                    if (ok) markCopied();
                 } catch (_) {}
             };
             if (navigator.clipboard && navigator.clipboard.writeText) {

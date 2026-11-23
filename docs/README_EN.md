@@ -46,7 +46,7 @@ build_exe.bat
 2. **[Build & Packaging Guide](./BUILD.md)** — Local batch/Python compilation, PyInstaller + ISCC, and GitHub Actions CI/CD.
 3. **[Patch Notes & Changelog](./PATCH_NOTES.md)** — Detailed release history (`v1.0.0` ~ `v1.5.0`).
 4. **[Security & Privacy Policy](./SECURITY.md)** — UAC model, `.gitignore` rules, and personal data Safe-Guard.
-5. **[Development Roadmap](./ROADMAP.md)** — Completed Phases 1–23 and future enhancements.
+5. **[Development Roadmap](./ROADMAP.md)** — Completed Phases 1–24 and future enhancements.
 6. **[Blog Post Template](./BLOG_POST.md)** — Markdown draft for technical blogs.
 
 ---

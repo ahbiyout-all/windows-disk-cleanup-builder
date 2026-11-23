@@ -22,7 +22,7 @@
 4. **[보안 및 개인정보 보호 정책 (Security & Privacy Policy)](./SECURITY.md)**
    - 커밋 작성자 고정, `.gitignore` 보안 배제, 관리자 권한(UAC) 및 개인 데이터 보존 안전 가드레일
 5. **[개발 로드맵 및 구현 현황 (Roadmap & Status)](./ROADMAP.md)**
-   - Phase 1~23 구현 완료 내역 및 향후 개발 계획
+   - Phase 1~24 구현 완료 내역 및 향후 개발 계획
 6. **[Google 블로그 소개 포스팅 템플릿 (Blog Post)](./BLOG_POST.md)**
    - Google Blogger 및 기술 블로그 게시용 마크다운 원고 템플릿 (`v1.5.0`)
 7. **[공식 MIT 라이선스 (MIT License)](../LICENSE)**

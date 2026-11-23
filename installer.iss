@@ -96,9 +96,9 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilen
 ; =============================================================================
 [Run]
 ; 1. 기본 이름 방화벽 규칙 조용히 등록
-Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#MyAppName}"" dir=in action=allow program=""{app}\{#MyAppExeName}"" enable=yes profile=any"; Flags: runhidden waituntilterminated
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#MyAppName}"" dir=in action=allow program=""{app}\{#MyAppExeName}"" enable=yes profile=any"; Flags: runhidden waituntilterminated
 ; 2. 버전 정보 부착된 앱 이름 방화벽 규칙 조용히 등록
-Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#MyAppName} v{#MyAppVersion}"" dir=in action=allow program=""{app}\{#MyAppExeName}"" enable=yes profile=any"; Flags: runhidden waituntilterminated
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#MyAppName} v{#MyAppVersion}"" dir=in action=allow program=""{app}\{#MyAppExeName}"" enable=yes profile=any"; Flags: runhidden waituntilterminated
 ; 설치 완료 후 앱 실행 (기본 체크)
 Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent shellexec
 
@@ -106,8 +106,8 @@ Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Description: "{cm:Launch
 ; [UninstallRun] 제거 시 방화벽 규칙 자동 소거 (Clean Uninstall)
 ; =============================================================================
 [UninstallRun]
-Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#MyAppName}"""; Flags: runhidden waituntilterminated
-Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#MyAppName} v{#MyAppVersion}"""; Flags: runhidden waituntilterminated
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#MyAppName}"""; RunOnceId: "DelFwBase"; Flags: runhidden waituntilterminated
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#MyAppName} v{#MyAppVersion}"""; RunOnceId: "DelFwVer"; Flags: runhidden waituntilterminated
 
 ; =============================================================================
 ; [Code] 1) 실행 중인 기존 앱 강제 종료 -> 2) 기존 설치 완전 제거 후 새로 설치
@@ -223,7 +223,7 @@ begin
     end;
   end;
 
-  RegInstallDir := RemoveBackslashUnlessRoot(Trim(FindRegUninstallInfo('InstallLocation')));
+  RegInstallDir := RemoveBackslashUnlessRoot(RemoveQuotes(Trim(FindRegUninstallInfo('InstallLocation'))));
   if RegInstallDir <> '' then
   begin
     CandidateExe := RegInstallDir + '\unins000.exe';
@@ -301,7 +301,7 @@ var
 begin
   ForceKillRunningApp();
 
-  RegInstallDir := Trim(FindRegUninstallInfo('InstallLocation'));
+  RegInstallDir := RemoveQuotes(Trim(FindRegUninstallInfo('InstallLocation')));
   DefaultAppDir := ExpandConstant('{autopf}\{#MyAppName}');
   UninstExe := GetExistingUninstallerExe();
   UninstDir := '';
@@ -345,7 +345,7 @@ begin
 
   PrevVersion := GetInstalledVersion();
   UninstExe := GetExistingUninstallerExe();
-  RegInstallDir := RemoveBackslashUnlessRoot(Trim(FindRegUninstallInfo('InstallLocation')));
+  RegInstallDir := RemoveBackslashUnlessRoot(RemoveQuotes(Trim(FindRegUninstallInfo('InstallLocation'))));
   DefaultAppDir := ExpandConstant('{autopf}\{#MyAppName}');
   HasExistingApp := (PrevVersion <> '') or (UninstExe <> '') or
                     ((RegInstallDir <> '') and FileExists(RegInstallDir + '\{#MyAppExeName}')) or

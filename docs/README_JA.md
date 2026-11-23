@@ -46,7 +46,7 @@ build_exe.bat
 2. **[ビルド・パッケージングガイド](./BUILD.md)** — ローカルバッチビルド、PyInstaller + ISCC、GitHub Actions CI/CD ワークフロー。
 3. **[パッチノート・変更履歴](./PATCH_NOTES.md)** — `v1.0.0` 〜 `v1.5.0` の詳細な更新履歴。
 4. **[セキュリティ・プライバシーポリシー](./SECURITY.md)** — UAC 権限モデル、`.gitignore` 除外、個人データ保護ガードレール。
-5. **[開発ロードマップ](./ROADMAP.md)** — Phase 1〜23 の実装状況と今後の計画。
+5. **[開発ロードマップ](./ROADMAP.md)** — Phase 1〜24 の実装状況と今後の計画。
 6. **[公式ブログ記事テンプレート](./BLOG_POST.md)** — Google Blogger 等の技術ブログ用マークダウン原稿テンプレート。
 
 ---

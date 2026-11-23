@@ -95,6 +95,13 @@ def is_admin():
     except Exception:
         return False
 
+def _sys32_exe(exe_name):
+    if os.name == "nt":
+        sys32_path = os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", exe_name)
+        if os.path.exists(sys32_path):
+            return sys32_path
+    return exe_name
+
 def elevate_admin():
     if os.name != "nt":
         return
@@ -638,7 +645,7 @@ def kill_lingering_cleanmgr():
     try:
         creation_flags = 0x08000000 if os.name == 'nt' else 0
         subprocess.run(
-            ["taskkill", "/F", "/IM", "cleanmgr.exe", "/T"],
+            [_sys32_exe("taskkill.exe"), "/F", "/IM", "cleanmgr.exe", "/T"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             creationflags=creation_flags,
@@ -650,6 +657,7 @@ def kill_lingering_cleanmgr():
 
 _exit_started = [False]
 _update_dialog_open = [False]
+_last_ui_interaction = [0.0]
 
 def force_cleanup_and_exit(root):
     if _exit_started[0]:
@@ -709,22 +717,23 @@ def force_purge_windows_old(update_ui_cb=None, keyed_ui_cb=None):
     creation_flags = 0x08000000 if os.name == 'nt' else 0
     _emit("winold_p1", "winold_p1_detail", d_kw={"path": target_dir})
     try:
-        subprocess.run(["takeown", "/F", target_dir, "/A", "/R", "/D", "Y"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=180)
+        subprocess.run([_sys32_exe("takeown.exe"), "/F", target_dir, "/A", "/R", "/D", "Y"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=180)
     except Exception:
         pass
     _emit("winold_p2", "winold_p2_detail")
     try:
-        subprocess.run(["icacls", target_dir, "/grant", "*S-1-5-32-544:F", "/T", "/C", "/Q"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=240)
+        subprocess.run([_sys32_exe("icacls.exe"), target_dir, "/grant", "*S-1-5-32-544:F", "/T", "/C", "/Q"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=240)
     except Exception:
         pass
     _emit("winold_p3", "winold_p3_detail")
-    for attrib_cmd in (["attrib", "-r", "-a", "-s", "-h", target_dir], ["attrib", "-r", "-a", "-s", "-h", f"{target_dir}\\*.*", "/s", "/d"]):
+    attrib_exe = _sys32_exe("attrib.exe")
+    for attrib_cmd in ([attrib_exe, "-r", "-a", "-s", "-h", target_dir], [attrib_exe, "-r", "-a", "-s", "-h", f"{target_dir}\\*.*", "/s", "/d"]):
         try:
             subprocess.run(attrib_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=60)
         except Exception:
             pass
     try:
-        subprocess.run(["cmd.exe", "/c", "rd", "/s", "/q", target_dir], shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=180)
+        subprocess.run([_sys32_exe("cmd.exe"), "/c", "rd", "/s", "/q", target_dir], shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=180)
     except Exception:
         pass
     if os.path.exists(target_dir):
@@ -832,7 +841,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
             except Exception as e:
                 print(f"SHEmptyRecycleBinW error: {e}")
 
-        cleanmgr_cmd = ["cleanmgr.exe", f"/sagerun:{SAGESET_ID}"]
+        cleanmgr_cmd = [_sys32_exe("cleanmgr.exe"), f"/sagerun:{SAGESET_ID}"]
         has_update_cleanup = "Update Cleanup" in CLEANUP_ITEMS
 
         def on_cleanmgr_progress(elapsed, saw_visible, win_closed):
@@ -897,10 +906,15 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         def on_mouse_action(event=None):
             if _update_dialog_open[0]:
                 return
-            if event is not None and getattr(event, "widget", None) is not None:
-                w = event.widget
-                if w in protected_widgets or "combobox" in str(w).lower():
+            if event is not None:
+                is_enter = getattr(event, "type", None) == tk.EventType.Enter or str(getattr(event, "type", "")) == "7"
+                if is_enter and (time.time() - _last_ui_interaction[0] < 1.2):
                     return
+                if getattr(event, "widget", None) is not None:
+                    w = event.widget
+                    w_name = str(w).lower()
+                    if w in protected_widgets or "combobox" in w_name or "popdown" in w_name:
+                        return
             if not is_closing[0]:
                 is_closing[0] = True
                 update_ui_keyed("mouse_close_title", detail_key="mouse_close_detail")
@@ -944,6 +958,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
                 os._exit(0)
 
 def open_url(url):
+    _last_ui_interaction[0] = time.time()
     try:
         webbrowser.open_new_tab(url)
     except Exception as e:
@@ -1009,6 +1024,7 @@ def main():
     }
 
     def on_lang_change(event=None):
+        _last_ui_interaction[0] = time.time()
         sel = lang_var.get()
         current_lang[0] = "en" if "EN" in sel else ("ja" if "JA" in sel else "ko")
         root.title(tr("title"))
@@ -1036,6 +1052,7 @@ def main():
         affiliation_label.config(text=tr("affiliation"))
 
     lang_combo.bind("<<ComboboxSelected>>", on_lang_change)
+    lang_combo.bind("<Button-1>", lambda e: _last_ui_interaction.__setitem__(0, time.time()))
 
     dev_label = tk.Label(container, text=f"Developed by {DEVELOPER_NAME}", font=("Segoe UI", 8, "italic"), fg="#64748b", bg=card_color)
     dev_label.pack(pady=(0, 8))
@@ -1130,8 +1147,18 @@ def show_update_dialog(root, latest_version, release_url, release_notes=""):
         tk.Label(body, text=info_text, font=("Segoe UI", 9), fg="#334155", bg="#f8fafc", justify="left", wraplength=420).pack(anchor="w", fill="x")
         dialog.update_idletasks()
         dlg_w, dlg_h = 460, 275
-        rx = root.winfo_rootx() + max(0, (root.winfo_width() - dlg_w) // 2)
-        ry = root.winfo_rooty() + max(0, (root.winfo_height() - dlg_h) // 2)
+        scr_w = dialog.winfo_screenwidth()
+        scr_h = dialog.winfo_screenheight()
+        try:
+            is_minimized = root.state() == "iconic" or root.winfo_rootx() < -1000
+        except Exception:
+            is_minimized = True
+        if is_minimized:
+            rx = max(0, (scr_w - dlg_w) // 2)
+            ry = max(40, int((scr_h - dlg_h) * 0.25))
+        else:
+            rx = max(0, min(root.winfo_rootx() + (root.winfo_width() - dlg_w) // 2, max(0, scr_w - dlg_w)))
+            ry = max(0, min(root.winfo_rooty() + (root.winfo_height() - dlg_h) // 2, max(0, scr_h - dlg_h)))
         dialog.geometry(f"{dlg_w}x{dlg_h}+{rx}+{ry}")
         def open_update():
             webbrowser.open_new(release_url or GITHUB_RELEASES_URL)
@@ -1440,12 +1467,12 @@ def main():
                 if os.path.isdir(docs_dir):
                     for doc_name in sorted(os.listdir(docs_dir)):
                         if doc_name.lower().endswith(".md"):
-                            optional_files.append((os.path.join(docs_dir, doc_name), os.path.join("docs", doc_name)))
+                            optional_files.append((os.path.join(docs_dir, doc_name), f"docs/{doc_name}"))
                 ico_src = os.path.join(script_dir, "assets", "app.ico")
                 if not os.path.exists(ico_src):
                     ico_src = os.path.join(script_dir, "app.ico")
                 if os.path.exists(ico_src):
-                    optional_files.append((ico_src, os.path.join("assets", "app.ico")))
+                    optional_files.append((ico_src, "assets/app.ico"))
                 for src_path, arc_name in optional_files:
                     if os.path.exists(src_path):
                         zf.write(src_path, arcname=arc_name)
