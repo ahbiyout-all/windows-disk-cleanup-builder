@@ -8,7 +8,7 @@ Welcome to the official English documentation for **Windows Disk Cleanup Automat
 
 Starting with **v1.5.0**, Disk Cleanup Automation Builder includes **automatic system locale detection** (Korean `ko`, English `en`, and Japanese `ja`):
 - **Desktop GUI (`disk_cleanup_gui.py`)**: Detects the Windows OS UI language via Win32 `GetUserDefaultUILanguage()` (with POSIX `locale` fallback) and dynamically localizes all labels, 5-stage cleanup logs, `Windows.old` purge status, and GitHub update dialogs. A manual language dropdown is also available at runtime.
-- **Inno Setup Installer (`installer.iss`)**: Supports Korean (`Korean.isl`), English (`Default.isl`), and Japanese (`Japanese.isl`), including process force-kill before install, localized uninstall/overwrite prompt (`Yes/No/Cancel`), MIT license agreement, default-checked desktop shortcut, and post-install auto-launch.
+- **Inno Setup Installer (`installer.iss`)**: Supports Korean (`Korean.isl`), English (`Default.isl`), and Japanese (`Japanese.isl`), including process force-kill before install, localized prompt to cleanly uninstall/remove any existing version before installing (`Yes/No`), MIT license agreement, default-checked desktop shortcut, and post-install auto-launch.
 - **Web Preview Server (`server.js`)**: Automatically detects `navigator.language` and dynamically translates UI sections and generated `.bat` / `.ps1` script comments.
 
 ---
@@ -30,7 +30,7 @@ WindowsDiskCleanup_Setup_v1.5.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 1. **UAC Elevation**: Automatically requests Administrator elevation cleanly via `ShellExecuteW("runas")`.
 2. **Registry Activation**: Configures `StateFlags0064 = 2` across 15 `VolumeCaches` items (including `Previous Installations` & `Update Cleanup`).
 3. **Kernel-Synced `cleanmgr.exe`**: Monitors `cleanmgr.exe` via `WaitForSingleObject` & `EnumWindows` HWND hooking and automatically refreshes tray ghost icons.
-4. **Windows.old Safe-Guard**: Scans `C:\Windows.old\Users` (`Desktop`, `Documents`, `Downloads`, `Pictures`) before running 3-step forced purge (`takeown` -> `icacls` -> `rd /s /q`). If personal files are detected, deletion is safely skipped.
+4. **Windows.old Safe-Guard**: Scans `%SystemDrive%\Windows.old\Users` (`Desktop`, `Documents`, `Downloads`, `Pictures`) before running 3-step forced purge (`takeown` -> `icacls` -> `rd /s /q` with `\\?\` long-path fallback). If personal files are detected, deletion is safely skipped.
 
 ### 3. Local Build (Windows)
 ```cmd
@@ -46,7 +46,7 @@ build_exe.bat
 2. **[Build & Packaging Guide](./BUILD.md)** — Local batch/Python compilation, PyInstaller + ISCC, and GitHub Actions CI/CD.
 3. **[Patch Notes & Changelog](./PATCH_NOTES.md)** — Detailed release history (`v1.0.0` ~ `v1.5.0`).
 4. **[Security & Privacy Policy](./SECURITY.md)** — UAC model, `.gitignore` rules, and personal data Safe-Guard.
-5. **[Development Roadmap](./ROADMAP.md)** — Completed Phases 1–19 and future enhancements.
+5. **[Development Roadmap](./ROADMAP.md)** — Completed Phases 1–23 and future enhancements.
 6. **[Blog Post Template](./BLOG_POST.md)** — Markdown draft for technical blogs.
 
 ---

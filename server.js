@@ -67,7 +67,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                     무인 자동화 정품 Windows 디스크 클리너 & 인스톨러 빌더
                 </h2>
                 <p class="text-sm md:text-base text-slate-300 leading-relaxed" data-i18n="hero_desc">
-                    본 저장소는 Windows 공식 cleanmgr.exe 엔진 및 커널 동기화 API를 제어하여 C: 드라이브의 시스템 캐시, 휴지통, WinSxS 업데이트 찌꺼기, 잠긴 Windows.old 폴더를 안전하게 100% 소거합니다.
+                    본 저장소는 Windows 공식 cleanmgr.exe 엔진 및 커널 동기화 API를 제어하여 시스템 드라이브(%SystemDrive%)의 캐시, 휴지통, WinSxS 업데이트 찌꺼기, 잠긴 Windows.old 폴더를 안전하게 100% 소거합니다.
                 </p>
             </div>
         </div>
@@ -178,7 +178,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 releases: "Releases",
                 hero_badge: "Windows 11 24H2 / 26H1 Windows.old 강제 권한 탈취 및 소거 지원",
                 hero_title: "무인 자동화 정품 Windows 디스크 클리너 & 인스톨러 빌더",
-                hero_desc: "본 저장소는 Windows 공식 cleanmgr.exe 엔진 및 커널 동기화 API를 제어하여 C: 드라이브의 시스템 캐시, 휴지통, WinSxS 업데이트 찌꺼기, 잠긴 Windows.old 폴더를 안전하게 100% 소거합니다.",
+                hero_desc: "본 저장소는 Windows 공식 cleanmgr.exe 엔진 및 커널 동기화 API를 제어하여 시스템 드라이브(%SystemDrive%)의 캐시, 휴지통, WinSxS 업데이트 찌꺼기, 잠긴 Windows.old 폴더를 안전하게 100% 소거합니다.",
                 core_title: "📦 GitHub 저장소 핵심 배포 구성",
                 core_desc: "웹 프론트엔드 부산물 없이 순수 데스크톱 앱과 빌드 도구만 엄선되었습니다.",
                 card1_desc: "Tkinter GUI 및 Win32 커널 연동 Windows 디스크 정리 엔진 (Python)",
@@ -213,7 +213,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 releases: "Releases",
                 hero_badge: "Supports Windows 11 24H2 / 26H1 Windows.old Forced Takeown & Purge",
                 hero_title: "Automated Native Windows Disk Cleaner & Installer Builder",
-                hero_desc: "This repository safely purges 100% of system caches, recycle bin, WinSxS update residue, and locked Windows.old folders on C: drive using official cleanmgr.exe engine and kernel sync APIs.",
+                hero_desc: "This repository safely purges 100% of system caches, recycle bin, WinSxS update residue, and locked Windows.old folders on the system drive (%SystemDrive%) using the official cleanmgr.exe engine and kernel sync APIs.",
                 core_title: "📦 Core GitHub Deployment Manifest",
                 core_desc: "Pure desktop application & build tools strictly curated without web frontend clutter.",
                 card1_desc: "Tkinter GUI & Win32 kernel-hooked Windows Disk Cleanup engine (Python)",
@@ -248,7 +248,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 releases: "Releases",
                 hero_badge: "Windows 11 24H2 / 26H1 Windows.old 強制権限奪取・完全削除対応",
                 hero_title: "無人自動化・純正Windowsディスククリーナー ＆ インストーラービルダー",
-                hero_desc: "本リポジトリは、Windows公式cleanmgr.exeエンジンおよびカーネル同期APIを制御し、Cドライブのシステムキャッシュ、ごみ箱、WinSxSアップデート残骸、ロックされたWindows.oldフォルダを安全に100%消去します。",
+                hero_desc: "本リポジトリは、Windows公式cleanmgr.exeエンジンおよびカーネル同期APIを制御し、システムドライブ(%SystemDrive%)のキャッシュ、ごみ箱、WinSxSアップデート残骸、ロックされたWindows.oldフォルダを安全に100%消去します。",
                 core_title: "📦 GitHubリポジトリ主要デプロイ構成",
                 core_desc: "ウェブフロントエンドの成果物を除外し、純粋なデスクトップアプリとビルドツールのみを厳選。",
                 card1_desc: "Tkinter GUIおよびWin32カーネル連携ディスククリーンアップエンジン (Python)",
@@ -308,10 +308,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
                     'cleanmgr.exe /sagerun:64',
                     '',
                     'REM ' + dict.c_step3,
-                    'if exist "C:\\\\Windows.old" (',
-                    '    takeown /F "C:\\\\Windows.old" /A /R /D Y >nul 2>&1',
-                    '    icacls "C:\\\\Windows.old" /grant *S-1-5-32-544:F /T /C /Q >nul 2>&1',
-                    '    rd /s /q "C:\\\\Windows.old"',
+                    'if exist "%SystemDrive%\\\\Windows.old" (',
+                    '    takeown /F "%SystemDrive%\\\\Windows.old" /A /R /D Y >nul 2>&1',
+                    '    icacls "%SystemDrive%\\\\Windows.old" /grant *S-1-5-32-544:F /T /C /Q >nul 2>&1',
+                    '    rd /s /q "%SystemDrive%\\\\Windows.old"',
                     ')'
                 ].join("\\n");
             } else {
@@ -331,10 +331,11 @@ const HTML_CONTENT = `<!DOCTYPE html>
                     "Start-Process -FilePath 'cleanmgr.exe' -ArgumentList '/sagerun:64' -Wait",
                     "",
                     "# " + dict.c_step3,
-                    "if (Test-Path 'C:\\\\Windows.old') {",
-                    "    takeown /F 'C:\\\\Windows.old' /A /R /D Y | Out-Null",
-                    "    icacls 'C:\\\\Windows.old' /grant '*S-1-5-32-544:F' /T /C /Q | Out-Null",
-                    "    Remove-Item 'C:\\\\Windows.old' -Recurse -Force -ErrorAction SilentlyContinue",
+                    "$winOld = Join-Path $env:SystemDrive 'Windows.old'",
+                    "if (Test-Path $winOld) {",
+                    "    takeown /F $winOld /A /R /D Y | Out-Null",
+                    "    icacls $winOld /grant '*S-1-5-32-544:F' /T /C /Q | Out-Null",
+                    "    Remove-Item $winOld -Recurse -Force -ErrorAction SilentlyContinue",
                     "}"
                 ].join("\\n");
             }
@@ -355,6 +356,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
             renderScriptPreview();
         }
 
+        let copyResetTimer = null;
+
         function copyScript() {
             const out = document.getElementById("scriptOutput");
             const btn = document.getElementById("btnCopy");
@@ -363,24 +366,31 @@ const HTML_CONTENT = `<!DOCTYPE html>
             const markCopied = () => {
                 if (btn) {
                     btn.textContent = dict.copied_btn;
-                    setTimeout(() => { btn.textContent = dict.copy_btn; }, 1500);
+                    if (copyResetTimer) clearTimeout(copyResetTimer);
+                    copyResetTimer = setTimeout(() => {
+                        const latestDict = i18n[activeLang] || i18n.ko;
+                        btn.textContent = latestDict.copy_btn;
+                    }, 1500);
                 }
             };
+            const fallbackCopy = () => {
+                try {
+                    const ta = document.createElement("textarea");
+                    ta.value = out.textContent;
+                    ta.style.position = "fixed";
+                    ta.style.opacity = "0";
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(ta);
+                    markCopied();
+                } catch (_) {}
+            };
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(out.textContent).then(markCopied).catch(() => {});
+                navigator.clipboard.writeText(out.textContent).then(markCopied).catch(fallbackCopy);
                 return;
             }
-            try {
-                const ta = document.createElement("textarea");
-                ta.value = out.textContent;
-                ta.style.position = "fixed";
-                ta.style.opacity = "0";
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand("copy");
-                document.body.removeChild(ta);
-                markCopied();
-            } catch (_) {}
+            fallbackCopy();
         }
 
         function changeLang(lang, persist = true) {
@@ -432,6 +442,7 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, {
             'Content-Type': 'text/html; charset=utf-8',
             'Content-Length': buf.length,
+            'X-Content-Type-Options': 'nosniff',
         });
         if (method === 'HEAD') {
             res.end();
@@ -458,6 +469,7 @@ const server = http.createServer((req, res) => {
                 'Content-Type': contentType,
                 'Content-Length': data.length,
                 'Cache-Control': 'public, max-age=3600',
+                'X-Content-Type-Options': 'nosniff',
             });
             if (method === 'HEAD') {
                 res.end();

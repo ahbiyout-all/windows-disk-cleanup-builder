@@ -96,13 +96,15 @@ def is_admin():
         return False
 
 def elevate_admin():
+    if os.name != "nt":
+        return
     if not is_admin():
-        params = " ".join([f'"{arg}"' for arg in sys.argv[1:]])
+        params = subprocess.list2cmdline(sys.argv[1:]) if sys.argv[1:] else ""
         if getattr(sys, "frozen", False):
             arg_str = params
         else:
             script = os.path.abspath(sys.argv[0])
-            arg_str = f'"{script}" {params}'.strip()
+            arg_str = f"{subprocess.list2cmdline([script])} {params}".strip()
         ctypes.windll.shell32.ShellExecuteW(
             None, "runas", sys.executable, arg_str, None, 1
         )
@@ -121,6 +123,9 @@ GITHUB_API_LATEST = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/r
 BLOG_URL = "https://ahbiyoutvibe.blogspot.com/"
 AFFILIATION_URL = "http://cisnet.co.kr"
 AUTO_CLOSE_SEC = 5
+SYSTEM_DRIVE = os.environ.get("SystemDrive", "C:").rstrip("\\/") or "C:"
+SYSTEM_DRIVE_ROOT = f"{SYSTEM_DRIVE}\\"
+WINDOWS_OLD_DIR = os.path.join(SYSTEM_DRIVE_ROOT, "Windows.old")
 
 def _match_lang_code(loc_str):
     if not loc_str:
@@ -161,6 +166,13 @@ def detect_system_lang():
                 return matched
         except Exception:
             pass
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            if hasattr(locale, "getdefaultlocale"):
+                loc, _ = locale.getdefaultlocale()
+                matched = _match_lang_code(loc)
+                if matched:
+                    return matched
     except Exception:
         pass
     return "ko"
@@ -192,32 +204,36 @@ TRANSLATIONS = {
         "step3_running_detail": "cleanmgr 엔진이 {configured}개 등록 항목을 순서대로(직렬) 정리하고 있습니다.",
         "step4": "4단계: 백그라운드 프로세스 및 윈도우 잔상 갱신 중...",
         "step4_detail": "cleanmgr 프로세스 정리 및 고스트 창(DWM 잔상) 즉시 소거 완료",
-        "winold_not_found": "C:\\Windows.old 폴더가 존재하지 않거나 이미 정리되었습니다.",
+        "winold_not_found": "{path} 폴더가 존재하지 않거나 이미 정리되었습니다.",
         "winold_scan": "안전 점검: Windows.old 사용자 파일 가드레일 검사 중...",
-        "winold_scan_detail": "C:\\Windows.old\\Users 내 개인 파일 잔여 여부를 점검합니다.",
+        "winold_scan_detail": "{path}\\Users 내 개인 파일 잔여 여부를 점검합니다.",
         "winold_guard_title": "⚠️ [안전 가드레일] Windows.old 개인 문서 발견됨",
-        "winold_guard_detail": "C:\\Windows.old\\Users 내 개인 파일({count}개+)이 감지되어 사용자 보호를 위해 삭제를 안전하게 건너뜁니다.",
+        "winold_guard_detail": "{path}\\Users 내 개인 파일({count}개+)이 감지되어 사용자 보호를 위해 삭제를 안전하게 건너뜁니다.",
         "winold_p1": "Windows.old 강제 정리 [1/3]: NTFS 소유권 탈취 중 (takeown)...",
-        "winold_p1_detail": "C:\\Windows.old 및 하위 트리 전체의 관리자(Administrators) 소유권을 확보합니다.",
+        "winold_p1_detail": "{path} 및 하위 트리 전체의 관리자(Administrators) 소유권을 확보합니다.",
         "winold_p2": "Windows.old 강제 정리 [2/3]: ACL 모든 권한 부여 중 (icacls)...",
         "winold_p2_detail": "Administrators 그룹에 모든 파일/디렉터리 F(Full Control) 권한을 상속 주입합니다.",
         "winold_p3": "Windows.old 강제 정리 [3/3]: 디렉터리 트리 완전 소거 중 (rd /s /q)...",
         "winold_p3_detail": "읽기 전용/시스템 속성 해제 및 Windows.old 폴더 영구 삭제를 진행합니다.",
         "winold_ok": "✨ Windows.old 완전 소거 성공!",
-        "winold_ok_detail": "C:\\Windows.old 폴더가 100% 영구 삭제되었습니다.",
+        "winold_ok_detail": "{path} 폴더가 100% 영구 삭제되었습니다.",
+        "winold_ok_ret": "{path} 폴더가 100% 완전 소거되었습니다.",
         "winold_partial": "Windows.old 정리 완료",
         "winold_partial_detail": "일부 백그라운드 락 파일을 제외한 대다수 기가바이트 데이터가 정리되었습니다.",
+        "winold_partial_ret": "일부 잠긴 파일 제외 대부분 삭제됨",
         "freed_fmt": " · 💾 여유 공간 +{diff:.2f} GB 확보",
-        "free_fmt": " · 💾 현재 C: 여유 {free:.1f} GB",
+        "free_fmt": " · 💾 현재 {drive} 여유 {free:.1f} GB",
         "mouse_close_title": "✨ 디스크 정리 완료!",
         "mouse_close_detail": "마우스 감지: 창을 즉시 닫습니다...",
         "step5_status": "5단계: ✨ 모든 디스크 정리 완료! (소요: {time}{freed})",
         "step5_detail": "⏱️ {sec}초 후 자동 종료 (💡 마우스를 창 위로 올리면 즉시 닫힙니다)",
+        "step5_wait_update": "🚀 GitHub 업데이트 안내 창이 닫히면 자동으로 종료됩니다.",
         "error_title": "❌ 오류 발생",
         "releases": "📦 최신 릴리스",
         "blog": "📝 AhBiYoutVibe 블로그",
         "github": "🐙 GitHub",
         "affiliation": "소속회사: (주)청운정보시스템 ( cisnet.co.kr )",
+        "comment_prefix": "자동 생성된 디스크 정리 스크립트 (AhBiYout Windows Disk Cleanup Auto)",
         "upd_win_title": "🚀 새로운 업데이트 알림 (GitHub Releases)",
         "upd_header": "새로운 버전({latest})이 출시되었습니다!",
         "upd_sub": "현재 버전: {current}  ->  최신 배포 버전: {latest}",
@@ -250,32 +266,36 @@ TRANSLATIONS = {
         "step3_running_detail": "cleanmgr engine is sequentially cleaning {configured} registered items.",
         "step4": "Step 4: Cleaning background processes & refreshing shell...",
         "step4_detail": "Terminated residual cleanmgr processes & cleared DWM ghost icons",
-        "winold_not_found": "C:\\Windows.old does not exist or has already been cleaned.",
+        "winold_not_found": "{path} does not exist or has already been cleaned.",
         "winold_scan": "Safety Check: Scanning Windows.old user files guardrail...",
-        "winold_scan_detail": "Checking C:\\Windows.old\\Users for unbacked personal files.",
+        "winold_scan_detail": "Checking {path}\\Users for unbacked personal files.",
         "winold_guard_title": "⚠️ [Safe-Guard] Personal files found in Windows.old",
-        "winold_guard_detail": "Detected personal files ({count}+) in C:\\Windows.old\\Users. Skipping deletion safely to protect your data.",
+        "winold_guard_detail": "Detected personal files ({count}+) in {path}\\Users. Skipping deletion safely to protect your data.",
         "winold_p1": "Windows.old Force Purge [1/3]: Taking NTFS ownership (takeown)...",
-        "winold_p1_detail": "Acquiring Administrators ownership across C:\\Windows.old tree.",
+        "winold_p1_detail": "Acquiring Administrators ownership across {path} tree.",
         "winold_p2": "Windows.old Force Purge [2/3]: Granting ACL Full Control (icacls)...",
         "winold_p2_detail": "Granting Full Control (F) permissions to Administrators recursively.",
         "winold_p3": "Windows.old Force Purge [3/3]: Removing directory tree (rd /s /q)...",
         "winold_p3_detail": "Clearing read-only/system attributes and permanently deleting Windows.old.",
         "winold_ok": "✨ Windows.old purged completely!",
-        "winold_ok_detail": "C:\\Windows.old has been 100% permanently deleted.",
+        "winold_ok_detail": "{path} has been 100% permanently deleted.",
+        "winold_ok_ret": "{path} was 100% completely deleted.",
         "winold_partial": "Windows.old cleanup completed",
         "winold_partial_detail": "Most gigabytes were freed except a few files locked in background.",
+        "winold_partial_ret": "Deleted most files except locked entries",
         "freed_fmt": " · 💾 Freed +{diff:.2f} GB",
-        "free_fmt": " · 💾 C: Free {free:.1f} GB",
+        "free_fmt": " · 💾 {drive} Free {free:.1f} GB",
         "mouse_close_title": "✨ Disk Cleanup Complete!",
         "mouse_close_detail": "Mouse detected: Closing window immediately...",
         "step5_status": "Step 5: ✨ All disk cleanup tasks completed! (Time: {time}{freed})",
         "step5_detail": "⏱️ Auto-closing in {sec}s (💡 Hover mouse over window to close immediately)",
+        "step5_wait_update": "🚀 Window will auto-close once the GitHub update dialog is closed.",
         "error_title": "❌ Error Occurred",
         "releases": "📦 Latest Releases",
         "blog": "📝 AhBiYoutVibe Blog",
         "github": "🐙 GitHub",
         "affiliation": "Affiliation: (주)청운정보시스템 ( cisnet.co.kr )",
+        "comment_prefix": "Auto-generated Disk Cleanup Script (AhBiYout Windows Disk Cleanup Auto)",
         "upd_win_title": "🚀 New Update Available (GitHub Releases)",
         "upd_header": "A new version ({latest}) is available!",
         "upd_sub": "Current: {current}  ->  Latest: {latest}",
@@ -308,32 +328,36 @@ TRANSLATIONS = {
         "step3_running_detail": "cleanmgr エンジンが登録済みの {configured} 項目を順次クリーンアップしています。",
         "step4": "ステップ4: バックグラウンドプロセスの整理とシェル更新中...",
         "step4_detail": "cleanmgr プロセス整理およびゴースト残像(DWM)の消去完了",
-        "winold_not_found": "C:\\Windows.old フォルダは存在しないか、すでに削除されています。",
+        "winold_not_found": "{path} フォルダは存在しないか、すでに削除されています。",
         "winold_scan": "安全確認: Windows.old ユーザーファイルガードレール検査中...",
-        "winold_scan_detail": "C:\\Windows.old\\Users 内の個人ファイル残存を確認しています。",
+        "winold_scan_detail": "{path}\\Users 内の個人ファイル残存を確認しています。",
         "winold_guard_title": "⚠️ [安全ガードレール] Windows.old に個人ファイルを検出",
-        "winold_guard_detail": "C:\\Windows.old\\Users 内に個人ファイル ({count}件以上) を検出したため、データ保護のため削除をスキップします。",
+        "winold_guard_detail": "{path}\\Users 内に個人ファイル ({count}件以上) を検出したため、データ保護のため削除をスキップします。",
         "winold_p1": "Windows.old 強制削除 [1/3]: NTFS 所有権を取得中 (takeown)...",
-        "winold_p1_detail": "C:\\Windows.old 配下全体の Administrators 所有権を取得します。",
+        "winold_p1_detail": "{path} 配下全体の Administrators 所有権を取得します。",
         "winold_p2": "Windows.old 強制削除 [2/3]: ACL フルコントロール付与中 (icacls)...",
         "winold_p2_detail": "Administrators グループへ全ファイル・フォルダのフルコントロール権限を付与します。",
         "winold_p3": "Windows.old 強制削除 [3/3]: ディレクトリツリー完全削除中 (rd /s /q)...",
         "winold_p3_detail": "読み取り専用/システム属性を解除し Windows.old を完全に削除しています。",
         "winold_ok": "✨ Windows.old の完全削除に成功しました！",
-        "winold_ok_detail": "C:\\Windows.old フォルダが 100% 完全に削除されました。",
+        "winold_ok_detail": "{path} フォルダが 100% 完全に削除されました。",
+        "winold_ok_ret": "{path} フォルダが 100% 完全に消去されました。",
         "winold_partial": "Windows.old クリーンアップ完了",
         "winold_partial_detail": "ロック中の一部ファイルを除く大半のデータが解放されました。",
+        "winold_partial_ret": "一部ロックされたファイルを除き大半を削除済み",
         "freed_fmt": " · 💾 空き容量 +{diff:.2f} GB 確保",
-        "free_fmt": " · 💾 現在の C: 空き {free:.1f} GB",
+        "free_fmt": " · 💾 現在の {drive} 空き {free:.1f} GB",
         "mouse_close_title": "✨ クリーンアップ完了！",
         "mouse_close_detail": "マウス操作を検知: ウィンドウを即座に閉じます...",
         "step5_status": "ステップ5: ✨ すべてのディスククリーンアップが完了しました！ (所要: {time}{freed})",
         "step5_detail": "⏱️ {sec}秒後に自動終了 (💡 ウィンドウにマウスを合わせると即時に閉じます)",
+        "step5_wait_update": "🚀 GitHub アップデート案内ウィンドウを閉じると自動終了します。",
         "error_title": "❌ エラー発生",
         "releases": "📦 最新リリース",
         "blog": "📝 AhBiYoutVibe ブログ",
         "github": "🐙 GitHub",
         "affiliation": "所属会社: (주)청운정보시스템 ( cisnet.co.kr )",
+        "comment_prefix": "自動生成されたディスククリーンアップスクリプト (AhBiYout Windows Disk Cleanup Auto)",
         "upd_win_title": "🚀 新しいアップデートのお知らせ (GitHub Releases)",
         "upd_header": "新しいバージョン ({latest}) がリリースされました！",
         "upd_sub": "現在のバージョン: {current}  ->  最新バージョン: {latest}",
@@ -476,11 +500,12 @@ def stop_periodic_shell_refresher():
 
 def get_c_drive_free_gb():
     try:
+        _init_win32_types()
         free_bytes = ctypes.c_ulonglong(0)
         total_bytes = ctypes.c_ulonglong(0)
         total_free = ctypes.c_ulonglong(0)
         ret = ctypes.windll.kernel32.GetDiskFreeSpaceExW(
-            ctypes.c_wchar_p("C:\\"),
+            ctypes.c_wchar_p(SYSTEM_DRIVE_ROOT),
             ctypes.byref(free_bytes),
             ctypes.byref(total_bytes),
             ctypes.byref(total_free)
@@ -498,11 +523,15 @@ def play_completion_sound():
     except Exception:
         pass
 
+_WNDENUMPROC = [None]
+
 def get_cleanmgr_hwnds(target_pid):
     hwnds = []
     try:
         _init_win32_types()
         user32 = ctypes.windll.user32
+        if _WNDENUMPROC[0] is None:
+            _WNDENUMPROC[0] = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
         def enum_cb(hwnd, extra):
             try:
                 if user32.IsWindow(hwnd):
@@ -513,8 +542,7 @@ def get_cleanmgr_hwnds(target_pid):
             except Exception:
                 pass
             return True
-        WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
-        cb_ref = WNDENUMPROC(enum_cb)
+        cb_ref = _WNDENUMPROC[0](enum_cb)
         user32.EnumWindows(cb_ref, 0)
     except Exception:
         pass
@@ -571,14 +599,21 @@ def monitor_and_wait_cleanmgr(proc, update_status_cb, max_timeout_sec=1800):
                         saw_visible_window = True
                         break
 
-                if saw_visible_window and not has_visible and not window_closed_detected:
+                if has_visible:
+                    window_closed_detected = False
+                    window_closed_time = None
+                elif saw_visible_window and not window_closed_detected:
                     window_closed_detected = True
                     window_closed_time = time.time()
 
-                if window_closed_detected and (time.time() - window_closed_time >= 2.5):
+                if window_closed_detected and window_closed_time is not None and (time.time() - window_closed_time >= 4.0):
                     for hwnd in hwnds:
                         if user32.IsWindow(hwnd):
                             user32.PostMessageW(hwnd, 0x0010, 0, 0)
+                    try:
+                        proc.wait(timeout=0.5)
+                    except Exception:
+                        pass
                     break
             except Exception:
                 pass
@@ -606,13 +641,15 @@ def kill_lingering_cleanmgr():
             ["taskkill", "/F", "/IM", "cleanmgr.exe", "/T"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            creationflags=creation_flags
+            creationflags=creation_flags,
+            timeout=5
         )
     except Exception:
         pass
     refresh_windows_shell()
 
 _exit_started = [False]
+_update_dialog_open = [False]
 
 def force_cleanup_and_exit(root):
     if _exit_started[0]:
@@ -632,10 +669,14 @@ def force_cleanup_and_exit(root):
     os._exit(0)
 
 def scan_windows_old_safety():
-    target_users = r"C:\Windows.old\Users"
+    target_users = os.path.join(WINDOWS_OLD_DIR, "Users")
     if not os.path.exists(target_users):
         return (False, 0, [])
-    important_dirs = ["Desktop", "Documents", "Downloads", "Pictures", "바탕 화면", "내 문서", "다운로드", "사진"]
+    important_dirs = [
+        "Desktop", "Documents", "Downloads", "Pictures", "Videos", "Music", "OneDrive", "Favorites",
+        "바탕 화면", "내 문서", "다운로드", "사진", "동영상", "음악",
+        "デスクトップ", "ドキュメント", "ダウンロード", "ピクチャ", "ビデオ", "ミュージック",
+    ]
     found_files = []
     try:
         for user_folder in os.listdir(target_users):
@@ -655,49 +696,76 @@ def scan_windows_old_safety():
         pass
     return (len(found_files) > 0, len(found_files), found_files)
 
-def force_purge_windows_old(update_ui_cb=None):
-    target_dir = r"C:\Windows.old"
+def force_purge_windows_old(update_ui_cb=None, keyed_ui_cb=None):
+    def _emit(s_key, d_key, s_kw=None, d_kw=None):
+        if keyed_ui_cb:
+            keyed_ui_cb(s_key, s_kw, d_key, d_kw)
+        elif update_ui_cb:
+            update_ui_cb(tr(s_key, **(s_kw or {})), tr(d_key, **(d_kw or {})))
+
+    target_dir = WINDOWS_OLD_DIR
     if not os.path.exists(target_dir):
-        return (True, tr("winold_not_found"))
+        return (True, tr("winold_not_found", path=target_dir))
     creation_flags = 0x08000000 if os.name == 'nt' else 0
-    if update_ui_cb:
-        update_ui_cb(tr("winold_p1"), tr("winold_p1_detail"))
+    _emit("winold_p1", "winold_p1_detail", d_kw={"path": target_dir})
     try:
         subprocess.run(["takeown", "/F", target_dir, "/A", "/R", "/D", "Y"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=180)
     except Exception:
         pass
-    if update_ui_cb:
-        update_ui_cb(tr("winold_p2"), tr("winold_p2_detail"))
+    _emit("winold_p2", "winold_p2_detail")
     try:
         subprocess.run(["icacls", target_dir, "/grant", "*S-1-5-32-544:F", "/T", "/C", "/Q"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=240)
     except Exception:
         pass
-    if update_ui_cb:
-        update_ui_cb(tr("winold_p3"), tr("winold_p3_detail"))
+    _emit("winold_p3", "winold_p3_detail")
     for attrib_cmd in (["attrib", "-r", "-a", "-s", "-h", target_dir], ["attrib", "-r", "-a", "-s", "-h", f"{target_dir}\\*.*", "/s", "/d"]):
         try:
             subprocess.run(attrib_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=60)
         except Exception:
             pass
     try:
-        subprocess.run(f'rd /s /q "{target_dir}"', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=180)
+        subprocess.run(["cmd.exe", "/c", "rd", "/s", "/q", target_dir], shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flags, timeout=180)
     except Exception:
         pass
     if os.path.exists(target_dir):
         try:
             import shutil
-            shutil.rmtree(target_dir, ignore_errors=True)
+            ext_target = f"\\\\?\\{os.path.abspath(target_dir)}" if os.name == "nt" else target_dir
+            def _on_rm_error(func, path_arg, _exc_info=None):
+                try:
+                    os.chmod(path_arg, 0o777)
+                    func(path_arg)
+                except Exception:
+                    pass
+            if sys.version_info >= (3, 12):
+                shutil.rmtree(ext_target, onexc=_on_rm_error)
+            else:
+                shutil.rmtree(ext_target, onerror=_on_rm_error)
         except Exception:
             pass
     if not os.path.exists(target_dir):
-        if update_ui_cb:
-            update_ui_cb(tr("winold_ok"), tr("winold_ok_detail"))
-        return (True, tr("winold_ok_detail"))
-    if update_ui_cb:
-        update_ui_cb(tr("winold_partial"), tr("winold_partial_detail"))
-    return (False, tr("winold_partial_detail"))
+        _emit("winold_ok", "winold_ok_detail", d_kw={"path": target_dir})
+        return (True, tr("winold_ok_ret", path=target_dir))
+    _emit("winold_partial", "winold_partial_detail")
+    return (False, tr("winold_partial_ret"))
 
-def perform_cleanup(status_label, progress_bar, detail_label, root, work_started_flag=None):
+def _format_duration_str(secs):
+    if secs < 60:
+        return tr("sec_fmt", secs=secs)
+    return tr("min_sec_fmt", mins=int(secs // 60), rem=secs % 60)
+
+def _format_step5_texts(step5_info):
+    time_str = _format_duration_str(step5_info["elapsed_sec"])
+    freed_diff = step5_info.get("freed_diff")
+    final_free = step5_info.get("final_free")
+    freed_str = ""
+    if freed_diff is not None and final_free is not None:
+        freed_str = tr("freed_fmt", diff=freed_diff) if freed_diff > 0 else tr("free_fmt", drive=SYSTEM_DRIVE, free=final_free)
+    status_text = tr("step5_status", time=time_str, freed=freed_str)
+    detail_text = tr("step5_wait_update") if step5_info.get("waiting_update") else tr("step5_detail", sec=step5_info.get("remaining", 0))
+    return status_text, detail_text
+
+def perform_cleanup(status_label, progress_bar, detail_label, root, work_started_flag=None, interactive_widgets=None, step5_info=None, active_ui_state=None):
     def update_ui(status_text, detail_text=""):
         def _apply():
             try:
@@ -711,8 +779,20 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         except Exception:
             pass
 
+    def update_ui_keyed(status_key, status_kw=None, detail_key=None, detail_kw=None, raw_detail=""):
+        s_kw = dict(status_kw or {})
+        d_kw = dict(detail_kw or {})
+        def _render():
+            s_txt = tr(status_key, **s_kw)
+            d_txt = tr(detail_key, **d_kw) if detail_key else raw_detail
+            return s_txt, d_txt
+        if active_ui_state is not None:
+            active_ui_state["render_fn"] = _render
+        s_txt, d_txt = _render()
+        update_ui(s_txt, d_txt)
+
     def registry_log(idx, total, item, status):
-        update_ui(tr("step2_reg", idx=idx, total=total), f"HKLM VolumeCaches\\{item} ({FLAG_NAME}=2) [{status}]")
+        update_ui_keyed("step2_reg", {"idx": idx, "total": total}, raw_detail=f"HKLM VolumeCaches\\{item} ({FLAG_NAME}=2) [{status}]")
         time.sleep(0.02)
 
     _init_win32_types()
@@ -729,13 +809,13 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         if work_started_flag is not None:
             work_started_flag[0] = True
         time.sleep(0.2)
-        update_ui(tr("step1"), tr("step1_detail"))
+        update_ui_keyed("step1", detail_key="step1_detail")
         time.sleep(0.4)
 
-        update_ui(tr("step2_start", count=len(CLEANUP_ITEMS)), tr("step2_detail", flag=FLAG_NAME))
+        update_ui_keyed("step2_start", {"count": len(CLEANUP_ITEMS)}, "step2_detail", {"flag": FLAG_NAME})
         time.sleep(0.2)
         configured = configure_registry(registry_log)
-        update_ui(tr("step2_done", configured=configured, total=len(CLEANUP_ITEMS)), tr("step2_done_detail"))
+        update_ui_keyed("step2_done", {"configured": configured, "total": len(CLEANUP_ITEMS)}, "step2_done_detail")
         time.sleep(0.6)
 
         start_periodic_shell_refresher(interval_sec=2.0)
@@ -746,7 +826,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
 
         if "Recycle Bin" in CLEANUP_ITEMS:
             try:
-                update_ui(tr("recycle_title"), tr("recycle_detail"))
+                update_ui_keyed("recycle_title", detail_key="recycle_detail")
                 ctypes.windll.shell32.SHEmptyRecycleBinW(None, None, 7)
                 time.sleep(0.5)
             except Exception as e:
@@ -756,14 +836,19 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         has_update_cleanup = "Update Cleanup" in CLEANUP_ITEMS
 
         def on_cleanmgr_progress(elapsed, saw_visible, win_closed):
-            time_str = format_time_str(elapsed)
-            if win_closed:
-                update_ui(tr("step3_closed", time=time_str), tr("step3_closed_detail"))
-            elif saw_visible:
-                update_ui(tr("step3_visible", time=time_str), tr("step3_visible_detail", configured=configured))
-            else:
-                detail_key = "step3_running_update_detail" if has_update_cleanup else "step3_running_detail"
-                update_ui(tr("step3_running", time=time_str), tr(detail_key, configured=configured))
+            def _render():
+                time_str = format_time_str(elapsed)
+                if win_closed:
+                    return tr("step3_closed", time=time_str), tr("step3_closed_detail")
+                elif saw_visible:
+                    return tr("step3_visible", time=time_str), tr("step3_visible_detail", configured=configured)
+                else:
+                    detail_key = "step3_running_update_detail" if has_update_cleanup else "step3_running_detail"
+                    return tr("step3_running", time=time_str), tr(detail_key, configured=configured)
+            if active_ui_state is not None:
+                active_ui_state["render_fn"] = _render
+            s_msg, d_msg = _render()
+            update_ui(s_msg, d_msg)
 
         try:
             proc = subprocess.Popen(cleanmgr_cmd, shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -771,29 +856,35 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         except Exception as e:
             print(f"cleanmgr error: {e}")
 
-        update_ui(tr("step4"), tr("step4_detail"))
+        update_ui_keyed("step4", detail_key="step4_detail")
         kill_lingering_cleanmgr()
         stop_periodic_shell_refresher()
         time.sleep(0.3)
 
-        if os.path.exists(r"C:\Windows.old"):
-            update_ui(tr("winold_scan"), tr("winold_scan_detail"))
+        if os.path.exists(WINDOWS_OLD_DIR):
+            update_ui_keyed("winold_scan", detail_key="winold_scan_detail", detail_kw={"path": WINDOWS_OLD_DIR})
             has_user_files, u_count, _ = scan_windows_old_safety()
             if has_user_files:
-                update_ui(tr("winold_guard_title"), tr("winold_guard_detail", count=u_count))
+                update_ui_keyed("winold_guard_title", detail_key="winold_guard_detail", detail_kw={"path": WINDOWS_OLD_DIR, "count": u_count})
                 time.sleep(1.5)
             else:
-                force_purge_windows_old(update_ui)
+                force_purge_windows_old(keyed_ui_cb=update_ui_keyed)
                 time.sleep(0.5)
 
         total_elapsed = round(time.time() - start_total_time, 1)
-        total_time_str = format_time_str(total_elapsed)
 
         final_free_gb = get_c_drive_free_gb()
-        freed_str = ""
-        if initial_free_gb is not None and final_free_gb is not None:
-            freed_diff = round(final_free_gb - initial_free_gb, 2)
-            freed_str = tr("freed_fmt", diff=freed_diff) if freed_diff > 0 else tr("free_fmt", free=final_free_gb)
+        freed_diff = round(final_free_gb - initial_free_gb, 2) if (initial_free_gb is not None and final_free_gb is not None) else None
+        if step5_info is not None:
+            step5_info["elapsed_sec"] = total_elapsed
+            step5_info["freed_diff"] = freed_diff
+            step5_info["final_free"] = final_free_gb
+            step5_info["waiting_update"] = False
+            step5_info["done"] = True
+        local_step5 = step5_info if step5_info is not None else {
+            "done": True, "elapsed_sec": total_elapsed, "freed_diff": freed_diff,
+            "final_free": final_free_gb, "remaining": AUTO_CLOSE_SEC, "waiting_update": False,
+        }
 
         play_completion_sound()
         try:
@@ -801,10 +892,18 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         except Exception:
             pass
 
+        protected_widgets = set(interactive_widgets or ())
+
         def on_mouse_action(event=None):
+            if _update_dialog_open[0]:
+                return
+            if event is not None and getattr(event, "widget", None) is not None:
+                w = event.widget
+                if w in protected_widgets or "combobox" in str(w).lower():
+                    return
             if not is_closing[0]:
                 is_closing[0] = True
-                update_ui(tr("mouse_close_title"), tr("mouse_close_detail"))
+                update_ui_keyed("mouse_close_title", detail_key="mouse_close_detail")
                 try:
                     root.after(150, lambda: force_cleanup_and_exit(root))
                 except Exception:
@@ -815,8 +914,17 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         for remaining in range(AUTO_CLOSE_SEC, 0, -1):
             if is_closing[0]:
                 break
-            update_ui(tr("step5_status", time=total_time_str, freed=freed_str), tr("step5_detail", sec=remaining))
+            local_step5["remaining"] = remaining
+            s_txt, d_txt = _format_step5_texts(local_step5)
+            update_ui(s_txt, d_txt)
             time.sleep(1)
+
+        if _update_dialog_open[0] and not is_closing[0] and not _exit_started[0]:
+            local_step5["waiting_update"] = True
+            s_txt, d_txt = _format_step5_texts(local_step5)
+            update_ui(s_txt, d_txt)
+        while _update_dialog_open[0] and not is_closing[0] and not _exit_started[0]:
+            time.sleep(0.5)
 
     except Exception as e:
         _periodic_refresh_flag[0] = False
@@ -894,6 +1002,11 @@ def main():
     lang_combo.pack(side="right", padx=(4, 0))
 
     work_started = [False]
+    active_ui_state = {"render_fn": None}
+    step5_info = {
+        "done": False, "elapsed_sec": 0.0, "freed_diff": None,
+        "final_free": None, "remaining": AUTO_CLOSE_SEC, "waiting_update": False,
+    }
 
     def on_lang_change(event=None):
         sel = lang_var.get()
@@ -903,6 +1016,20 @@ def main():
         if not work_started[0]:
             status_label.config(text=tr("preparing"))
             detail_label.config(text=tr("init_detail", flag=FLAG_NAME, count=len(CLEANUP_ITEMS)))
+        elif step5_info["done"]:
+            s_txt, d_txt = _format_step5_texts(step5_info)
+            status_label.config(text=s_txt)
+            detail_label.config(text=d_txt)
+        else:
+            render_fn = active_ui_state.get("render_fn")
+            if render_fn is not None:
+                try:
+                    s_txt, d_txt = render_fn()
+                    status_label.config(text=s_txt)
+                    if d_txt:
+                        detail_label.config(text=d_txt)
+                except Exception:
+                    pass
         btn_releases.config(text=tr("releases"))
         btn_blog.config(text=tr("blog"))
         btn_github.config(text=tr("github"))
@@ -934,52 +1061,85 @@ def main():
     btn_releases.pack(side="left", padx=4)
     btn_releases.bind("<Button-1>", lambda e: open_url(GITHUB_RELEASES_URL))
 
-    tk.Label(footer_frame, text="|", font=("Segoe UI", 8), fg="#cbd5e1", bg=card_color).pack(side="left", padx=2)
+    sep_label1 = tk.Label(footer_frame, text="|", font=("Segoe UI", 8), fg="#cbd5e1", bg=card_color)
+    sep_label1.pack(side="left", padx=2)
 
     btn_blog = tk.Label(footer_frame, text=tr("blog"), font=("Segoe UI", 8, "underline"), fg="#0284c7", bg=card_color, cursor="hand2")
     btn_blog.pack(side="left", padx=4)
     btn_blog.bind("<Button-1>", lambda e: open_url(BLOG_URL))
 
-    tk.Label(footer_frame, text="|", font=("Segoe UI", 8), fg="#cbd5e1", bg=card_color).pack(side="left", padx=2)
+    sep_label2 = tk.Label(footer_frame, text="|", font=("Segoe UI", 8), fg="#cbd5e1", bg=card_color)
+    sep_label2.pack(side="left", padx=2)
 
     btn_github = tk.Label(footer_frame, text=tr("github"), font=("Segoe UI", 8, "underline"), fg="#0284c7", bg=card_color, cursor="hand2")
     btn_github.pack(side="left", padx=4)
     btn_github.bind("<Button-1>", lambda e: open_url(GITHUB_REPO_URL))
 
     check_github_update_realtime(root)
-    worker = threading.Thread(target=perform_cleanup, args=(status_label, progress, detail_label, root, work_started), daemon=True)
+    interactive_widgets = {
+        header_frame, lang_combo,
+        footer_frame, sep_label1, sep_label2,
+        affiliation_label, btn_releases, btn_blog, btn_github,
+    }
+    worker = threading.Thread(target=perform_cleanup, args=(status_label, progress, detail_label, root, work_started, interactive_widgets, step5_info, active_ui_state), daemon=True)
     worker.start()
 
     root.protocol("WM_DELETE_WINDOW", lambda: force_cleanup_and_exit(root))
     root.mainloop()
 
 def show_update_dialog(root, latest_version, release_url, release_notes=""):
+    if _exit_started[0]:
+        return
     try:
+        _update_dialog_open[0] = True
         dialog = tk.Toplevel(root)
         dialog.title(tr("upd_win_title"))
-        dialog.geometry("450x260")
         dialog.resizable(False, False)
         dialog.configure(bg="#f8fafc")
         dialog.attributes("-topmost", True)
         dialog.transient(root)
         dialog.grab_set()
+        def close_dialog():
+            _update_dialog_open[0] = False
+            try:
+                dialog.grab_release()
+            except Exception:
+                pass
+            try:
+                dialog.destroy()
+            except Exception:
+                pass
+        def on_dialog_destroy(event):
+            if event.widget is dialog:
+                _update_dialog_open[0] = False
+        dialog.protocol("WM_DELETE_WINDOW", close_dialog)
+        dialog.bind("<Escape>", lambda e: close_dialog())
+        dialog.bind("<Destroy>", on_dialog_destroy)
         header = tk.Frame(dialog, bg="#1e293b", padx=16, pady=12)
         header.pack(fill="x")
         tk.Label(header, text=tr("upd_header", latest=latest_version), font=("Segoe UI", 11, "bold"), fg="#38bdf8", bg="#1e293b").pack(anchor="w")
         tk.Label(header, text=tr("upd_sub", current=CURRENT_VERSION, latest=latest_version), font=("Segoe UI", 9), fg="#94a3b8", bg="#1e293b").pack(anchor="w")
         body = tk.Frame(dialog, bg="#f8fafc", padx=16, pady=12)
         body.pack(fill="both", expand=True)
-        info_text = tr("upd_body", repo=GITHUB_REPO_URL, url=release_url or GITHUB_RELEASES_URL, notes=release_notes or tr("upd_default_notes"))
-        tk.Label(body, text=info_text, font=("Segoe UI", 9), fg="#334155", bg="#f8fafc", justify="left", wraplength=410).pack(anchor="w", pady=(0, 10))
         btn_frame = tk.Frame(body, bg="#f8fafc")
-        btn_frame.pack(fill="x", side="bottom")
+        btn_frame.pack(fill="x", side="bottom", pady=(8, 0))
+        notes_clean = (release_notes or "").strip()
+        if len(notes_clean) > 140:
+            notes_clean = notes_clean[:137] + "..."
+        info_text = tr("upd_body", repo=GITHUB_REPO_URL, url=release_url or GITHUB_RELEASES_URL, notes=notes_clean or tr("upd_default_notes"))
+        tk.Label(body, text=info_text, font=("Segoe UI", 9), fg="#334155", bg="#f8fafc", justify="left", wraplength=420).pack(anchor="w", fill="x")
+        dialog.update_idletasks()
+        dlg_w, dlg_h = 460, 275
+        rx = root.winfo_rootx() + max(0, (root.winfo_width() - dlg_w) // 2)
+        ry = root.winfo_rooty() + max(0, (root.winfo_height() - dlg_h) // 2)
+        dialog.geometry(f"{dlg_w}x{dlg_h}+{rx}+{ry}")
         def open_update():
             webbrowser.open_new(release_url or GITHUB_RELEASES_URL)
-            dialog.destroy()
+            close_dialog()
         tk.Button(btn_frame, text=tr("upd_btn_dl"), font=("Segoe UI", 9, "bold"), bg="#0284c7", fg="white", relief="flat", padx=12, pady=6, command=open_update, cursor="hand2").pack(side="right", padx=(6, 0))
-        tk.Button(btn_frame, text=tr("upd_btn_close"), font=("Segoe UI", 9), bg="#e2e8f0", fg="#475569", relief="flat", padx=12, pady=6, command=dialog.destroy, cursor="hand2").pack(side="right")
+        tk.Button(btn_frame, text=tr("upd_btn_close"), font=("Segoe UI", 9), bg="#e2e8f0", fg="#475569", relief="flat", padx=12, pady=6, command=close_dialog, cursor="hand2").pack(side="right")
     except Exception:
-        pass
+        _update_dialog_open[0] = False
 
 def parse_semver(tag):
     try:
@@ -996,11 +1156,11 @@ def check_github_update_realtime(root):
         try:
             req = urllib.request.Request(GITHUB_API_LATEST, headers={"User-Agent": f"DiskCleanupAuto-{CURRENT_VERSION}"})
             with urllib.request.urlopen(req, timeout=4) as resp:
-                if resp.status == 200:
+                if resp.status == 200 and not _exit_started[0]:
                     data = json.loads(resp.read().decode("utf-8"))
-                    latest_tag = data.get("tag_name", "").strip()
-                    html_url = data.get("html_url", GITHUB_RELEASES_URL)
-                    body_notes = data.get("name", "")
+                    latest_tag = (data.get("tag_name") or "").strip()
+                    html_url = data.get("html_url") or GITHUB_RELEASES_URL
+                    body_notes = data.get("name") or ""
                     if latest_tag and parse_semver(latest_tag) > parse_semver(CURRENT_VERSION):
                         root.after(500, lambda: show_update_dialog(root, latest_tag, html_url, body_notes))
         except Exception:
@@ -1248,8 +1408,16 @@ def main():
     if os.path.exists(source_exe):
         try:
             if os.name == "nt":
-                subprocess.run(["taskkill", "/F", "/IM", f"{exe_name}.exe"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(
+                    ["taskkill", "/F", "/IM", f"{exe_name}.exe"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=0x08000000,
+                    timeout=5,
+                )
                 time.sleep(0.5)
+            if os.path.exists(final_exe):
+                os.chmod(final_exe, 0o666)
             shutil.move(source_exe, final_exe)
             print(f"[OK] Output binary saved to: {final_exe}")
         except Exception as e:
@@ -1309,6 +1477,8 @@ def main():
                 output_installer = os.path.join(script_dir, "Output", f"WindowsDiskCleanup_Setup_{APP_VERSION}.exe")
                 if os.path.exists(output_installer):
                     final_installer = os.path.join(release_dir, f"WindowsDiskCleanup_Setup_{APP_VERSION}.exe")
+                    if os.path.exists(final_installer):
+                        os.chmod(final_installer, 0o666)
                     shutil.copy2(output_installer, final_installer)
                     print(f"[OK] Installer copied to Release folder: {final_installer}")
             else:

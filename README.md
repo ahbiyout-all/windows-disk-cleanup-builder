@@ -52,7 +52,7 @@ Inno Setup 컴파일러(`ISCC.exe`)로 `installer.iss`를 직접 컴파일합니
 iscc installer.iss
 ```
 - 결과물: `Output\WindowsDiskCleanup_Setup_v1.5.0.exe`
-- 지원 옵션: 대화형 설치, 덮어쓰기 확인, 무인 설치(`/VERYSILENT /SUPPRESSMSGBOXES`)
+- 지원 옵션: 대화형 설치, 기존 버전 완전 제거 후 클린 설치, 무인 설치(`/VERYSILENT /SUPPRESSMSGBOXES`)
 
 ---
 

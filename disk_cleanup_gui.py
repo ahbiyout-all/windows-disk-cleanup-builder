@@ -86,13 +86,15 @@ def is_admin():
 
 def elevate_admin():
     """관리자 권한이 없으면 UAC 승격 창을 띄워 다시 실행합니다."""
+    if os.name != "nt":
+        return
     if not is_admin():
-        params = " ".join([f'"{arg}"' for arg in sys.argv[1:]])
+        params = subprocess.list2cmdline(sys.argv[1:]) if sys.argv[1:] else ""
         if getattr(sys, "frozen", False):
             arg_str = params
         else:
             script = os.path.abspath(sys.argv[0])
-            arg_str = f'"{script}" {params}'.strip()
+            arg_str = f"{subprocess.list2cmdline([script])} {params}".strip()
         ctypes.windll.shell32.ShellExecuteW(
             None, "runas", sys.executable, arg_str, None, 1
         )
@@ -114,6 +116,9 @@ GITHUB_API_LATEST = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/r
 BLOG_URL = "https://ahbiyoutvibe.blogspot.com/"
 AFFILIATION_URL = "http://cisnet.co.kr"
 AUTO_CLOSE_SEC = 5
+SYSTEM_DRIVE = os.environ.get("SystemDrive", "C:").rstrip("\\/") or "C:"
+SYSTEM_DRIVE_ROOT = f"{SYSTEM_DRIVE}\\"
+WINDOWS_OLD_DIR = os.path.join(SYSTEM_DRIVE_ROOT, "Windows.old")
 
 def _match_lang_code(loc_str):
     if not loc_str:
@@ -199,29 +204,30 @@ TRANSLATIONS = {
         "step3_running_detail": "cleanmgr 엔진이 {configured}개 등록 항목을 순서대로(직렬) 정리하고 있습니다.",
         "step4": "4단계: 백그라운드 프로세스 및 윈도우 잔상 갱신 중...",
         "step4_detail": "cleanmgr 프로세스 정리 및 고스트 창(DWM 잔상) 즉시 소거 완료",
-        "winold_not_found": "C:\\Windows.old 폴더가 존재하지 않거나 이미 정리되었습니다.",
+        "winold_not_found": "{path} 폴더가 존재하지 않거나 이미 정리되었습니다.",
         "winold_scan": "안전 점검: Windows.old 사용자 파일 가드레일 검사 중...",
-        "winold_scan_detail": "C:\\Windows.old\\Users 내 개인 파일 잔여 여부를 점검합니다.",
+        "winold_scan_detail": "{path}\\Users 내 개인 파일 잔여 여부를 점검합니다.",
         "winold_guard_title": "⚠️ [안전 가드레일] Windows.old 개인 문서 발견됨",
-        "winold_guard_detail": "C:\\Windows.old\\Users 내 개인 파일({count}개+)이 감지되어 사용자 보호를 위해 삭제를 안전하게 건너뜁니다.",
+        "winold_guard_detail": "{path}\\Users 내 개인 파일({count}개+)이 감지되어 사용자 보호를 위해 삭제를 안전하게 건너뜁니다.",
         "winold_p1": "Windows.old 강제 정리 [1/3]: NTFS 소유권 탈취 중 (takeown)...",
-        "winold_p1_detail": "C:\\Windows.old 및 하위 트리 전체의 관리자(Administrators) 소유권을 확보합니다.",
+        "winold_p1_detail": "{path} 및 하위 트리 전체의 관리자(Administrators) 소유권을 확보합니다.",
         "winold_p2": "Windows.old 강제 정리 [2/3]: ACL 모든 권한 부여 중 (icacls)...",
         "winold_p2_detail": "Administrators 그룹에 모든 파일/디렉터리 F(Full Control) 권한을 상속 주입합니다.",
         "winold_p3": "Windows.old 강제 정리 [3/3]: 디렉터리 트리 완전 소거 중 (rd /s /q)...",
         "winold_p3_detail": "읽기 전용/시스템 속성 해제 및 Windows.old 폴더 영구 삭제를 진행합니다.",
         "winold_ok": "✨ Windows.old 완전 소거 성공!",
-        "winold_ok_detail": "C:\\Windows.old 폴더가 100% 영구 삭제되었습니다.",
-        "winold_ok_ret": "C:\\Windows.old 폴더가 100% 완전 소거되었습니다.",
+        "winold_ok_detail": "{path} 폴더가 100% 영구 삭제되었습니다.",
+        "winold_ok_ret": "{path} 폴더가 100% 완전 소거되었습니다.",
         "winold_partial": "Windows.old 정리 완료",
         "winold_partial_detail": "일부 백그라운드 락 파일을 제외한 대다수 기가바이트 데이터가 정리되었습니다.",
         "winold_partial_ret": "일부 잠긴 파일 제외 대부분 삭제됨",
         "freed_fmt": " · 💾 여유 공간 +{diff:.2f} GB 확보",
-        "free_fmt": " · 💾 현재 C: 여유 {free:.1f} GB",
+        "free_fmt": " · 💾 현재 {drive} 여유 {free:.1f} GB",
         "mouse_close_title": "✨ 디스크 정리 완료!",
         "mouse_close_detail": "마우스 감지: 창을 즉시 닫습니다...",
         "step5_status": "5단계: ✨ 모든 디스크 정리 완료! (소요: {time}{freed})",
         "step5_detail": "⏱️ {sec}초 후 자동 종료 (💡 마우스를 창 위로 올리면 즉시 닫힙니다)",
+        "step5_wait_update": "🚀 GitHub 업데이트 안내 창이 닫히면 자동으로 종료됩니다.",
         "error_title": "❌ 오류 발생",
         "releases": "📦 최신 릴리스",
         "blog": "📝 AhBiYoutVibe 블로그",
@@ -260,29 +266,30 @@ TRANSLATIONS = {
         "step3_running_detail": "cleanmgr engine is sequentially cleaning {configured} registered items.",
         "step4": "Step 4: Cleaning background processes & refreshing shell...",
         "step4_detail": "Terminated residual cleanmgr processes & cleared DWM ghost icons",
-        "winold_not_found": "C:\\Windows.old does not exist or has already been cleaned.",
+        "winold_not_found": "{path} does not exist or has already been cleaned.",
         "winold_scan": "Safety Check: Scanning Windows.old user files guardrail...",
-        "winold_scan_detail": "Checking C:\\Windows.old\\Users for unbacked personal files.",
+        "winold_scan_detail": "Checking {path}\\Users for unbacked personal files.",
         "winold_guard_title": "⚠️ [Safe-Guard] Personal files found in Windows.old",
-        "winold_guard_detail": "Detected personal files ({count}+) in C:\\Windows.old\\Users. Skipping deletion safely to protect your data.",
+        "winold_guard_detail": "Detected personal files ({count}+) in {path}\\Users. Skipping deletion safely to protect your data.",
         "winold_p1": "Windows.old Force Purge [1/3]: Taking NTFS ownership (takeown)...",
-        "winold_p1_detail": "Acquiring Administrators ownership across C:\\Windows.old tree.",
+        "winold_p1_detail": "Acquiring Administrators ownership across {path} tree.",
         "winold_p2": "Windows.old Force Purge [2/3]: Granting ACL Full Control (icacls)...",
         "winold_p2_detail": "Granting Full Control (F) permissions to Administrators recursively.",
         "winold_p3": "Windows.old Force Purge [3/3]: Removing directory tree (rd /s /q)...",
         "winold_p3_detail": "Clearing read-only/system attributes and permanently deleting Windows.old.",
         "winold_ok": "✨ Windows.old purged completely!",
-        "winold_ok_detail": "C:\\Windows.old has been 100% permanently deleted.",
-        "winold_ok_ret": "C:\\Windows.old was 100% completely deleted.",
+        "winold_ok_detail": "{path} has been 100% permanently deleted.",
+        "winold_ok_ret": "{path} was 100% completely deleted.",
         "winold_partial": "Windows.old cleanup completed",
         "winold_partial_detail": "Most gigabytes were freed except a few files locked in background.",
         "winold_partial_ret": "Deleted most files except locked entries",
         "freed_fmt": " · 💾 Freed +{diff:.2f} GB",
-        "free_fmt": " · 💾 C: Free {free:.1f} GB",
+        "free_fmt": " · 💾 {drive} Free {free:.1f} GB",
         "mouse_close_title": "✨ Disk Cleanup Complete!",
         "mouse_close_detail": "Mouse detected: Closing window immediately...",
         "step5_status": "Step 5: ✨ All disk cleanup tasks completed! (Time: {time}{freed})",
         "step5_detail": "⏱️ Auto-closing in {sec}s (💡 Hover mouse over window to close immediately)",
+        "step5_wait_update": "🚀 Window will auto-close once the GitHub update dialog is closed.",
         "error_title": "❌ Error Occurred",
         "releases": "📦 Latest Releases",
         "blog": "📝 AhBiYoutVibe Blog",
@@ -321,29 +328,30 @@ TRANSLATIONS = {
         "step3_running_detail": "cleanmgr エンジンが登録済みの {configured} 項目を順次クリーンアップしています。",
         "step4": "ステップ4: バックグラウンドプロセスの整理とシェル更新中...",
         "step4_detail": "cleanmgr プロセス整理およびゴースト残像(DWM)の消去完了",
-        "winold_not_found": "C:\\Windows.old フォルダは存在しないか、すでに削除されています。",
+        "winold_not_found": "{path} フォルダは存在しないか、すでに削除されています。",
         "winold_scan": "安全確認: Windows.old ユーザーファイルガードレール検査中...",
-        "winold_scan_detail": "C:\\Windows.old\\Users 内の個人ファイル残存を確認しています。",
+        "winold_scan_detail": "{path}\\Users 内の個人ファイル残存を確認しています。",
         "winold_guard_title": "⚠️ [安全ガードレール] Windows.old に個人ファイルを検出",
-        "winold_guard_detail": "C:\\Windows.old\\Users 内に個人ファイル ({count}件以上) を検出したため、データ保護のため削除をスキップします。",
+        "winold_guard_detail": "{path}\\Users 内に個人ファイル ({count}件以上) を検出したため、データ保護のため削除をスキップします。",
         "winold_p1": "Windows.old 強制削除 [1/3]: NTFS 所有権を取得中 (takeown)...",
-        "winold_p1_detail": "C:\\Windows.old 配下全体の Administrators 所有権を取得します。",
+        "winold_p1_detail": "{path} 配下全体の Administrators 所有権を取得します。",
         "winold_p2": "Windows.old 強制削除 [2/3]: ACL フルコントロール付与中 (icacls)...",
         "winold_p2_detail": "Administrators グループへ全ファイル・フォルダのフルコントロール権限を付与します。",
         "winold_p3": "Windows.old 強制削除 [3/3]: ディレクトリツリー完全削除中 (rd /s /q)...",
         "winold_p3_detail": "読み取り専用/システム属性を解除し Windows.old を完全に削除しています。",
         "winold_ok": "✨ Windows.old の完全削除に成功しました！",
-        "winold_ok_detail": "C:\\Windows.old フォルダが 100% 完全に削除されました。",
-        "winold_ok_ret": "C:\\Windows.old フォルダが 100% 完全に消去されました。",
+        "winold_ok_detail": "{path} フォルダが 100% 完全に削除されました。",
+        "winold_ok_ret": "{path} フォルダが 100% 完全に消去されました。",
         "winold_partial": "Windows.old クリーンアップ完了",
         "winold_partial_detail": "ロック中の一部ファイルを除く大半のデータが解放されました。",
         "winold_partial_ret": "一部ロックされたファイルを除き大半を削除済み",
         "freed_fmt": " · 💾 空き容量 +{diff:.2f} GB 確保",
-        "free_fmt": " · 💾 現在の C: 空き {free:.1f} GB",
+        "free_fmt": " · 💾 現在の {drive} 空き {free:.1f} GB",
         "mouse_close_title": "✨ クリーンアップ完了！",
         "mouse_close_detail": "マウス操作を検知: ウィンドウを即座に閉じます...",
         "step5_status": "ステップ5: ✨ すべてのディスククリーンアップが完了しました！ (所要: {time}{freed})",
         "step5_detail": "⏱️ {sec}秒後に自動終了 (💡 ウィンドウにマウスを合わせると即時に閉じます)",
+        "step5_wait_update": "🚀 GitHub アップデート案内ウィンドウを閉じると自動終了します。",
         "error_title": "❌ エラー発生",
         "releases": "📦 最新リリース",
         "blog": "📝 AhBiYoutVibe ブログ",
@@ -370,8 +378,6 @@ def tr(key, **kwargs):
         except Exception:
             return text
     return text
-
-UI_TITLE = tr("title")
 
 CLEANUP_ITEMS = [
     "Previous Installations",
@@ -521,13 +527,14 @@ def stop_periodic_shell_refresher():
         time.sleep(0.3)
 
 def get_c_drive_free_gb():
-    """C: 드라이브의 현재 여유 디스크 공간(GB)을 측정합니다."""
+    """시스템 드라이브(SystemDrive)의 현재 여유 디스크 공간(GB)을 측정합니다."""
     try:
+        _init_win32_types()
         free_bytes = ctypes.c_ulonglong(0)
         total_bytes = ctypes.c_ulonglong(0)
         total_free = ctypes.c_ulonglong(0)
         ret = ctypes.windll.kernel32.GetDiskFreeSpaceExW(
-            ctypes.c_wchar_p("C:\\"),
+            ctypes.c_wchar_p(SYSTEM_DRIVE_ROOT),
             ctypes.byref(free_bytes),
             ctypes.byref(total_bytes),
             ctypes.byref(total_free)
@@ -546,13 +553,18 @@ def play_completion_sound():
     except Exception:
         pass
 
+_WNDENUMPROC = [None]
+
 def get_cleanmgr_hwnds(target_pid):
     """지정된 cleanmgr PID가 소유한 모든 윈도우 핸들(HWND) 목록을 조회합니다."""
     hwnds = []
     try:
         _init_win32_types()
         user32 = ctypes.windll.user32
-        
+
+        if _WNDENUMPROC[0] is None:
+            _WNDENUMPROC[0] = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
         def enum_cb(hwnd, extra):
             try:
                 if user32.IsWindow(hwnd):
@@ -564,8 +576,7 @@ def get_cleanmgr_hwnds(target_pid):
                 pass
             return True
 
-        WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
-        cb_ref = WNDENUMPROC(enum_cb)
+        cb_ref = _WNDENUMPROC[0](enum_cb)
         user32.EnumWindows(cb_ref, 0)
     except Exception:
         pass
@@ -631,16 +642,24 @@ def monitor_and_wait_cleanmgr(proc, update_status_cb, max_timeout_sec=1800):
                         saw_visible_window = True
                         break
 
-                # 창이 떠 있다가 닫힌 경우 (cleanmgr 정리 다이얼로그 작업 종료 시점 포착)
-                if saw_visible_window and not has_visible and not window_closed_detected:
+                # 다이얼로그 전환 중 일시적 비가시 상태 이후 새 진행 창이 다시 나타난 경우 타이머 리셋
+                if has_visible:
+                    window_closed_detected = False
+                    window_closed_time = None
+                elif saw_visible_window and not window_closed_detected:
+                    # 창이 떠 있다가 닫힌 경우 (cleanmgr 정리 다이얼로그 작업 종료 시점 포착)
                     window_closed_detected = True
                     window_closed_time = time.time()
 
-                # 창이 닫혔는데도 백그라운드에서 프로세스가 2.5초 이상 지연 잔류할 때 조기 해제 트리거
-                if window_closed_detected and (time.time() - window_closed_time >= 2.5):
+                # 창이 닫혔는데도 백그라운드에서 프로세스가 4.0초 이상 지연 잔류할 때 조기 해제 트리거
+                if window_closed_detected and window_closed_time is not None and (time.time() - window_closed_time >= 4.0):
                     for hwnd in hwnds:
                         if user32.IsWindow(hwnd):
                             user32.PostMessageW(hwnd, 0x0010, 0, 0) # WM_CLOSE
+                    try:
+                        proc.wait(timeout=0.5)
+                    except Exception:
+                        pass
                     break
             except Exception:
                 pass
@@ -675,13 +694,15 @@ def kill_lingering_cleanmgr():
             ["taskkill", "/F", "/IM", "cleanmgr.exe", "/T"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            creationflags=creation_flags
+            creationflags=creation_flags,
+            timeout=5
         )
     except Exception:
         pass
     refresh_windows_shell()
 
 _exit_started = [False]
+_update_dialog_open = [False]
 
 def force_cleanup_and_exit(root):
     """프로세스 완전 정리 및 즉시 종료 (중복 진입 방지)"""
@@ -711,11 +732,15 @@ def scan_windows_old_safety():
     방치되어 있는지 사전 점검하여 데이터 유실 사고를 방지합니다.
     반환값: (has_user_data: bool, file_count: int, sample_paths: list)
     """
-    target_users = r"C:\Windows.old\Users"
+    target_users = os.path.join(WINDOWS_OLD_DIR, "Users")
     if not os.path.exists(target_users):
         return (False, 0, [])
     
-    important_dirs = ["Desktop", "Documents", "Downloads", "Pictures", "바탕 화면", "내 문서", "다운로드", "사진"]
+    important_dirs = [
+        "Desktop", "Documents", "Downloads", "Pictures", "Videos", "Music", "OneDrive", "Favorites",
+        "바탕 화면", "내 문서", "다운로드", "사진", "동영상", "음악",
+        "デスクトップ", "ドキュメント", "ダウンロード", "ピクチャ", "ビデオ", "ミュージック",
+    ]
     found_files = []
     
     try:
@@ -737,22 +762,27 @@ def scan_windows_old_safety():
 
     return (len(found_files) > 0, len(found_files), found_files)
 
-def force_purge_windows_old(update_ui_cb=None):
+def force_purge_windows_old(update_ui_cb=None, keyed_ui_cb=None):
     r"""
     Windows 11 24H2 / 26H1 등에서 cleanmgr 및 기존 도구로 삭제 불가능한
-    C:\Windows.old 폴더를 3단계 권한 탈취 & 잠금 해제 파이프라인으로 완전 소거합니다.
-    1단계: takeown /F C:\Windows.old /A /R /D Y (NTFS 관리자 소유권 강제 탈취)
-    2단계: icacls C:\Windows.old /grant Administrators:F /T /C /Q (모든 파일/서브폴더 완전 제어권 부여)
-    3단계: rd /s /q "C:\Windows.old" (커널 락 파일 정리 및 영구 소거)
+    Windows.old 폴더를 3단계 권한 탈취 & 잠금 해제 파이프라인으로 완전 소거합니다.
+    1단계: takeown /F <SystemDrive>\Windows.old /A /R /D Y (NTFS 관리자 소유권 강제 탈취)
+    2단계: icacls <SystemDrive>\Windows.old /grant *S-1-5-32-544:F /T /C /Q (모든 파일/서브폴더 완전 제어권 부여)
+    3단계: rd /s /q "<SystemDrive>\Windows.old" + \\?\ 확장 경로 폴백 (커널 락 및 260자 경로 제한 돌파 소거)
     """
-    target_dir = r"C:\Windows.old"
+    def _emit(s_key, d_key, s_kw=None, d_kw=None):
+        if keyed_ui_cb:
+            keyed_ui_cb(s_key, s_kw, d_key, d_kw)
+        elif update_ui_cb:
+            update_ui_cb(tr(s_key, **(s_kw or {})), tr(d_key, **(d_kw or {})))
+
+    target_dir = WINDOWS_OLD_DIR
     if not os.path.exists(target_dir):
-        return (True, tr("winold_not_found"))
+        return (True, tr("winold_not_found", path=target_dir))
 
     creation_flags = 0x08000000 if os.name == 'nt' else 0 # CREATE_NO_WINDOW
     
-    if update_ui_cb:
-        update_ui_cb(tr("winold_p1"), tr("winold_p1_detail"))
+    _emit("winold_p1", "winold_p1_detail", d_kw={"path": target_dir})
 
     # 1. takeown 실행
     try:
@@ -766,8 +796,7 @@ def force_purge_windows_old(update_ui_cb=None):
     except Exception:
         pass
 
-    if update_ui_cb:
-        update_ui_cb(tr("winold_p2"), tr("winold_p2_detail"))
+    _emit("winold_p2", "winold_p2_detail")
 
     # 2. icacls 실행
     try:
@@ -781,8 +810,7 @@ def force_purge_windows_old(update_ui_cb=None):
     except Exception:
         pass
 
-    if update_ui_cb:
-        update_ui_cb(tr("winold_p3"), tr("winold_p3_detail"))
+    _emit("winold_p3", "winold_p3_detail")
 
     # 3. attrib 해제 (루트 폴더 및 하위 트리) 및 rd /s /q 실행
     for attrib_cmd in (
@@ -802,8 +830,8 @@ def force_purge_windows_old(update_ui_cb=None):
 
     try:
         subprocess.run(
-            f'rd /s /q "{target_dir}"',
-            shell=True,
+            ["cmd.exe", "/c", "rd", "/s", "/q", target_dir],
+            shell=False,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             creationflags=creation_flags,
@@ -812,25 +840,57 @@ def force_purge_windows_old(update_ui_cb=None):
     except Exception:
         pass
 
-    # 파이썬 shutil 폴더 삭제 시도 (혹시 남아있는 빈 디렉터리 청소)
+    # 파이썬 shutil 폴더 삭제 시도 (\\?\ UNC 확장 경로로 WinSxS 260자 MAX_PATH 제한 돌파)
     if os.path.exists(target_dir):
         try:
             import shutil
-            shutil.rmtree(target_dir, ignore_errors=True)
+            ext_target = f"\\\\?\\{os.path.abspath(target_dir)}" if os.name == "nt" else target_dir
+            def _on_rm_error(func, path_arg, _exc_info=None):
+                try:
+                    os.chmod(path_arg, 0o777)
+                    func(path_arg)
+                except Exception:
+                    pass
+            if sys.version_info >= (3, 12):
+                shutil.rmtree(ext_target, onexc=_on_rm_error)
+            else:
+                shutil.rmtree(ext_target, onerror=_on_rm_error)
         except Exception:
             pass
 
     still_exists = os.path.exists(target_dir)
     if not still_exists:
-        if update_ui_cb:
-            update_ui_cb(tr("winold_ok"), tr("winold_ok_detail"))
-        return (True, tr("winold_ok_ret"))
+        _emit("winold_ok", "winold_ok_detail", d_kw={"path": target_dir})
+        return (True, tr("winold_ok_ret", path=target_dir))
     else:
-        if update_ui_cb:
-            update_ui_cb(tr("winold_partial"), tr("winold_partial_detail"))
+        _emit("winold_partial", "winold_partial_detail")
         return (False, tr("winold_partial_ret"))
 
-def perform_cleanup(status_label, progress_bar, detail_label, root, work_started_flag=None):
+def _format_duration_str(secs):
+    if secs < 60:
+        return tr("sec_fmt", secs=secs)
+    mins = int(secs // 60)
+    rem_secs = secs % 60
+    return tr("min_sec_fmt", mins=mins, rem=rem_secs)
+
+def _format_step5_texts(step5_info):
+    time_str = _format_duration_str(step5_info["elapsed_sec"])
+    freed_diff = step5_info.get("freed_diff")
+    final_free = step5_info.get("final_free")
+    freed_str = ""
+    if freed_diff is not None and final_free is not None:
+        if freed_diff > 0:
+            freed_str = tr("freed_fmt", diff=freed_diff)
+        else:
+            freed_str = tr("free_fmt", drive=SYSTEM_DRIVE, free=final_free)
+    status_text = tr("step5_status", time=time_str, freed=freed_str)
+    if step5_info.get("waiting_update"):
+        detail_text = tr("step5_wait_update")
+    else:
+        detail_text = tr("step5_detail", sec=step5_info.get("remaining", 0))
+    return status_text, detail_text
+
+def perform_cleanup(status_label, progress_bar, detail_label, root, work_started_flag=None, interactive_widgets=None, step5_info=None, active_ui_state=None):
     def update_ui(status_text, detail_text=""):
         def _apply():
             try:
@@ -844,10 +904,21 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         except Exception:
             pass
 
+    def update_ui_keyed(status_key, status_kw=None, detail_key=None, detail_kw=None, raw_detail=""):
+        s_kw = dict(status_kw or {})
+        d_kw = dict(detail_kw or {})
+        def _render():
+            s_txt = tr(status_key, **s_kw)
+            d_txt = tr(detail_key, **d_kw) if detail_key else raw_detail
+            return s_txt, d_txt
+        if active_ui_state is not None:
+            active_ui_state["render_fn"] = _render
+        s_txt, d_txt = _render()
+        update_ui(s_txt, d_txt)
+
     def registry_log(idx, total, item, status):
-        status_text = tr("step2_reg", idx=idx, total=total)
         detail_text = f"HKLM VolumeCaches\\{item} ({FLAG_NAME}=2) [{status}]"
-        update_ui(status_text, detail_text)
+        update_ui_keyed("step2_reg", {"idx": idx, "total": total}, raw_detail=detail_text)
         time.sleep(0.02)
 
     _init_win32_types()
@@ -867,19 +938,19 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
             work_started_flag[0] = True
         # [1단계] 관리자 권한 및 실행 환경 확인
         time.sleep(0.2)
-        update_ui(tr("step1"), tr("step1_detail"))
+        update_ui_keyed("step1", detail_key="step1_detail")
         time.sleep(0.4)
 
         # [2단계] 레지스트리 VolumeCaches StateFlags 항목 등록
-        update_ui(
-            tr("step2_start", count=len(CLEANUP_ITEMS)),
-            tr("step2_detail", flag=FLAG_NAME)
+        update_ui_keyed(
+            "step2_start", {"count": len(CLEANUP_ITEMS)},
+            "step2_detail", {"flag": FLAG_NAME}
         )
         time.sleep(0.2)
         configured = configure_registry(registry_log)
-        update_ui(
-            tr("step2_done", configured=configured, total=len(CLEANUP_ITEMS)),
-            tr("step2_done_detail")
+        update_ui_keyed(
+            "step2_done", {"configured": configured, "total": len(CLEANUP_ITEMS)},
+            "step2_done_detail"
         )
         time.sleep(0.6)
 
@@ -898,7 +969,7 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         # [Direct API] 휴지통 비우기 직접 실행 (SHEmptyRecycleBinW) 보완
         if "Recycle Bin" in CLEANUP_ITEMS:
             try:
-                update_ui(tr("recycle_title"), tr("recycle_detail"))
+                update_ui_keyed("recycle_title", detail_key="recycle_detail")
                 # 7 = SHERB_NOCONFIRMATION (1) | SHERB_NOPROGRESSUI (2) | SHERB_NOSOUND (4)
                 ctypes.windll.shell32.SHEmptyRecycleBinW(None, None, 7)
                 time.sleep(0.5)
@@ -909,19 +980,18 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         has_update_cleanup = "Update Cleanup" in CLEANUP_ITEMS
 
         def on_cleanmgr_progress(elapsed, saw_visible, win_closed):
-            time_str = format_time_str(elapsed)
-            if win_closed:
-                status_msg = tr("step3_closed", time=time_str)
-                detail_msg = tr("step3_closed_detail")
-            elif saw_visible:
-                status_msg = tr("step3_visible", time=time_str)
-                detail_msg = tr("step3_visible_detail", configured=configured)
-            else:
-                status_msg = tr("step3_running", time=time_str)
-                if has_update_cleanup:
-                    detail_msg = tr("step3_running_update_detail", configured=configured)
+            def _render():
+                time_str = format_time_str(elapsed)
+                if win_closed:
+                    return tr("step3_closed", time=time_str), tr("step3_closed_detail")
+                elif saw_visible:
+                    return tr("step3_visible", time=time_str), tr("step3_visible_detail", configured=configured)
                 else:
-                    detail_msg = tr("step3_running_detail", configured=configured)
+                    detail_key = "step3_running_update_detail" if has_update_cleanup else "step3_running_detail"
+                    return tr("step3_running", time=time_str), tr(detail_key, configured=configured)
+            if active_ui_state is not None:
+                active_ui_state["render_fn"] = _render
+            status_msg, detail_msg = _render()
             update_ui(status_msg, detail_msg)
 
         try:
@@ -939,41 +1009,49 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
             print(f"cleanmgr error: {e}")
 
         # [4단계] 백그라운드 잔류 프로세스 점검 및 Windows Shell 잔상 강제 소거
-        update_ui(tr("step4"), tr("step4_detail"))
+        update_ui_keyed("step4", detail_key="step4_detail")
         kill_lingering_cleanmgr()
         stop_periodic_shell_refresher()
         time.sleep(0.3)
 
         # [v1.5.0 차세대 핵심] Windows.old 강제 완전 정리 루틴 (Windows 11 24H2/26H1 특화)
-        if os.path.exists(r"C:\Windows.old"):
-            update_ui(tr("winold_scan"), tr("winold_scan_detail"))
+        if os.path.exists(WINDOWS_OLD_DIR):
+            update_ui_keyed("winold_scan", detail_key="winold_scan_detail", detail_kw={"path": WINDOWS_OLD_DIR})
             has_user_files, u_count, _ = scan_windows_old_safety()
             if has_user_files:
-                update_ui(
-                    tr("winold_guard_title"),
-                    tr("winold_guard_detail", count=u_count)
+                update_ui_keyed(
+                    "winold_guard_title",
+                    detail_key="winold_guard_detail",
+                    detail_kw={"path": WINDOWS_OLD_DIR, "count": u_count}
                 )
                 time.sleep(1.5)
             else:
-                def on_purge_status(s_title, s_detail):
-                    update_ui(s_title, s_detail)
-                
-                force_purge_windows_old(on_purge_status)
+                force_purge_windows_old(keyed_ui_cb=update_ui_keyed)
                 time.sleep(0.5)
 
         # [5단계] 디스크 정리 완료 및 자동 종료
         total_elapsed = round(time.time() - start_total_time, 1)
-        total_time_str = format_time_str(total_elapsed)
 
         # 여유 공간 측정
         final_free_gb = get_c_drive_free_gb()
-        freed_str = ""
+        freed_diff = None
         if initial_free_gb is not None and final_free_gb is not None:
             freed_diff = round(final_free_gb - initial_free_gb, 2)
-            if freed_diff > 0:
-                freed_str = tr("freed_fmt", diff=freed_diff)
-            else:
-                freed_str = tr("free_fmt", free=final_free_gb)
+
+        if step5_info is not None:
+            step5_info["elapsed_sec"] = total_elapsed
+            step5_info["freed_diff"] = freed_diff
+            step5_info["final_free"] = final_free_gb
+            step5_info["waiting_update"] = False
+            step5_info["done"] = True
+        local_step5 = step5_info if step5_info is not None else {
+            "done": True,
+            "elapsed_sec": total_elapsed,
+            "freed_diff": freed_diff,
+            "final_free": final_free_gb,
+            "remaining": AUTO_CLOSE_SEC,
+            "waiting_update": False,
+        }
 
         play_completion_sound()
         try:
@@ -984,11 +1062,20 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         except Exception:
             pass
 
+        protected_widgets = set(interactive_widgets or ())
+
         # [마우스 동작 응용] 완료 상태에서 마우스가 창 위로 올라오거나 클릭 시 즉시 닫기 플래그
+        # (단, 푸터 링크/언어 콤보박스 조작 및 GitHub 업데이트 팝업 표시 중에는 즉시 종료 차단)
         def on_mouse_action(event=None):
+            if _update_dialog_open[0]:
+                return
+            if event is not None and getattr(event, "widget", None) is not None:
+                w = event.widget
+                if w in protected_widgets or "combobox" in str(w).lower():
+                    return
             if not is_closing[0]:
                 is_closing[0] = True
-                update_ui(tr("mouse_close_title"), tr("mouse_close_detail"))
+                update_ui_keyed("mouse_close_title", detail_key="mouse_close_detail")
                 try:
                     root.after(150, lambda: force_cleanup_and_exit(root))
                 except Exception:
@@ -1003,10 +1090,18 @@ def perform_cleanup(status_label, progress_bar, detail_label, root, work_started
         for remaining in range(AUTO_CLOSE_SEC, 0, -1):
             if is_closing[0]:
                 break
-            status_text = tr("step5_status", time=total_time_str, freed=freed_str)
-            detail_text = tr("step5_detail", sec=remaining)
+            local_step5["remaining"] = remaining
+            status_text, detail_text = _format_step5_texts(local_step5)
             update_ui(status_text, detail_text)
             time.sleep(1)
+
+        # 업데이트 팝업이 열려 있는 동안에는 5초 카운트다운 후에도 강제 종료하지 않고 대기
+        if _update_dialog_open[0] and not is_closing[0] and not _exit_started[0]:
+            local_step5["waiting_update"] = True
+            status_text, detail_text = _format_step5_texts(local_step5)
+            update_ui(status_text, detail_text)
+        while _update_dialog_open[0] and not is_closing[0] and not _exit_started[0]:
+            time.sleep(0.5)
 
     except Exception as e:
         _periodic_refresh_flag[0] = False
@@ -1109,6 +1204,15 @@ def main():
     lang_combo.pack(side="right", padx=(4, 0))
 
     work_started = [False]
+    active_ui_state = {"render_fn": None}
+    step5_info = {
+        "done": False,
+        "elapsed_sec": 0.0,
+        "freed_diff": None,
+        "final_free": None,
+        "remaining": AUTO_CLOSE_SEC,
+        "waiting_update": False,
+    }
 
     def on_lang_change(event=None):
         sel = lang_var.get()
@@ -1124,6 +1228,20 @@ def main():
         if not work_started[0]:
             status_label.config(text=tr("preparing"))
             detail_label.config(text=tr("init_detail", flag=FLAG_NAME, count=len(CLEANUP_ITEMS)))
+        elif step5_info["done"]:
+            s_txt, d_txt = _format_step5_texts(step5_info)
+            status_label.config(text=s_txt)
+            detail_label.config(text=d_txt)
+        else:
+            render_fn = active_ui_state.get("render_fn")
+            if render_fn is not None:
+                try:
+                    s_txt, d_txt = render_fn()
+                    status_label.config(text=s_txt)
+                    if d_txt:
+                        detail_label.config(text=d_txt)
+                except Exception:
+                    pass
         btn_releases.config(text=tr("releases"))
         btn_blog.config(text=tr("blog"))
         btn_github.config(text=tr("github"))
@@ -1229,10 +1347,16 @@ def main():
     # 실시간 GitHub Releases 업데이트 확인 스레드 기동
     check_github_update_realtime(root)
 
+    interactive_widgets = {
+        header_frame, lang_combo,
+        footer_frame, sep_label, sep_label2,
+        affiliation_label, btn_releases, btn_blog, btn_github,
+    }
+
     # 워커 스레드 시작
     worker = threading.Thread(
         target=perform_cleanup,
-        args=(status_label, progress, detail_label, root, work_started),
+        args=(status_label, progress, detail_label, root, work_started, interactive_widgets, step5_info, active_ui_state),
         daemon=True
     )
     worker.start()
@@ -1247,15 +1371,36 @@ def main():
 # =============================================================================
 def show_update_dialog(root, latest_version, release_url, release_notes=""):
     """GitHub Releases 실시간 업데이트 알림 팝업창"""
+    if _exit_started[0]:
+        return
     try:
+        _update_dialog_open[0] = True
         dialog = tk.Toplevel(root)
         dialog.title(tr("upd_win_title"))
-        dialog.geometry("450x260")
         dialog.resizable(False, False)
         dialog.configure(bg="#f8fafc")
         dialog.attributes("-topmost", True)
         dialog.transient(root)
         dialog.grab_set()
+
+        def close_dialog():
+            _update_dialog_open[0] = False
+            try:
+                dialog.grab_release()
+            except Exception:
+                pass
+            try:
+                dialog.destroy()
+            except Exception:
+                pass
+
+        def on_dialog_destroy(event):
+            if event.widget is dialog:
+                _update_dialog_open[0] = False
+
+        dialog.protocol("WM_DELETE_WINDOW", close_dialog)
+        dialog.bind("<Escape>", lambda e: close_dialog())
+        dialog.bind("<Destroy>", on_dialog_destroy)
 
         # 헤더
         header = tk.Frame(dialog, bg="#1e293b", padx=16, pady=12)
@@ -1275,15 +1420,22 @@ def show_update_dialog(root, latest_version, release_url, release_notes=""):
             bg="#1e293b"
         ).pack(anchor="w")
 
-        # 본문
+        # 본문 (버튼 영역을 먼저 bottom에 고정하여 긴 텍스트에 버튼이 밀리지 않도록 보장)
         body = tk.Frame(dialog, bg="#f8fafc", padx=16, pady=12)
         body.pack(fill="both", expand=True)
+
+        btn_frame = tk.Frame(body, bg="#f8fafc")
+        btn_frame.pack(fill="x", side="bottom", pady=(8, 0))
+
+        notes_clean = (release_notes or "").strip()
+        if len(notes_clean) > 140:
+            notes_clean = notes_clean[:137] + "..."
 
         info_text = tr(
             "upd_body",
             repo=GITHUB_REPO_URL,
             url=release_url or GITHUB_RELEASES_URL,
-            notes=release_notes or tr("upd_default_notes")
+            notes=notes_clean or tr("upd_default_notes")
         )
         tk.Label(
             body,
@@ -1292,16 +1444,18 @@ def show_update_dialog(root, latest_version, release_url, release_notes=""):
             fg="#334155",
             bg="#f8fafc",
             justify="left",
-            wraplength=410
-        ).pack(anchor="w", pady=(0, 10))
+            wraplength=420
+        ).pack(anchor="w", fill="x")
 
-        # 버튼 영역
-        btn_frame = tk.Frame(body, bg="#f8fafc")
-        btn_frame.pack(fill="x", side="bottom")
+        dialog.update_idletasks()
+        dlg_w, dlg_h = 460, 275
+        rx = root.winfo_rootx() + max(0, (root.winfo_width() - dlg_w) // 2)
+        ry = root.winfo_rooty() + max(0, (root.winfo_height() - dlg_h) // 2)
+        dialog.geometry(f"{dlg_w}x{dlg_h}+{rx}+{ry}")
 
         def open_update():
             webbrowser.open_new(release_url or GITHUB_RELEASES_URL)
-            dialog.destroy()
+            close_dialog()
 
         tk.Button(
             btn_frame,
@@ -1325,11 +1479,11 @@ def show_update_dialog(root, latest_version, release_url, release_notes=""):
             relief="flat",
             padx=12,
             pady=6,
-            command=dialog.destroy,
+            command=close_dialog,
             cursor="hand2"
         ).pack(side="right")
     except Exception:
-        pass
+        _update_dialog_open[0] = False
 
 def parse_semver(tag):
     """'v1.5.0' 형태 문자열을 (1, 5, 0) 정수 튜플로 변환"""
@@ -1351,11 +1505,11 @@ def check_github_update_realtime(root):
                 headers={"User-Agent": f"DiskCleanupAuto-{CURRENT_VERSION}"}
             )
             with urllib.request.urlopen(req, timeout=4) as resp:
-                if resp.status == 200:
+                if resp.status == 200 and not _exit_started[0]:
                     data = json.loads(resp.read().decode("utf-8"))
-                    latest_tag = data.get("tag_name", "").strip()
-                    html_url = data.get("html_url", GITHUB_RELEASES_URL)
-                    body_notes = data.get("name", "")
+                    latest_tag = (data.get("tag_name") or "").strip()
+                    html_url = data.get("html_url") or GITHUB_RELEASES_URL
+                    body_notes = data.get("name") or ""
                     if latest_tag and parse_semver(latest_tag) > parse_semver(CURRENT_VERSION):
                         root.after(500, lambda: show_update_dialog(root, latest_tag, html_url, body_notes))
         except Exception:

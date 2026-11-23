@@ -14,7 +14,7 @@
 ## 📂 문서목록 (Documentation Index)
 
 1. **[설치, 배포 및 무인 설치 가이드 (Installation Guide)](./INSTALL.md)**
-   - Inno Setup 개별 파일 설치 구조, 덮어쓰기 감지 대화상자, 무인 설치 스위치, 방화벽 사전 등록 및 삭제 정책
+   - Inno Setup 개별 파일 설치 구조, 기존 버전 완전 제거 후 클린 설치, 무인 설치 스위치, 방화벽 사전 등록 및 삭제 정책
 2. **[빌드, 패키징 및 CI/CD 가이드 (Build & Packaging Guide)](./BUILD.md)**
    - 로컬 배치 순차 빌드, PyInstaller + Inno Setup 패키징, GitHub Actions 단일 통합 릴리스 워크플로 규격
 3. **[패치 노트 및 변경 이력 (Patch Notes & Changelog)](./PATCH_NOTES.md)**
@@ -22,7 +22,7 @@
 4. **[보안 및 개인정보 보호 정책 (Security & Privacy Policy)](./SECURITY.md)**
    - 커밋 작성자 고정, `.gitignore` 보안 배제, 관리자 권한(UAC) 및 개인 데이터 보존 안전 가드레일
 5. **[개발 로드맵 및 구현 현황 (Roadmap & Status)](./ROADMAP.md)**
-   - Phase 1~19 구현 완료 내역 및 향후 개발 계획
+   - Phase 1~23 구현 완료 내역 및 향후 개발 계획
 6. **[Google 블로그 소개 포스팅 템플릿 (Blog Post)](./BLOG_POST.md)**
    - Google Blogger 및 기술 블로그 게시용 마크다운 원고 템플릿 (`v1.5.0`)
 7. **[공식 MIT 라이선스 (MIT License)](../LICENSE)**

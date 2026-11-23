@@ -1,6 +1,6 @@
 # 🚀 설치, 배포 및 무인 설치 가이드 (Installation Guide)
 
-본 문서는 **Windows Disk Cleanup Automation Builder (v1.5.0)**의 Inno Setup 설치 프로그램 패키지 배포, 일반 대화형 설치, 자동 업그레이드/덮어쓰기 감지, 무인(Silent) 설치 옵션 및 Windows 방화벽 규칙 사전 등록 메커니즘을 상세히 설명합니다.
+본 문서는 **Windows Disk Cleanup Automation Builder (v1.5.0)**의 Inno Setup 설치 프로그램 패키지 배포, 일반 대화형 설치, 기존 버전 자동 제거 후 클린 재설치, 무인(Silent) 설치 옵션 및 Windows 방화벽 규칙 사전 등록 메커니즘을 상세히 설명합니다.
 
 ---
 
@@ -13,7 +13,7 @@
 - **설치 기본 디렉터리**: `{autopf}\Windows Disk Cleanup Automation Builder` (`C:\Program Files\...`)
 - **실행 권한 요구사항**: 관리자 권한 (`PrivilegesRequired=admin`)
 - **아키텍처 지원**: 64비트 최적화 (`x64compatible`) 및 32비트 호환
-- **다국어 설치 지원**: 한국어(`Korean.isl`), 영어(`Default.isl`), 일본어(`Japanese.isl`) 및 언어별 기존 설치 덮어쓰기 대화상자 지원
+- **다국어 설치 지원**: 한국어(`Korean.isl`), 영어(`Default.isl`), 일본어(`Japanese.isl`) 및 언어별 기존 설치 제거 확인 대화상자 지원
 
 ---
 
@@ -22,12 +22,12 @@
 Inno Setup 마법사는 다음 순서로 안전하게 진행됩니다:
 
 1. **실행 중인 기존 앱 강제 종료 (`ForceKillRunningApp`)**:
-   - 설치 시작 직후(`InitializeSetup`) 및 파일 복사 직전(`PrepareToInstall`)에 `System32\taskkill.exe /F /T`를 실행해 구동 중인 `DiskCleanupAuto.exe` 프로세스를 강제 종료하여 파일 잠금 충돌을 방지합니다.
-2. **기존 설치 감지 및 삭제/덮어쓰기 사용자 확인**:
-   - `HKLM` / `HKCU` `SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E1D4A760-936B-4D12-9F89-A2BB5B30DE8C}_is1` 레지스트리와 실제 언인스톨러/실행 파일 존재 여부를 검사합니다.
-   - 기존 설치가 감지되면 대화상자를 표시합니다(한/영/일 자동 대응):
-     - 언인스톨러 존재 시(`MB_YESNOCANCEL`): **[예]** 기존 앱 무인 삭제(`/VERYSILENT`) 후 새로 설치 · **[아니오]** 기존 설치 위에 바로 덮어쓰기 · **[취소]** 설치 중단
-     - 폴더만 존재 시(`MB_YESNO`): 덮어쓰기 진행 여부 확인
+   - 설치 시작 직후(`InitializeSetup`) 및 파일 복사 직전(`PrepareToInstall`)에 `System32\taskkill.exe /F /T`를 실행해 구동 중인 `DiskCleanupAuto.exe` 및 `DiskCleanupAuto*.exe`(구버전·포터블 포함) 프로세스를 강제 종료하여 파일 잠금 충돌을 방지합니다.
+2. **기존 설치 감지 및 완전 제거 후 새로 설치**:
+   - `HKLM` / `HKLM32` / `HKCU` 레지스트리(구버전 `AppId` 포함, `UninstallString` 인자 정밀 파싱) 및 기존/기본 설치 경로 내 실행 파일·`unins000.exe` 존재 여부를 검사합니다.
+   - 기존 설치가 감지되면 덮어쓰지 않고 **기존 버전 완전 제거 후 새로 설치 여부(`MB_YESNO`)**를 한/영/일로 안내합니다:
+     - **[예]**: 기존 언인스톨러 무인 실행(`/VERYSILENT`) 후 임시 제거 프로세스 완료(`unins000.exe` 소멸)까지 대기한 뒤 검증된 사용자 지정 폴더를 포함한 잔여 폴더(`DelTree`)·고아 키 삭제를 거쳐 클린 설치 진행 (무인 모드 `/VERYSILENT`에서도 자동 제거 후 재설치)
+     - **[아니오]**: 설치 즉시 중단 및 안전 종료
 3. **라이선스 선언 및 동의 (`LicenseFile=LICENSE`)**:
    - 공식 MIT 라이선스 전문(`LICENSE`)을 표시하고 사용자 동의 후 다음 단계로 진행합니다.
 4. **설치 진행 및 바탕화면 바로가기 기본 체크 (`[Tasks]` `desktopicon`)**:

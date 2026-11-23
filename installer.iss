@@ -7,7 +7,7 @@
 ;
 ; [배포/설치 규격 및 진행 순서]
 ; 1. 기존 실행 중인 앱 프로세스 강제 종료 (Force Kill Running App)
-; 2. 기존 설치 감지 시 삭제 후 설치 / 덮어쓰기 확인 대화상자 표시
+; 2. 기존 설치 감지 시 기존 버전 완전 제거 후 새로 설치 확인 대화상자 표시
 ; 3. MIT 라이선스 선언 및 동의 (LicenseFile=LICENSE)
 ; 4. 폴더 풀림(Unpacked Multi-File) 개별파일 설치 및 방화벽 규칙 자동 등록
 ; 5. 바탕화면 바로가기 기본 체크 ([Tasks] desktopicon)
@@ -110,10 +110,10 @@ Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#My
 Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#MyAppName} v{#MyAppVersion}"""; Flags: runhidden waituntilterminated
 
 ; =============================================================================
-; [Code] 1) 실행 중인 기존 앱 강제 종료 -> 2) 기존 설치 삭제/덮어쓰기 확인
+; [Code] 1) 실행 중인 기존 앱 강제 종료 -> 2) 기존 설치 완전 제거 후 새로 설치
 ; =============================================================================
 [Code]
-// 실행 중인 기존 앱 프로세스 강제 종료
+// 실행 중인 기존 앱 프로세스 강제 종료 (모든 버전 및 포터블 바이너리 포함)
 procedure ForceKillRunningApp();
 var
   ResultCode: Integer;
@@ -121,75 +121,220 @@ var
 begin
   TaskkillExe := ExpandConstant('{sys}\taskkill.exe');
   Exec(TaskkillExe, '/F /IM {#MyAppExeName} /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-  Exec(TaskkillExe, '/F /IM DiskCleanupAuto_v{#MyAppVersion}.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec(TaskkillExe, '/F /IM DiskCleanupAuto*.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
-function GetUninstallKeyPath(): String;
+function QueryUninstallValue(const SubKey, ValueName: String; var OutVal: String): Boolean;
 begin
-  Result := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppRawId}_is1';
-end;
-
-// 이전 버전 설치 여부 검사 함수
-function GetInstalledVersion(): String;
-var
-  InstalledVer: String;
-  KeyPath: String;
-begin
-  InstalledVer := '';
-  KeyPath := GetUninstallKeyPath();
-  if RegQueryStringValue(HKLM, KeyPath, 'DisplayVersion', InstalledVer) then
+  Result := False;
+  OutVal := '';
+  if RegQueryStringValue(HKLM, SubKey, ValueName, OutVal) and (OutVal <> '') then
   begin
-    Result := InstalledVer;
+    Result := True;
     Exit;
   end;
-  if RegQueryStringValue(HKCU, KeyPath, 'DisplayVersion', InstalledVer) then
+  if IsWin64 then
   begin
-    Result := InstalledVer;
+    if RegQueryStringValue(HKLM32, SubKey, ValueName, OutVal) and (OutVal <> '') then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+  if RegQueryStringValue(HKCU, SubKey, ValueName, OutVal) and (OutVal <> '') then
+  begin
+    Result := True;
     Exit;
+  end;
+end;
+
+function FindRegUninstallInfo(const ValueName: String): String;
+var
+  KeyCandidates: array[0..2] of String;
+  I: Integer;
+  Val: String;
+begin
+  KeyCandidates[0] := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppRawId}_is1';
+  KeyCandidates[1] := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{{#MyAppRawId}_is1';
+  KeyCandidates[2] := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1';
+
+  for I := 0 to 2 do
+  begin
+    if QueryUninstallValue(KeyCandidates[I], ValueName, Val) then
+    begin
+      Result := Val;
+      Exit;
+    end;
   end;
   Result := '';
 end;
 
-// 기존 언인스톨러 실행 경로 조회
-function GetUninstallString(): String;
+// 이전 버전 설치 버전 문자열 조회
+function GetInstalledVersion(): String;
+begin
+  Result := FindRegUninstallInfo('DisplayVersion');
+end;
+
+// UninstallString에서 실행 파일 경로만 정밀 추출 (따옴표·인자 포함 대응)
+function ExtractUninstExePath(const RawCmd: String): String;
+var
+  S: String;
+  EndQuotePos: Integer;
+  ExePos: Integer;
+begin
+  Result := '';
+  S := Trim(RawCmd);
+  if S = '' then
+    Exit;
+
+  if S[1] = '"' then
+  begin
+    Delete(S, 1, 1);
+    EndQuotePos := Pos('"', S);
+    if EndQuotePos > 1 then
+      Result := Trim(Copy(S, 1, EndQuotePos - 1))
+    else
+      Result := Trim(S);
+    Exit;
+  end;
+
+  ExePos := Pos('.exe', Lowercase(S));
+  if ExePos > 0 then
+    Result := Trim(Copy(S, 1, ExePos + 3))
+  else
+    Result := RemoveQuotes(S);
+end;
+
+// 기존 언인스톨러 실행 경로 조회 (레지스트리 UninstallString -> InstallLocation -> 기본 폴더 unins000.exe)
+function GetExistingUninstallerExe(): String;
 var
   UninstStr: String;
-  KeyPath: String;
+  RegInstallDir: String;
+  CandidateExe: String;
 begin
-  UninstStr := '';
-  KeyPath := GetUninstallKeyPath();
-  if RegQueryStringValue(HKLM, KeyPath, 'UninstallString', UninstStr) then
+  UninstStr := Trim(FindRegUninstallInfo('UninstallString'));
+  if UninstStr <> '' then
   begin
-    Result := UninstStr;
+    CandidateExe := ExtractUninstExePath(UninstStr);
+    if (CandidateExe <> '') and FileExists(CandidateExe) then
+    begin
+      Result := CandidateExe;
+      Exit;
+    end;
+  end;
+
+  RegInstallDir := RemoveBackslashUnlessRoot(Trim(FindRegUninstallInfo('InstallLocation')));
+  if RegInstallDir <> '' then
+  begin
+    CandidateExe := RegInstallDir + '\unins000.exe';
+    if FileExists(CandidateExe) then
+    begin
+      Result := CandidateExe;
+      Exit;
+    end;
+  end;
+
+  CandidateExe := ExpandConstant('{autopf}\{#MyAppName}\unins000.exe');
+  if FileExists(CandidateExe) then
+  begin
+    Result := CandidateExe;
     Exit;
   end;
-  if RegQueryStringValue(HKCU, KeyPath, 'UninstallString', UninstStr) then
-  begin
-    Result := UninstStr;
-    Exit;
-  end;
+
   Result := '';
 end;
 
-// 기존 설치 무인 제거(삭제) 실행
-function RunExistingUninstaller(): Boolean;
+// 안전하게 기존 설치 폴더 비우기 (드라이브 루트 및 시스템 경로 제외, 앱 식별 검증)
+procedure SafeRemoveAppDir(const TargetDir: String; ForceVerifiedDir: Boolean);
+var
+  CleanDir: String;
+  IsAppFolder: Boolean;
+begin
+  CleanDir := RemoveBackslashUnlessRoot(Trim(TargetDir));
+  if (Length(CleanDir) <= 3) or (not DirExists(CleanDir)) then
+    Exit;
+  if Lowercase(CleanDir) = Lowercase(RemoveBackslashUnlessRoot(ExpandConstant('{autopf}'))) then
+    Exit;
+
+  IsAppFolder := ForceVerifiedDir or
+                 (Pos(Lowercase('{#MyAppName}'), Lowercase(CleanDir)) > 0) or
+                 FileExists(CleanDir + '\{#MyAppExeName}') or
+                 FileExists(CleanDir + '\DiskCleanupAuto_v{#MyAppVersion}.exe') or
+                 FileExists(CleanDir + '\register_scheduler.bat') or
+                 FileExists(CleanDir + '\unins000.exe');
+  if IsAppFolder then
+  begin
+    DelTree(CleanDir, True, True, True);
+  end;
+end;
+
+// 고아 언인스톨 레지스트리 키 정리 (언인스톨러 실행 파일이 없던 경우 대비)
+procedure CleanupOrphanUninstallKeys();
+var
+  KeyCandidates: array[0..2] of String;
+  I: Integer;
+begin
+  KeyCandidates[0] := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppRawId}_is1';
+  KeyCandidates[1] := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{{#MyAppRawId}_is1';
+  KeyCandidates[2] := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1';
+
+  for I := 0 to 2 do
+  begin
+    if RegKeyExists(HKLM, KeyCandidates[I]) then
+      RegDeleteKeyIncludingSubkeys(HKLM, KeyCandidates[I]);
+    if IsWin64 and RegKeyExists(HKLM32, KeyCandidates[I]) then
+      RegDeleteKeyIncludingSubkeys(HKLM32, KeyCandidates[I]);
+    if RegKeyExists(HKCU, KeyCandidates[I]) then
+      RegDeleteKeyIncludingSubkeys(HKCU, KeyCandidates[I]);
+  end;
+end;
+
+// 기존 설치 완전 제거 (프로세스 종료 -> 언인스톨러 무인 실행 -> 잔여 폴더/레지스트리 정리)
+procedure RemoveExistingInstallation();
 var
   UninstExe: String;
+  UninstDir: String;
+  RegInstallDir: String;
+  DefaultAppDir: String;
   ResultCode: Integer;
+  WaitCount: Integer;
 begin
-  Result := True;
-  UninstExe := RemoveQuotes(GetUninstallString());
+  ForceKillRunningApp();
+
+  RegInstallDir := Trim(FindRegUninstallInfo('InstallLocation'));
+  DefaultAppDir := ExpandConstant('{autopf}\{#MyAppName}');
+  UninstExe := GetExistingUninstallerExe();
+  UninstDir := '';
+  if UninstExe <> '' then
+    UninstDir := ExtractFileDir(UninstExe);
+
   if (UninstExe <> '') and FileExists(UninstExe) then
   begin
-    if not Exec(UninstExe, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-      Result := False;
+    Exec(UninstExe, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    // Inno Setup unins000.exe spawns a temp child process to delete itself; wait until it finishes
+    WaitCount := 0;
+    while FileExists(UninstExe) and (WaitCount < 50) do
+    begin
+      Sleep(200);
+      WaitCount := WaitCount + 1;
+    end;
   end;
+
+  ForceKillRunningApp();
+  if UninstDir <> '' then
+    SafeRemoveAppDir(UninstDir, True);
+  SafeRemoveAppDir(RegInstallDir, RegInstallDir <> '');
+  SafeRemoveAppDir(DefaultAppDir, False);
+  CleanupOrphanUninstallKeys();
 end;
 
 function InitializeSetup(): Boolean;
 var
   PrevVersion: String;
-  HasUninstaller: Boolean;
+  UninstExe: String;
+  RegInstallDir: String;
+  DefaultAppDir: String;
+  HasExistingApp: Boolean;
   PromptMsg: String;
   UserResponse: Integer;
 begin
@@ -199,69 +344,65 @@ begin
   ForceKillRunningApp();
 
   PrevVersion := GetInstalledVersion();
-  HasUninstaller := (GetUninstallString() <> '') and FileExists(RemoveQuotes(GetUninstallString()));
+  UninstExe := GetExistingUninstallerExe();
+  RegInstallDir := RemoveBackslashUnlessRoot(Trim(FindRegUninstallInfo('InstallLocation')));
+  DefaultAppDir := ExpandConstant('{autopf}\{#MyAppName}');
+  HasExistingApp := (PrevVersion <> '') or (UninstExe <> '') or
+                    ((RegInstallDir <> '') and FileExists(RegInstallDir + '\{#MyAppExeName}')) or
+                    FileExists(DefaultAppDir + '\{#MyAppExeName}') or
+                    FileExists(DefaultAppDir + '\DiskCleanupAuto_v{#MyAppVersion}.exe');
 
-  // [2단계] 기존 설치가 감지된 경우 삭제/덮어쓰기 사용자 확인
-  if (PrevVersion <> '') or FileExists(ExpandConstant('{autopf}\{#MyAppName}\{#MyAppExeName}')) then
+  // [2단계] 기존 설치가 감지된 경우 덮어쓰지 않고 기존 버전을 완전히 제거 후 새로 설치
+  if HasExistingApp then
   begin
-    // 무인/자동 설치 모드(/SILENT, /VERYSILENT)인 경우 묻지 않고 자동 덮어쓰기 진행
+    // 무인/자동 설치 모드(/SILENT, /VERYSILENT)에서도 기존 버전을 먼저 깨끗이 제거 후 재설치
     if WizardSilent() then
     begin
+      RemoveExistingInstallation();
       Result := True;
       Exit;
     end;
 
-    if HasUninstaller then
+    if ActiveLanguage() = 'english' then
     begin
-      if ActiveLanguage() = 'english' then
-        PromptMsg := Format('An existing version (v%s) is already installed.' + #13#10 + #13#10 +
-                            '• [Yes]: Uninstall existing version and install v{#MyAppVersion}' + #13#10 +
-                            '• [No]: Overwrite existing installation directly' + #13#10 +
-                            '• [Cancel]: Abort setup', [PrevVersion])
-      else if ActiveLanguage() = 'japanese' then
-        PromptMsg := Format('旧バージョン (v%s) がすでにインストールされています。' + #13#10 + #13#10 +
-                            '• [はい]: 旧バージョンを削除してから新規インストール (v{#MyAppVersion})' + #13#10 +
-                            '• [いいえ]: 既存のインストールを上書きして続行' + #13#10 +
-                            '• [キャンセル]: インストールを中止', [PrevVersion])
+      if PrevVersion <> '' then
+        PromptMsg := Format('An existing version (v%s) is already installed.', [PrevVersion])
       else
-        PromptMsg := Format('기존 버전(v%s)이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
-                            '• [예]: 기존 앱을 삭제(제거)한 후 v{#MyAppVersion} 새로 설치' + #13#10 +
-                            '• [아니오]: 기존 설치 위에 바로 덮어쓰기 진행' + #13#10 +
-                            '• [취소]: 설치 중단', [PrevVersion]);
-
-      UserResponse := MsgBox(PromptMsg, mbConfirmation, MB_YESNOCANCEL);
-      if UserResponse = IDYES then
-      begin
-        ForceKillRunningApp();
-        RunExistingUninstaller();
-        Result := True;
-      end
-      else if UserResponse = IDNO then
-      begin
-        Result := True;
-      end
+        PromptMsg := 'An existing installation was detected on this PC.';
+      PromptMsg := PromptMsg + #13#10 + #13#10 +
+                   'Do you want to remove the existing version and perform a clean install of v{#MyAppVersion}?' + #13#10 +
+                   '(Click No to cancel installation.)';
+    end
+    else if ActiveLanguage() = 'japanese' then
+    begin
+      if PrevVersion <> '' then
+        PromptMsg := Format('旧バージョン (v%s) がすでにインストールされています。', [PrevVersion])
       else
-      begin
-        Result := False;
-      end;
+        PromptMsg := '既存のインストールが検出されました。';
+      PromptMsg := PromptMsg + #13#10 + #13#10 +
+                   '旧バージョンを完全に削除してから新バージョン (v{#MyAppVersion}) をクリーンインストールしますか？' + #13#10 +
+                   '(「いいえ」をクリックするとインストールを中止します。)';
     end
     else
     begin
-      if ActiveLanguage() = 'english' then
-        PromptMsg := 'An existing installation was detected in the target folder.' + #13#10 + #13#10 +
-                     'Do you want to overwrite it with v{#MyAppVersion}?' + #13#10 +
-                     '(Click No to cancel installation.)'
-      else if ActiveLanguage() = 'japanese' then
-        PromptMsg := '同じフォルダに既存のインストールが検出されました。' + #13#10 + #13#10 +
-                     '新バージョン (v{#MyAppVersion}) で上書きインストールしますか？' + #13#10 +
-                     '(「いいえ」をクリックするとインストールを中止します。)'
+      if PrevVersion <> '' then
+        PromptMsg := Format('기존 버전(v%s)이 이미 설치되어 있습니다.', [PrevVersion])
       else
-        PromptMsg := '동일한 경로에 기존 앱이 이미 설치되어 있습니다.' + #13#10 + #13#10 +
-                     '기존 앱을 새 버전(v{#MyAppVersion})으로 덮어쓰시겠습니까?' + #13#10 +
-                     '(아니오 클릭 시 설치가 중단됩니다.)';
+        PromptMsg := '동일한 경로에 기존 앱이 이미 설치되어 있습니다.';
+      PromptMsg := PromptMsg + #13#10 + #13#10 +
+                   '기존 앱을 완전히 제거(삭제)한 후 새 버전(v{#MyAppVersion})을 새로 설치하시겠습니까?' + #13#10 +
+                   '(아니오 클릭 시 설치가 중단됩니다.)';
+    end;
 
-      UserResponse := MsgBox(PromptMsg, mbConfirmation, MB_YESNO);
-      Result := (UserResponse = IDYES);
+    UserResponse := MsgBox(PromptMsg, mbConfirmation, MB_YESNO);
+    if UserResponse = IDYES then
+    begin
+      RemoveExistingInstallation();
+      Result := True;
+    end
+    else
+    begin
+      Result := False;
     end;
   end;
 end;

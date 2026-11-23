@@ -211,7 +211,7 @@ if exist "%SCRIPT_DIR%assets\app.ico" (
 ) else if exist "%SCRIPT_DIR%app.ico" (
     copy /y "%SCRIPT_DIR%app.ico" "%PORTABLE_STAGE%\assets\app.ico" >nul 2>&1
 )
-powershell -NoProfile -Command "Compress-Archive -Path '%PORTABLE_STAGE%\*' -DestinationPath '%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip' -Force" >nul 2>&1
+powershell -NoProfile -Command "Compress-Archive -Path (Join-Path $env:PORTABLE_STAGE '*') -DestinationPath (Join-Path $env:RELEASE_DIR 'WindowsDiskCleanup_Portable_v1.5.0.zip') -Force" >nul 2>&1
 if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip" echo [OK] Portable ZIP: "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip"
 if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
 
@@ -231,24 +231,29 @@ if not defined ISCC_EXE (
     if %errorlevel% equ 0 set "ISCC_EXE=iscc"
 )
 
-if defined ISCC_EXE if exist "%SCRIPT_DIR%installer.iss" (
-    echo [*] Inno Setup compiler found: "%ISCC_EXE%"
-    echo [*] Compiling WindowsDiskCleanup_Setup_v1.5.0.exe...
-    if not exist "%SCRIPT_DIR%Output" mkdir "%SCRIPT_DIR%Output"
-    "%ISCC_EXE%" "%SCRIPT_DIR%installer.iss"
-    if %errorlevel% equ 0 (
-        echo [OK] Installer compilation successful!
-        if exist "%SCRIPT_DIR%Output\WindowsDiskCleanup_Setup_v1.5.0.exe" (
-            copy /y "%SCRIPT_DIR%Output\WindowsDiskCleanup_Setup_v1.5.0.exe" "%RELEASE_DIR%" >nul 2>&1
-            echo [OK] Installer copied to Release folder: "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe"
-        )
-    ) else (
-        echo [WARN] Inno Setup compilation returned error code %errorlevel%.
-    )
-) else (
-    echo [INFO] Inno Setup (ISCC.exe) not found on system. Skipping installer packaging.
-    echo        (Download Inno Setup from: https://jrsoftware.org/isdl.php)
+if not defined ISCC_EXE goto :NO_ISCC
+if not exist "%SCRIPT_DIR%installer.iss" goto :NO_ISCC
+echo [*] Inno Setup compiler found: "%ISCC_EXE%"
+echo [*] Compiling WindowsDiskCleanup_Setup_v1.5.0.exe...
+if not exist "%SCRIPT_DIR%Output" mkdir "%SCRIPT_DIR%Output"
+call "%ISCC_EXE%" "%SCRIPT_DIR%installer.iss"
+if %errorlevel% neq 0 (
+    echo [WARN] Inno Setup compilation returned error code %errorlevel%.
+    goto :AFTER_ISCC
 )
+echo [OK] Installer compilation successful!
+if exist "%SCRIPT_DIR%Output\WindowsDiskCleanup_Setup_v1.5.0.exe" (
+    if exist "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe" attrib -r "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe" >nul 2>&1
+    copy /y "%SCRIPT_DIR%Output\WindowsDiskCleanup_Setup_v1.5.0.exe" "%RELEASE_DIR%\" >nul 2>&1
+    echo [OK] Installer copied to Release folder: "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe"
+)
+goto :AFTER_ISCC
+
+:NO_ISCC
+echo [INFO] Inno Setup (ISCC.exe) not found on system or installer.iss missing. Skipping installer packaging.
+echo        (Download Inno Setup from: https://jrsoftware.org/isdl.php)
+
+:AFTER_ISCC
 echo.
 
 echo [7/7] Cleaning temporary build artifacts...
