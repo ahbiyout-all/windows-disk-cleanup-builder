@@ -1,6 +1,6 @@
 ﻿; =============================================================================
 ; Inno Setup 6.x Deployment Script
-; Project: Windows Disk Cleanup Automation Builder (v1.5.0)
+; Project: Windows Disk Cleanup Automation Builder (v1.6.0)
 ; Developer: AhBiYout (GitHub: AhBiYout-all)
 ; Official Blog: https://ahbiyoutvibe.blogspot.com/
 ; Copyright (c) 2026 AhBiYout. All rights reserved.
@@ -16,7 +16,7 @@
 ; =============================================================================
 
 #define MyAppName "Windows Disk Cleanup Automation Builder"
-#define MyAppVersion "1.5.0"
+#define MyAppVersion "1.6.0"
 #define MyAppPublisher "AhBiYout"
 #define MyAppPublisherURL "https://github.com/AhBiYout-all"
 #define MyAppSupportURL "https://ahbiyoutvibe.blogspot.com/"
@@ -92,7 +92,7 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilen
 ; =============================================================================
 ; [Run] 설치 후 동작 및 방화벽 규칙 사전 조용히 등록 (Quiet Firewall Registration)
 ; 규칙 1: 기본 이름 (Windows Disk Cleanup Automation Builder)
-; 규칙 2: 버전 정보 포함 이름 (Windows Disk Cleanup Automation Builder v1.5.0)
+; 규칙 2: 버전 정보 포함 이름 (Windows Disk Cleanup Automation Builder v1.6.0)
 ; =============================================================================
 [Run]
 ; 1. 기본 이름 방화벽 규칙 조용히 등록

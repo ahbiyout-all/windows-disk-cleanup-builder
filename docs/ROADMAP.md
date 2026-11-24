@@ -25,13 +25,14 @@
 | **Phase 15** | Windows 인스톨러 + 포터블 3종 배포 | ✅ 완료 | `v1.5.0` | `Setup_v1.5.0.exe`, `DiskCleanupAuto_v1.5.0.exe`, `Portable_v1.5.0.zip` 동시 배포 |
 | **Phase 16** | 고화질 멀티 해상도 아이콘 임베드 | ✅ 완료 | `v1.5.0` | `app.ico` PE 리소스, Tkinter `_MEIPASS` 런타임, 제어판/바로가기 일괄 적용 |
 | **Phase 17** | AhBiYout 단독 저작권 & 안정성 정비 | ✅ 완료 | `v1.5.0` | `Copyright (c) 2026 AhBiYout`, Tkinter 스레드 안전성 및 Inno Setup `AppId` 버그 수정 |
-| **Phase 18** | 시스템 로케일 자동 감지 & 한/영/일 다국어 지원 | ✅ 완료 | `v1.5.0` | Win32 `GetUserDefaultUILanguage`/`navigator.language` 자동 감지, GUI·인스톨러·문서(`README_EN`/`README_JA`) 한/영/일 완전 지원 |
-| **Phase 19** | 포터블 ZIP 추가 & 심층 감사/오류 수정 | ✅ 완료 | `v1.5.0` | `Portable ZIP` 릴리스 아카이브, `build_exe.bat` 배치 확장 버그 및 `build_exe.py`·`installer.iss`·GUI Win32 초기화 레이스 수정 |
-| **Phase 20** | 기능 심층 감사 & 런타임 안전성/UX 수정 | ✅ 완료 | `v1.5.0` | `cleanmgr` 조기 종료 리셋, 업데이트 팝업·링크/콤보박스 자동종료 보호, 동적 `SystemDrive`·`\\?\` 260자 돌파, 클립보드 폴백 수정 |
-| **Phase 21** | 인스톨러·배치·빌더 2차 심층 감사 수정 | ✅ 완료 | `v1.5.0` | Inno `unins000` 자식 프로세스 종료 대기, `build_exe.bat` `[6/7]` `%errorlevel%` 분기 및 읽기 전용 덮어쓰기·완료 상태 실시간 언어 재렌더링 |
-| **Phase 22** | 기능 3차 심층 감사 & UI/프로세스 보강 | ✅ 완료 | `v1.5.0` | 업데이트 모달 버튼 클리핑·Esc/중앙 정렬, `_WNDENUMPROC` 캐싱·`WM_CLOSE` 유예, `list2cmdline`/`taskkill` 타임아웃/`shell=False`, 1~4단계 실시간 언어 전환 |
-| **Phase 23** | 기능·인스톨러·배치 4차 심층 감사 수정 | ✅ 완료 | `v1.5.0` | Inno `DiskCleanupAuto*.exe` 종료·`UninstallString` 파서·커스텀 경로 정리, 한/영/일 가드레일 확장, GitHub JSON `null` 방어, 배치 `$env:` ZIP 경로 수정 |
-| **Phase 24** | 기능·보안·UX 5차 심층 감사 수정 | ✅ 완료 | `v1.5.0` | System32 절대 경로(`_sys32_exe`·`{sys}\netsh.exe`)·`RunOnceId`, 최소화 시 모달 오프스크린 클램핑, 콤보박스 `popdown`·1.2초 오클릭 유예 보호 |
+| **Phase 18** | 시스템 로케일 자동 감지 & 한/영/일 다국어 지원 | ✅ 완료 | `v1.6.0` | Win32 `GetUserDefaultUILanguage`/`navigator.language` 자동 감지, GUI·인스톨러·문서(`README_EN`/`README_JA`) 한/영/일 완전 지원 |
+| **Phase 19** | 포터블 ZIP 추가 & 심층 감사/오류 수정 | ✅ 완료 | `v1.6.0` | `Portable ZIP` 릴리스 아카이브, `build_exe.bat` 배치 확장 버그 및 `build_exe.py`·`installer.iss`·GUI Win32 초기화 레이스 수정 |
+| **Phase 20** | 기능 심층 감사 & 런타임 안전성/UX 수정 | ✅ 완료 | `v1.6.0` | `cleanmgr` 조기 종료 리셋, 업데이트 팝업·링크/콤보박스 자동종료 보호, 동적 `SystemDrive`·`\\?\` 260자 돌파, 클립보드 폴백 수정 |
+| **Phase 21** | 인스톨러·배치·빌더 2차 심층 감사 수정 | ✅ 완료 | `v1.6.0` | Inno `unins000` 자식 프로세스 종료 대기, `build_exe.bat` `[6/7]` `%errorlevel%` 분기 및 읽기 전용 덮어쓰기·완료 상태 실시간 언어 재렌더링 |
+| **Phase 22** | 기능 3차 심층 감사 & UI/프로세스 보강 | ✅ 완료 | `v1.6.0` | 업데이트 모달 버튼 클리핑·Esc/중앙 정렬, `_WNDENUMPROC` 캐싱·`WM_CLOSE` 유예, `list2cmdline`/`taskkill` 타임아웃/`shell=False`, 1~4단계 실시간 언어 전환 |
+| **Phase 23** | 기능·인스톨러·배치 4차 심층 감사 수정 | ✅ 완료 | `v1.6.0` | Inno `DiskCleanupAuto*.exe` 종료·`UninstallString` 파서·커스텀 경로 정리, 한/영/일 가드레일 확장, GitHub JSON `null` 방어, 배치 `$env:` ZIP 경로 수정 |
+| **Phase 24** | 기능·보안·UX 5차 심층 감사 수정 | ✅ 완료 | `v1.6.0` | System32 절대 경로(`_sys32_exe`·`{sys}\netsh.exe`)·`RunOnceId`, 최소화 시 모달 오프스크린 클램핑, 콤보박스 `popdown`·1.2초 오클릭 유예 보호 |
+| **Phase 25** | `v1.6.0` 마이너 정식 릴리스 승격 | ✅ 완료 | `v1.6.0` | 코드·PE 리소스(`1.6.0.0`)·Inno Setup·배치·스케줄러·CI/CD·웹 프리뷰·다국어 문서 전체 `v1.6.0` 일괄 동기화 |
 
 ---
 

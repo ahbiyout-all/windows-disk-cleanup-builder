@@ -23,9 +23,9 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Manual Release Version (e.g. v1.5.0)'
+        description: 'Manual Release Version (e.g. v1.6.0)'
         required: false
-        default: 'v1.5.0'
+        default: 'v1.6.0'
 
 permissions:
   contents: write
@@ -75,7 +75,7 @@ jobs:
           }
 
           # (1) 단독 포터블 실행 파일 빌드
-          pyinstaller @commonArgs --onefile --name "DiskCleanupAuto_v1.5.0" @onefileIconArgs disk_cleanup_gui.py
+          pyinstaller @commonArgs --onefile --name "DiskCleanupAuto_v1.6.0" @onefileIconArgs disk_cleanup_gui.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           # (2) Inno Setup 언팩용 디렉터리 빌드
@@ -91,14 +91,14 @@ jobs:
           elseif (Test-Path "app.ico") { Copy-Item -Force "app.ico" "dist/DiskCleanupAuto/assets/app.ico" }
           if (Test-Path "register_scheduler.bat") { Copy-Item -Force "register_scheduler.bat" "dist/DiskCleanupAuto/" }
           # 단독 포터블 EXE는 Inno Setup 언팩 디렉터리와 섞이지 않도록 사전에 release_artifacts로 이동
-          if (Test-Path "dist/DiskCleanupAuto_v1.5.0.exe") {
-            Move-Item -Force "dist/DiskCleanupAuto_v1.5.0.exe" "release_artifacts/DiskCleanupAuto_v1.5.0.exe"
+          if (Test-Path "dist/DiskCleanupAuto_v1.6.0.exe") {
+            Move-Item -Force "dist/DiskCleanupAuto_v1.6.0.exe" "release_artifacts/DiskCleanupAuto_v1.6.0.exe"
           }
 
-          # 무설치 포터블 ZIP 패키지 생성 (WindowsDiskCleanup_Portable_v1.5.0.zip)
+          # 무설치 포터블 ZIP 패키지 생성 (WindowsDiskCleanup_Portable_v1.6.0.zip)
           if (Test-Path "portable_staging") { Remove-Item -Recurse -Force "portable_staging" }
           New-Item -ItemType Directory -Force -Path "portable_staging/assets", "portable_staging/docs"
-          Copy-Item -Force "release_artifacts/DiskCleanupAuto_v1.5.0.exe" "portable_staging/"
+          Copy-Item -Force "release_artifacts/DiskCleanupAuto_v1.6.0.exe" "portable_staging/"
           if (Test-Path "register_scheduler.bat") { Copy-Item -Force "register_scheduler.bat" "portable_staging/" }
           if (Test-Path "LICENSE") { Copy-Item -Force "LICENSE" "portable_staging/" }
           if (Test-Path "README.md") { Copy-Item -Force "README.md" "portable_staging/" }
@@ -106,9 +106,9 @@ jobs:
           if (Test-Path "assets/app.ico") { Copy-Item -Force "assets/app.ico" "portable_staging/assets/app.ico" }
           elseif (Test-Path "app.ico") { Copy-Item -Force "app.ico" "portable_staging/assets/app.ico" }
 
-          Compress-Archive -Path "portable_staging/*" -DestinationPath "release_artifacts/WindowsDiskCleanup_Portable_v1.5.0.zip" -Force
+          Compress-Archive -Path "portable_staging/*" -DestinationPath "release_artifacts/WindowsDiskCleanup_Portable_v1.6.0.zip" -Force
           Remove-Item -Recurse -Force "portable_staging"
-          Write-Host "Created Portable ZIP: release_artifacts/WindowsDiskCleanup_Portable_v1.5.0.zip"
+          Write-Host "Created Portable ZIP: release_artifacts/WindowsDiskCleanup_Portable_v1.6.0.zip"
 
       - name: 6. Install Inno Setup Compiler
         shell: pwsh
@@ -149,7 +149,7 @@ jobs:
       - name: 9. Upload Artifacts to GitHub Actions Run
         uses: actions/upload-artifact@v4
         with:
-          name: windows-binaries-v1.5.0
+          name: windows-binaries-v1.6.0
           path: release_artifacts/*
           retention-days: 30
 
@@ -166,7 +166,7 @@ jobs:
             $tag = $env:GH_REF_NAME
           }
           if (-not $tag) {
-            $tag = "v1.5.0"
+            $tag = "v1.6.0"
           }
           Write-Host "Resolved Target Tag: $tag"
           "release_tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
@@ -178,12 +178,12 @@ jobs:
           name: "Release ${{ steps.tag_info.outputs.release_tag }} - AhBiYout Windows Disk Cleanup Auto"
           body: |
             ## 🚀 ${{ steps.tag_info.outputs.release_tag }} 공식 Windows 바이너리 배포
-            AhBiYout Windows 디스크 클린 오토(DiskCleanupAuto v1.5.0) 공식 릴리스입니다.
+            AhBiYout Windows 디스크 클린 오토(DiskCleanupAuto v1.6.0) 공식 릴리스입니다.
 
             ### 📦 배포 에셋 목록
-            1. **`WindowsDiskCleanup_Setup_v1.5.0.exe`**: Inno Setup 개별 파일 언팩 설치 프로그램 (라이선스 동의, 바탕화면/시작메뉴 바로가기, 방화벽 규칙 자동 등록, 제어판 등록)
-            2. **`DiskCleanupAuto_v1.5.0.exe`**: 설치 없이 바로 실행 가능한 무설치 단독 실행 파일 (Portable Standalone EXE)
-            3. **`WindowsDiskCleanup_Portable_v1.5.0.zip`**: 무설치 포터블 ZIP 패키지 (`DiskCleanupAuto_v1.5.0.exe`, `register_scheduler.bat`, `LICENSE`, 다국어 가이드 포함)
+            1. **`WindowsDiskCleanup_Setup_v1.6.0.exe`**: Inno Setup 개별 파일 언팩 설치 프로그램 (라이선스 동의, 바탕화면/시작메뉴 바로가기, 방화벽 규칙 자동 등록, 제어판 등록)
+            2. **`DiskCleanupAuto_v1.6.0.exe`**: 설치 없이 바로 실행 가능한 무설치 단독 실행 파일 (Portable Standalone EXE)
+            3. **`WindowsDiskCleanup_Portable_v1.6.0.zip`**: 무설치 포터블 ZIP 패키지 (`DiskCleanupAuto_v1.6.0.exe`, `register_scheduler.bat`, `LICENSE`, 다국어 가이드 포함)
 
             ---
             - **개발자**: AhBiYout (GitHub: [@AhBiYout-all](https://github.com/AhBiYout-all))

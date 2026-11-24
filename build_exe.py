@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-[AhBiYout] Python to Portable Single EXE Auto Builder (v1.5.0)
+[AhBiYout] Python to Portable Single EXE Auto Builder (v1.6.0)
 Robust Python-native compiler runner that never crashes or closes silently.
 Self-contained: auto-generates disk_cleanup_gui.py if missing.
 """
@@ -15,7 +15,7 @@ import zipfile
 
 DEFAULT_GUI_SOURCE = r'''"""
 =============================================================================
- Windows Disk Cleanup Automated Runner (GUI Edition v1.5.0)
+ Windows Disk Cleanup Automated Runner (GUI Edition v1.6.0)
  Auto-configured Registry VolumeCaches & cleanmgr.exe execution
  ----------------------------------------------------------------------------
  * 개발자: AhBiYout
@@ -117,7 +117,7 @@ def elevate_admin():
         )
         os._exit(0)
 
-CURRENT_VERSION = "v1.5.0"
+CURRENT_VERSION = "v1.6.0"
 FLAG_NAME = "StateFlags0064"
 SAGESET_ID = 64
 COMPANY_NAME = "AhBiYout"
@@ -1198,9 +1198,9 @@ if __name__ == "__main__":
     main()
 '''
 
-APP_VERSION = "v1.5.0"
-APP_VERSION_TUPLE = (1, 5, 0, 0)
-APP_VERSION_STR = "1.5.0.0"
+APP_VERSION = "v1.6.0"
+APP_VERSION_TUPLE = (1, 6, 0, 0)
+APP_VERSION_STR = "1.6.0.0"
 APP_INTERNAL_NAME = "DiskCleanupAuto"
 APP_EXE_NAME = f"{APP_INTERNAL_NAME}_{APP_VERSION}"
 
@@ -1295,7 +1295,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
 
-    print_header("[AhBiYout] Python to Portable EXE Auto Builder (v1.5.0)")
+    print_header("[AhBiYout] Python to Portable EXE Auto Builder (v1.6.0)")
     print(f"Working Directory: {script_dir}")
     print(f"Python Version   : {sys.version.split()[0]} ({sys.executable})")
 
@@ -1334,7 +1334,7 @@ def main():
 
     if not target_file:
         print("[*] Target python script not found in folder.")
-        print("[*] Auto-generating default 'disk_cleanup_gui.py' (v1.5.0)...")
+        print("[*] Auto-generating default 'disk_cleanup_gui.py' (v1.6.0)...")
         target_path = os.path.join(script_dir, "disk_cleanup_gui.py")
         try:
             with open(target_path, "w", encoding="utf-8") as f:
@@ -1451,7 +1451,7 @@ def main():
             print(f"[WARN] Could not move to Release folder ({e}). Exe is located at: {source_exe}")
             final_exe = source_exe
 
-    # 4.5. Create Portable ZIP bundle (WindowsDiskCleanup_Portable_v1.5.0.zip)
+    # 4.5. Create Portable ZIP bundle (WindowsDiskCleanup_Portable_v1.6.0.zip)
     final_portable_zip = None
     if os.path.exists(final_exe):
         portable_zip_path = os.path.join(release_dir, f"WindowsDiskCleanup_Portable_{APP_VERSION}.zip")

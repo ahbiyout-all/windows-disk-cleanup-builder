@@ -8,12 +8,12 @@ set "DIST_DIR=%SCRIPT_DIR%dist"
 set "BUILD_DIR=%SCRIPT_DIR%build"
 set "SPEC_DIR=%SCRIPT_DIR%"
 
-title [AhBiYout] Python to Portable Single EXE Auto Builder (v1.5.0)
+title [AhBiYout] Python to Portable Single EXE Auto Builder (v1.6.0)
 color 0B
 
 echo ===============================================================================
-echo   [AhBiYout] DiskCleanupAuto EXE ^& Inno Setup Installer Builder (v1.5.0)
-echo   Targets: DiskCleanupAuto_v1.5.0.exe, Portable ZIP ^& Setup EXE
+echo   [AhBiYout] DiskCleanupAuto EXE ^& Inno Setup Installer Builder (v1.6.0)
+echo   Targets: DiskCleanupAuto_v1.6.0.exe, Portable ZIP ^& Setup EXE
 echo   Folder : %SCRIPT_DIR%
 echo ===============================================================================
 echo.
@@ -157,7 +157,7 @@ echo.
 REM -------------------------------------------------------------------------------
 REM [4/7] Compile to Single Standalone Portable EXE
 REM -------------------------------------------------------------------------------
-echo [4/7] Building portable EXE (DiskCleanupAuto_v1.5.0.exe)...
+echo [4/7] Building portable EXE (DiskCleanupAuto_v1.6.0.exe)...
 echo Please wait 15-30 seconds...
 echo -------------------------------------------------------------------------------
 
@@ -172,11 +172,11 @@ if exist "%SCRIPT_DIR%app.ico" set ICON_DATA_PARAM=--add-data="%SCRIPT_DIR%app.i
 set "VERSION_PARAM="
 if exist "%SCRIPT_DIR%version_info.txt" set VERSION_PARAM=--version-file="%SCRIPT_DIR%version_info.txt"
 
-call %PY_CMD% -m pyinstaller --onefile --clean --name=DiskCleanupAuto_v1.5.0 --noconsole --uac-admin %ICON_PARAM% %ICON_DATA_PARAM% %VERSION_PARAM% --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" "%TARGET_PY%"
+call %PY_CMD% -m pyinstaller --onefile --clean --name=DiskCleanupAuto_v1.6.0 --noconsole --uac-admin %ICON_PARAM% %ICON_DATA_PARAM% %VERSION_PARAM% --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" "%TARGET_PY%"
 if %errorlevel% equ 0 goto :BUILD_OK
 
 echo [*] Retrying with pyinstaller CLI...
-call pyinstaller --onefile --clean --name=DiskCleanupAuto_v1.5.0 --noconsole --uac-admin %ICON_PARAM% %ICON_DATA_PARAM% %VERSION_PARAM% --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" "%TARGET_PY%"
+call pyinstaller --onefile --clean --name=DiskCleanupAuto_v1.6.0 --noconsole --uac-admin %ICON_PARAM% %ICON_DATA_PARAM% %VERSION_PARAM% --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" "%TARGET_PY%"
 if %errorlevel% neq 0 goto :ERR_BUILD
 
 :BUILD_OK
@@ -190,18 +190,18 @@ REM ----------------------------------------------------------------------------
 echo [5/7] Copying executable to Release folder...
 if not exist "%RELEASE_DIR%" mkdir "%RELEASE_DIR%"
 
-taskkill /F /IM DiskCleanupAuto_v1.5.0.exe >nul 2>&1
-if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" attrib -r "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
+taskkill /F /IM DiskCleanupAuto_v1.6.0.exe >nul 2>&1
+if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.6.0.exe" attrib -r "%RELEASE_DIR%\DiskCleanupAuto_v1.6.0.exe" >nul 2>&1
 
-if exist "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" move /y "%DIST_DIR%\DiskCleanupAuto_v1.5.0.exe" "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" >nul 2>&1
-if not exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" goto :SKIP_PORTABLE_ZIP
+if exist "%DIST_DIR%\DiskCleanupAuto_v1.6.0.exe" move /y "%DIST_DIR%\DiskCleanupAuto_v1.6.0.exe" "%RELEASE_DIR%\DiskCleanupAuto_v1.6.0.exe" >nul 2>&1
+if not exist "%RELEASE_DIR%\DiskCleanupAuto_v1.6.0.exe" goto :SKIP_PORTABLE_ZIP
 
-echo [OK] Output file: "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe"
+echo [OK] Output file: "%RELEASE_DIR%\DiskCleanupAuto_v1.6.0.exe"
 set "PORTABLE_STAGE=%SCRIPT_DIR%portable_staging"
 if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
 mkdir "%PORTABLE_STAGE%\assets" >nul 2>&1
 mkdir "%PORTABLE_STAGE%\docs" >nul 2>&1
-copy /y "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" "%PORTABLE_STAGE%\" >nul 2>&1
+copy /y "%RELEASE_DIR%\DiskCleanupAuto_v1.6.0.exe" "%PORTABLE_STAGE%\" >nul 2>&1
 if exist "%SCRIPT_DIR%register_scheduler.bat" copy /y "%SCRIPT_DIR%register_scheduler.bat" "%PORTABLE_STAGE%\" >nul 2>&1
 if exist "%SCRIPT_DIR%LICENSE" copy /y "%SCRIPT_DIR%LICENSE" "%PORTABLE_STAGE%\" >nul 2>&1
 if exist "%SCRIPT_DIR%README.md" copy /y "%SCRIPT_DIR%README.md" "%PORTABLE_STAGE%\" >nul 2>&1
@@ -211,8 +211,8 @@ if exist "%SCRIPT_DIR%assets\app.ico" (
 ) else if exist "%SCRIPT_DIR%app.ico" (
     copy /y "%SCRIPT_DIR%app.ico" "%PORTABLE_STAGE%\assets\app.ico" >nul 2>&1
 )
-powershell -NoProfile -Command "Compress-Archive -Path (Join-Path $env:PORTABLE_STAGE '*') -DestinationPath (Join-Path $env:RELEASE_DIR 'WindowsDiskCleanup_Portable_v1.5.0.zip') -Force" >nul 2>&1
-if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip" echo [OK] Portable ZIP: "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip"
+powershell -NoProfile -Command "Compress-Archive -Path (Join-Path $env:PORTABLE_STAGE '*') -DestinationPath (Join-Path $env:RELEASE_DIR 'WindowsDiskCleanup_Portable_v1.6.0.zip') -Force" >nul 2>&1
+if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.6.0.zip" echo [OK] Portable ZIP: "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.6.0.zip"
 if exist "%PORTABLE_STAGE%" rd /s /q "%PORTABLE_STAGE%" >nul 2>&1
 
 :SKIP_PORTABLE_ZIP
@@ -234,7 +234,7 @@ if not defined ISCC_EXE (
 if not defined ISCC_EXE goto :NO_ISCC
 if not exist "%SCRIPT_DIR%installer.iss" goto :NO_ISCC
 echo [*] Inno Setup compiler found: "%ISCC_EXE%"
-echo [*] Compiling WindowsDiskCleanup_Setup_v1.5.0.exe...
+echo [*] Compiling WindowsDiskCleanup_Setup_v1.6.0.exe...
 if not exist "%SCRIPT_DIR%Output" mkdir "%SCRIPT_DIR%Output"
 call "%ISCC_EXE%" "%SCRIPT_DIR%installer.iss"
 if %errorlevel% neq 0 (
@@ -242,10 +242,10 @@ if %errorlevel% neq 0 (
     goto :AFTER_ISCC
 )
 echo [OK] Installer compilation successful!
-if exist "%SCRIPT_DIR%Output\WindowsDiskCleanup_Setup_v1.5.0.exe" (
-    if exist "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe" attrib -r "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe" >nul 2>&1
-    copy /y "%SCRIPT_DIR%Output\WindowsDiskCleanup_Setup_v1.5.0.exe" "%RELEASE_DIR%\" >nul 2>&1
-    echo [OK] Installer copied to Release folder: "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe"
+if exist "%SCRIPT_DIR%Output\WindowsDiskCleanup_Setup_v1.6.0.exe" (
+    if exist "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.6.0.exe" attrib -r "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.6.0.exe" >nul 2>&1
+    copy /y "%SCRIPT_DIR%Output\WindowsDiskCleanup_Setup_v1.6.0.exe" "%RELEASE_DIR%\" >nul 2>&1
+    echo [OK] Installer copied to Release folder: "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.6.0.exe"
 )
 goto :AFTER_ISCC
 
@@ -259,7 +259,7 @@ echo.
 echo [7/7] Cleaning temporary build artifacts...
 if exist "%BUILD_DIR%" rd /s /q "%BUILD_DIR%" >nul 2>&1
 if exist "%DIST_DIR%" rd /s /q "%DIST_DIR%" >nul 2>&1
-if exist "%SPEC_DIR%DiskCleanupAuto_v1.5.0.spec" del /f /q "%SPEC_DIR%DiskCleanupAuto_v1.5.0.spec" >nul 2>&1
+if exist "%SPEC_DIR%DiskCleanupAuto_v1.6.0.spec" del /f /q "%SPEC_DIR%DiskCleanupAuto_v1.6.0.spec" >nul 2>&1
 if exist "%SCRIPT_DIR%__pycache__" rd /s /q "%SCRIPT_DIR%__pycache__" >nul 2>&1
 echo [OK] Temporary artifacts cleaned.
 
@@ -268,13 +268,13 @@ echo.
 echo ===============================================================================
 echo   [SUCCESS] Build completed successfully!
 echo ===============================================================================
-echo   [1] Portable EXE : %RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe
-if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip" echo   [2] Portable ZIP : %RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.5.0.zip
-if exist "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe" echo   [3] Setup EXE    : %RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.5.0.exe
+echo   [1] Portable EXE : %RELEASE_DIR%\DiskCleanupAuto_v1.6.0.exe
+if exist "%RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.6.0.zip" echo   [2] Portable ZIP : %RELEASE_DIR%\WindowsDiskCleanup_Portable_v1.6.0.zip
+if exist "%RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.6.0.exe" echo   [3] Setup EXE    : %RELEASE_DIR%\WindowsDiskCleanup_Setup_v1.6.0.exe
 echo ===============================================================================
 echo.
 
-if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.5.0.exe" start "" explorer.exe "%RELEASE_DIR%"
+if exist "%RELEASE_DIR%\DiskCleanupAuto_v1.6.0.exe" start "" explorer.exe "%RELEASE_DIR%"
 
 echo Press any key to exit...
 pause >nul

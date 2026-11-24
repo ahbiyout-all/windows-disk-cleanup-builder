@@ -2,7 +2,7 @@
 setlocal
 
 :: ===============================================================================
-:: Windows Disk Cleanup Auto Scheduler Registration Script (v1.5.0)
+:: Windows Disk Cleanup Auto Scheduler Registration Script (v1.6.0)
 :: Developer: AhBiYout | Copyright (c) 2026 AhBiYout. All rights reserved.
 :: Official Blog: https://ahbiyoutvibe.blogspot.com/
 :: ===============================================================================
@@ -23,10 +23,10 @@ set "APP_DIR=%~dp0"
 set "EXE_PATH=%APP_DIR%DiskCleanupAuto.exe"
 
 if not exist "%EXE_PATH%" (
-    if exist "%APP_DIR%DiskCleanupAuto_v1.5.0.exe" (
-        set "EXE_PATH=%APP_DIR%DiskCleanupAuto_v1.5.0.exe"
-    ) else if exist "%APP_DIR%Release\DiskCleanupAuto_v1.5.0.exe" (
-        set "EXE_PATH=%APP_DIR%Release\DiskCleanupAuto_v1.5.0.exe"
+    if exist "%APP_DIR%DiskCleanupAuto_v1.6.0.exe" (
+        set "EXE_PATH=%APP_DIR%DiskCleanupAuto_v1.6.0.exe"
+    ) else if exist "%APP_DIR%Release\DiskCleanupAuto_v1.6.0.exe" (
+        set "EXE_PATH=%APP_DIR%Release\DiskCleanupAuto_v1.6.0.exe"
     ) else if exist "%APP_DIR%dist\DiskCleanupAuto.exe" (
         set "EXE_PATH=%APP_DIR%dist\DiskCleanupAuto.exe"
     )
@@ -34,7 +34,7 @@ if not exist "%EXE_PATH%" (
 
 if not exist "%EXE_PATH%" (
     echo [ERROR] DiskCleanupAuto executable not found!
-    echo Checked: "%APP_DIR%DiskCleanupAuto.exe" and "%APP_DIR%Release\DiskCleanupAuto_v1.5.0.exe"
+    echo Checked: "%APP_DIR%DiskCleanupAuto.exe" and "%APP_DIR%Release\DiskCleanupAuto_v1.6.0.exe"
     pause
     exit /b 1
 )

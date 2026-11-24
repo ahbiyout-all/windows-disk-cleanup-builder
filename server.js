@@ -14,9 +14,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AhBiYout Windows Disk Cleanup Auto (v1.5.0)</title>
+    <title>AhBiYout Windows Disk Cleanup Auto (v1.6.0)</title>
     <meta name="description" content="Windows 11/10 무인 디스크 정리 자동화 도구 및 Inno Setup 인스톨러 빌더 (AhBiYout)">
-    <meta property="og:title" content="AhBiYout Windows Disk Cleanup Auto (v1.5.0)">
+    <meta property="og:title" content="AhBiYout Windows Disk Cleanup Auto (v1.6.0)">
     <meta property="og:description" content="Windows 정품 cleanmgr 엔진 & Windows.old 강제 소거 자동화 빌더">
     <link rel="icon" type="image/x-icon" href="/app.ico">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,7 +33,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 <div>
                     <h1 class="text-lg font-bold text-white flex items-center gap-2">
                         <span data-i18n="app_name">Windows Disk Cleanup Auto</span>
-                        <span class="text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.5.0 Stable</span>
+                        <span class="text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.6.0 Stable</span>
                     </h1>
                     <p class="text-xs text-slate-400">AhBiYout · <span data-i18n="locale_badge">Auto Locale</span></p>
                 </div>
@@ -150,11 +150,11 @@ const HTML_CONTENT = `<!DOCTYPE html>
             <div class="space-y-3 text-xs md:text-sm text-slate-300">
                 <div class="flex items-start gap-2">
                     <span class="bg-slate-800 text-indigo-400 font-mono px-2 py-0.5 rounded">1</span>
-                    <p data-i18n="build_1">Windows 로컬에서 build_exe.bat를 실행하면 Release\\DiskCleanupAuto_v1.5.0.exe, WindowsDiskCleanup_Portable_v1.5.0.zip 및 WindowsDiskCleanup_Setup_v1.5.0.exe가 자동 생성됩니다.</p>
+                    <p data-i18n="build_1">Windows 로컬에서 build_exe.bat를 실행하면 Release\\DiskCleanupAuto_v1.6.0.exe, WindowsDiskCleanup_Portable_v1.6.0.zip 및 WindowsDiskCleanup_Setup_v1.6.0.exe가 자동 생성됩니다.</p>
                 </div>
                 <div class="flex items-start gap-2">
                     <span class="bg-slate-800 text-indigo-400 font-mono px-2 py-0.5 rounded">2</span>
-                    <p data-i18n="build_2">git push 또는 버전 태그(v1.5.0) 푸시 시 .gitignore로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.</p>
+                    <p data-i18n="build_2">git push 또는 버전 태그(v1.6.0) 푸시 시 .gitignore로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.</p>
                 </div>
             </div>
         </div>
@@ -198,10 +198,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 copy_btn: "복사",
                 copied_btn: "복사됨!",
                 build_title: "🔨 로컬 빌드 및 배포 방법",
-                build_1: "Windows 로컬에서 build_exe.bat를 실행하면 Release\\\\DiskCleanupAuto_v1.5.0.exe, WindowsDiskCleanup_Portable_v1.5.0.zip 및 WindowsDiskCleanup_Setup_v1.5.0.exe가 자동 생성됩니다.",
-                build_2: "git push 또는 버전 태그(v1.5.0) 푸시 시 .gitignore로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.",
+                build_1: "Windows 로컬에서 build_exe.bat를 실행하면 Release\\\\DiskCleanupAuto_v1.6.0.exe, WindowsDiskCleanup_Portable_v1.6.0.zip 및 WindowsDiskCleanup_Setup_v1.6.0.exe가 자동 생성됩니다.",
+                build_2: "git push 또는 버전 태그(v1.6.0) 푸시 시 .gitignore로 임시 파일이 자동 제외되고 GitHub Actions가 공식 바이너리를 자동 빌드 및 릴리스합니다.",
                 affiliation: "소속회사",
-                c_header: "자동 생성된 디스크 정리 스크립트 (AhBiYout Windows Disk Cleanup Auto v1.5.0)",
+                c_header: "자동 생성된 디스크 정리 스크립트 (AhBiYout Windows Disk Cleanup Auto v1.6.0)",
                 c_step1: "1단계: 관리자 권한 확인 및 VolumeCaches StateFlags0064 레지스트리 활성화",
                 c_step2: "2단계: cleanmgr.exe 무인 순차 실행 (/sagerun:64)",
                 c_step3: "3단계: Windows.old 안전 가드레일 점검 후 권한 탈취 및 완전 소거"
@@ -233,10 +233,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 copy_btn: "Copy",
                 copied_btn: "Copied!",
                 build_title: "🔨 Local Build & Deployment",
-                build_1: "Run build_exe.bat locally on Windows to automatically generate Release\\\\DiskCleanupAuto_v1.5.0.exe, WindowsDiskCleanup_Portable_v1.5.0.zip, and WindowsDiskCleanup_Setup_v1.5.0.exe.",
-                build_2: "Pushing git commits or version tags (v1.5.0) automatically excludes temp files via .gitignore and triggers GitHub Actions to build & release official binaries.",
+                build_1: "Run build_exe.bat locally on Windows to automatically generate Release\\\\DiskCleanupAuto_v1.6.0.exe, WindowsDiskCleanup_Portable_v1.6.0.zip, and WindowsDiskCleanup_Setup_v1.6.0.exe.",
+                build_2: "Pushing git commits or version tags (v1.6.0) automatically excludes temp files via .gitignore and triggers GitHub Actions to build & release official binaries.",
                 affiliation: "Affiliation",
-                c_header: "Auto-generated Disk Cleanup Script (AhBiYout Windows Disk Cleanup Auto v1.5.0)",
+                c_header: "Auto-generated Disk Cleanup Script (AhBiYout Windows Disk Cleanup Auto v1.6.0)",
                 c_step1: "Step 1: Verify Admin rights & activate VolumeCaches StateFlags0064 registry keys",
                 c_step2: "Step 2: Execute cleanmgr.exe unattended sequential cleanup (/sagerun:64)",
                 c_step3: "Step 3: Run Windows.old safety guardrail check, takeown, and purge"
@@ -268,10 +268,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 copy_btn: "コピー",
                 copied_btn: "コピー完了!",
                 build_title: "🔨 ローカルビルドとデプロイ方法",
-                build_1: "Windowsローカルで build_exe.bat を実行すると、Release\\\\DiskCleanupAuto_v1.5.0.exe、WindowsDiskCleanup_Portable_v1.5.0.zip、および WindowsDiskCleanup_Setup_v1.5.0.exe が自動生成されます。",
-                build_2: "git push またはバージョンタグ (v1.5.0) のプッシュ時、.gitignoreにより一時ファイルが自動除外され、GitHub Actionsが公式バイナリを自動ビルド・リリースします。",
+                build_1: "Windowsローカルで build_exe.bat を実行すると、Release\\\\DiskCleanupAuto_v1.6.0.exe、WindowsDiskCleanup_Portable_v1.6.0.zip、および WindowsDiskCleanup_Setup_v1.6.0.exe が自動生成されます。",
+                build_2: "git push またはバージョンタグ (v1.6.0) のプッシュ時、.gitignoreにより一時ファイルが自動除外され、GitHub Actionsが公式バイナリを自動ビルド・リリースします。",
                 affiliation: "所属会社",
-                c_header: "自動生成されたディスククリーンアップスクリプト (AhBiYout Windows Disk Cleanup Auto v1.5.0)",
+                c_header: "自動生成されたディスククリーンアップスクリプト (AhBiYout Windows Disk Cleanup Auto v1.6.0)",
                 c_step1: "ステップ1: 管理者権限の確認および VolumeCaches StateFlags0064 レジストリの有効化",
                 c_step2: "ステップ2: cleanmgr.exe 無人順次実行 (/sagerun:64)",
                 c_step3: "ステップ3: Windows.old 安全ガードレール確認後に権限取得・完全削除"

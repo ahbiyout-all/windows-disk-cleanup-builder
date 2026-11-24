@@ -6,8 +6,8 @@
 #
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 5, 0, 0),
-    prodvers=(1, 5, 0, 0),
+    filevers=(1, 6, 0, 0),
+    prodvers=(1, 6, 0, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -23,12 +23,12 @@ VSVersionInfo(
           [
             StringStruct('CompanyName', 'AhBiYout'),
             StringStruct('FileDescription', 'Windows 디스크 클린 오토'),
-            StringStruct('FileVersion', '1.5.0.0'),
+            StringStruct('FileVersion', '1.6.0.0'),
             StringStruct('InternalName', 'DiskCleanupAuto'),
             StringStruct('LegalCopyright', 'Copyright (c) 2026 AhBiYout. All rights reserved.'),
-            StringStruct('OriginalFilename', 'DiskCleanupAuto_v1.5.0.exe'),
+            StringStruct('OriginalFilename', 'DiskCleanupAuto_v1.6.0.exe'),
             StringStruct('ProductName', 'Windows 디스크 클린 오토 (DiskCleanupAuto)'),
-            StringStruct('ProductVersion', '1.5.0.0'),
+            StringStruct('ProductVersion', '1.6.0.0'),
             StringStruct('Comments', 'Windows VolumeCaches 및 cleanmgr.exe 자동화 순차 정리 도구 (개발자: AhBiYout / https://ahbiyoutvibe.blogspot.com/)'),
             StringStruct('LegalTrademarks', 'AhBiYout'),
           ]
@@ -38,12 +38,12 @@ VSVersionInfo(
           [
             StringStruct('CompanyName', 'AhBiYout'),
             StringStruct('FileDescription', 'Windows Disk Cleanup Auto Runner'),
-            StringStruct('FileVersion', '1.5.0.0'),
+            StringStruct('FileVersion', '1.6.0.0'),
             StringStruct('InternalName', 'DiskCleanupAuto'),
             StringStruct('LegalCopyright', 'Copyright (c) 2026 AhBiYout. All rights reserved.'),
-            StringStruct('OriginalFilename', 'DiskCleanupAuto_v1.5.0.exe'),
+            StringStruct('OriginalFilename', 'DiskCleanupAuto_v1.6.0.exe'),
             StringStruct('ProductName', 'Windows Disk Cleanup Auto'),
-            StringStruct('ProductVersion', '1.5.0.0'),
+            StringStruct('ProductVersion', '1.6.0.0'),
             StringStruct('Comments', 'Windows VolumeCaches & cleanmgr automated sequential cleaner'),
             StringStruct('LegalTrademarks', 'AhBiYout'),
           ]

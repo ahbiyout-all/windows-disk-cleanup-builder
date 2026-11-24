@@ -1,14 +1,14 @@
 # 📚 Windows Disk Cleanup Automation Builder - Documentation (English)
 
-Welcome to the official English documentation for **Windows Disk Cleanup Automation Builder (`v1.5.0`)**, a high-performance Windows utility designed to automate `cleanmgr.exe` via Windows Registry (`VolumeCaches`) and safely purge locked `C:\Windows.old` directories, distributed as both a standalone portable executable (`.exe`) and an Inno Setup installer.
+Welcome to the official English documentation for **Windows Disk Cleanup Automation Builder (`v1.6.0`)**, a high-performance Windows utility designed to automate `cleanmgr.exe` via Windows Registry (`VolumeCaches`) and safely purge locked `%SystemDrive%\Windows.old` directories, distributed as a standalone portable executable (`.exe`), portable archive (`.zip`), and Inno Setup installer.
 
 ---
 
-## 🌐 Multilingual & Localization Support (v1.5.0)
+## 🌐 Multilingual & Localization Support (v1.6.0)
 
-Starting with **v1.5.0**, Disk Cleanup Automation Builder includes **automatic system locale detection** (Korean `ko`, English `en`, and Japanese `ja`):
-- **Desktop GUI (`disk_cleanup_gui.py`)**: Detects the Windows OS UI language via Win32 `GetUserDefaultUILanguage()` (with POSIX `locale` fallback) and dynamically localizes all labels, 5-stage cleanup logs, `Windows.old` purge status, and GitHub update dialogs. A manual language dropdown is also available at runtime.
-- **Inno Setup Installer (`installer.iss`)**: Supports Korean (`Korean.isl`), English (`Default.isl`), and Japanese (`Japanese.isl`), including process force-kill before install, localized prompt to cleanly uninstall/remove any existing version before installing (`Yes/No`), MIT license agreement, default-checked desktop shortcut, and post-install auto-launch.
+Starting with **v1.5.0** and expanded in **v1.6.0**, Disk Cleanup Automation Builder includes **automatic system locale detection** and **real-time runtime switching** (Korean `ko`, English `en`, and Japanese `ja`):
+- **Desktop GUI (`disk_cleanup_gui.py`)**: Detects the Windows OS UI language via Win32 `GetUserDefaultUILanguage()` (with POSIX `locale` fallback) and dynamically localizes all labels, Steps 1–5 live progress logs, `Windows.old` purge status, and GitHub update dialogs. A manual language dropdown lets you switch languages live at any stage.
+- **Inno Setup Installer (`installer.iss`)**: Supports Korean (`Korean.isl`), English (`Default.isl`), and Japanese (`Japanese.isl`), including wildcard process force-kill before install, localized prompt to cleanly uninstall/remove any existing version (including custom `/DIR` paths) before installing (`Yes/No`), MIT license agreement, default-checked desktop shortcut, and post-install auto-launch.
 - **Web Preview Server (`server.js`)**: Automatically detects `navigator.language` and dynamically translates UI sections and generated `.bat` / `.ps1` script comments.
 
 ---
@@ -16,11 +16,11 @@ Starting with **v1.5.0**, Disk Cleanup Automation Builder includes **automatic s
 ## ⚡ Quick Start
 
 ### 1. Installation & Silent Deployment
-Download `WindowsDiskCleanup_Setup_v1.5.0.exe`, `DiskCleanupAuto_v1.5.0.exe`, or `WindowsDiskCleanup_Portable_v1.5.0.zip` from [GitHub Releases](https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases).
+Download `WindowsDiskCleanup_Setup_v1.6.0.exe`, `DiskCleanupAuto_v1.6.0.exe`, or `WindowsDiskCleanup_Portable_v1.6.0.zip` from [GitHub Releases](https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases).
 
 ```cmd
 :: Silent unattended installation (ideal for lab/enterprise deployment)
-WindowsDiskCleanup_Setup_v1.5.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+WindowsDiskCleanup_Setup_v1.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 
 :: Silent uninstall
 "C:\Program Files\Windows Disk Cleanup Automation Builder\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES
@@ -44,9 +44,9 @@ build_exe.bat
 
 1. **[Installation Guide](./INSTALL.md)** — Inno Setup unpacked deployment, silent switches, and firewall rules.
 2. **[Build & Packaging Guide](./BUILD.md)** — Local batch/Python compilation, PyInstaller + ISCC, and GitHub Actions CI/CD.
-3. **[Patch Notes & Changelog](./PATCH_NOTES.md)** — Detailed release history (`v1.0.0` ~ `v1.5.0`).
+3. **[Patch Notes & Changelog](./PATCH_NOTES.md)** — Detailed release history (`v1.0.0` ~ `v1.6.0`).
 4. **[Security & Privacy Policy](./SECURITY.md)** — UAC model, `.gitignore` rules, and personal data Safe-Guard.
-5. **[Development Roadmap](./ROADMAP.md)** — Completed Phases 1–24 and future enhancements.
+5. **[Development Roadmap](./ROADMAP.md)** — Completed Phases 1–25 and future enhancements.
 6. **[Blog Post Template](./BLOG_POST.md)** — Markdown draft for technical blogs.
 
 ---
@@ -54,7 +54,7 @@ build_exe.bat
 ## 🛠️ Project Metadata
 
 - **Application Name**: Windows Disk Cleanup Automation Builder (`DiskCleanupAuto`)
-- **Version**: `v1.5.0`
+- **Version**: `v1.6.0`
 - **Developer**: `AhBiYout` (GitHub: `AhBiYout-all`)
 - **Corporate Affiliation**: [(주)청운정보시스템](http://cisnet.co.kr) (`cisnet.co.kr`)
 - **Official Blog**: [https://ahbiyoutvibe.blogspot.com/](https://ahbiyoutvibe.blogspot.com/)

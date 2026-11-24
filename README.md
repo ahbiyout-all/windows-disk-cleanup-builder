@@ -1,4 +1,4 @@
-# 🚀 DiskCleanupAuto v1.5.0 - Core Build & Release Package
+# 🚀 DiskCleanupAuto v1.6.0 - Core Build & Release Package
 
 > **공식 GitHub 저장소**: [AhBiYout-all/windows-disk-cleanup-builder](https://github.com/AhBiYout-all/windows-disk-cleanup-builder)  
 > **개발자**: AhBiYout  
@@ -8,7 +8,7 @@
 ---
 
 ## 📌 개요
-본 디렉터리는 **DiskCleanupAuto v1.5.0**의 실제 컴파일, 패키징 및 GitHub Release에 필요한 **핵심 파일(Core Files)만 엄선하여 관리**하는 전용 패키지입니다.  
+본 디렉터리는 **DiskCleanupAuto v1.6.0**의 실제 컴파일, 패키징 및 GitHub Release에 필요한 **핵심 파일(Core Files)만 엄선하여 관리**하는 전용 패키지입니다.  
 웹 프런트엔드 빌드 아티팩트(`node_modules/`, `dist/` 등)나 불필요한 임시 파일이 완전히 제거되어 있어 가볍고 안전하게 단독 배포 및 빌드가 가능합니다.
 
 ---
@@ -20,7 +20,7 @@
 | `disk_cleanup_gui.py` | 소스 코드 | Tkinter GUI(한/영/일 자동 감지) 및 Win32 커널 연동 Windows 디스크 정리 엔진 |
 | `build_exe.py` | 빌더 | PyInstaller & Inno Setup 연동 파이썬 네이티브 컴파일 스크립트 |
 | `build_exe.bat` | 빌더 | Windows 1-클릭 단일 포터블 EXE 및 인스톨러 자동 빌드 배치 |
-| `version_info.txt` | 메타데이터 | Windows 탐색기 속성 '자세히' 탭 PE 리소스 정의 (`v1.5.0`) |
+| `version_info.txt` | 메타데이터 | Windows 탐색기 속성 '자세히' 탭 PE 리소스 정의 (`v1.6.0`) |
 | `installer.iss` | 인스톨러 | Inno Setup 6.x 언팩 개별 설치(한/영/일 지원) 및 방화벽 규칙 자동 등록 스크립트 |
 | `register_scheduler.bat` | 스케줄러 | Windows 작업 스케줄러 주간 자동 정리 등록 스크립트 |
 | `app.ico` / `assets/app.ico` | 리소스 | 멀티 해상도 Windows 앱/인스톨러/바로가기 아이콘 |
@@ -42,16 +42,16 @@ build_exe.bat
 python build_exe.py
 ```
 - 결과물:
-  - `Release\DiskCleanupAuto_v1.5.0.exe` (무설치 단독 포터블 실행 파일)
-  - `Release\WindowsDiskCleanup_Portable_v1.5.0.zip` (무설치 포터블 ZIP 패키지 — EXE·스케줄러·라이선스·다국어 가이드 포함)
-  - `Release\WindowsDiskCleanup_Setup_v1.5.0.exe` (Inno Setup 설치 프로그램, ISCC 설치 시 자동 생성)
+  - `Release\DiskCleanupAuto_v1.6.0.exe` (무설치 단독 포터블 실행 파일)
+  - `Release\WindowsDiskCleanup_Portable_v1.6.0.zip` (무설치 포터블 ZIP 패키지 — EXE·스케줄러·라이선스·다국어 가이드 포함)
+  - `Release\WindowsDiskCleanup_Setup_v1.6.0.exe` (Inno Setup 설치 프로그램, ISCC 설치 시 자동 생성)
 
 ### 2. Inno Setup 설치 프로그램 단독 패키징
 Inno Setup 컴파일러(`ISCC.exe`)로 `installer.iss`를 직접 컴파일합니다:
 ```cmd
 iscc installer.iss
 ```
-- 결과물: `Output\WindowsDiskCleanup_Setup_v1.5.0.exe`
+- 결과물: `Output\WindowsDiskCleanup_Setup_v1.6.0.exe`
 - 지원 옵션: 대화형 설치, 기존 버전 완전 제거 후 클린 설치, 무인 설치(`/VERYSILENT /SUPPRESSMSGBOXES`)
 
 ---

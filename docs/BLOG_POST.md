@@ -1,16 +1,16 @@
-# [공식 배포] Windows 디스크 클린 오토 (DiskCleanupAuto v1.5.0)
+# [공식 배포] Windows 디스크 클린 오토 (DiskCleanupAuto v1.6.0)
 
 ---
 
 ### 1. 제목
-[추천] Windows 11/10 무인 디스크 정리 도구 - AhBiYout Windows 디스크 클린 오토 (DiskCleanupAuto v1.5.0)
+[추천] Windows 11/10 무인 디스크 정리 도구 - AhBiYout Windows 디스크 클린 오토 (DiskCleanupAuto v1.6.0)
 
 ---
 
 ### 2. 본문
 Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족해지고 각종 업데이트 캐시와 임시 파일, 그리고 대규모 기능 업데이트 후 남겨진 `Windows.old` 폴더로 인해 수십 GB의 디스크 공간이 낭비되곤 합니다.
 
-**AhBiYout Windows 디스크 클린 오토 (DiskCleanupAuto v1.5.0)**는 Windows 내장 정품 엔진인 `cleanmgr.exe`와 레지스트리 `VolumeCaches`를 안전하게 제어하여, 사용자의 복잡한 클릭 과정 없이 단 한 번의 실행으로 시스템 캐시, 임시 파일, 휴지통, Windows 업데이트 캐시(WinSxS)를 완벽하게 자동 정리해 주는 데스크톱 전용 시스템 정리 유틸리티입니다.
+**AhBiYout Windows 디스크 클린 오토 (DiskCleanupAuto v1.6.0)**는 Windows 내장 정품 엔진인 `cleanmgr.exe`와 레지스트리 `VolumeCaches`를 안전하게 제어하여, 사용자의 복잡한 클릭 과정 없이 단 한 번의 실행으로 시스템 캐시, 임시 파일, 휴지통, Windows 업데이트 캐시(WinSxS)를 완벽하게 자동 정리해 주는 데스크톱 전용 시스템 정리 유틸리티입니다.
 
 #### 💡 핵심 특징
 - **Windows 정품 엔진 활용**: 서드파티 레지스트리 클리너와 달리 OS 공식 디스크 정리 엔진을 사용하여 시스템 손상 위험 0%.
@@ -33,7 +33,7 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 ### 4. 앱 그림
 ```text
 +-----------------------------------------------------------------------+
-|  AhBiYout Windows 디스크 클린 오토 (v1.5.0)                       [-] [X]  |
+|  AhBiYout Windows 디스크 클린 오토 (v1.6.0)                       [-] [X]  |
 +-----------------------------------------------------------------------+
 |  [● 작업 진행 중]                                                     |
 |                                                                       |
@@ -57,14 +57,14 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 - **공식 릴리스 다운로드 페이지**:  
   👉 [https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases](https://github.com/AhBiYout-all/windows-disk-cleanup-builder/releases)
 - **제공 파일 형식**:
-  - `WindowsDiskCleanup_Setup_v1.5.0.exe` (표준 Windows 설치형 프로그램)
-  - `DiskCleanupAuto_v1.5.0.exe` (무설치 단독 포터블 실행 파일)
-  - `WindowsDiskCleanup_Portable_v1.5.0.zip` (무설치 포터블 ZIP 패키지 — EXE·스케줄러·라이선스·다국어 가이드 포함)
+  - `WindowsDiskCleanup_Setup_v1.6.0.exe` (표준 Windows 설치형 프로그램)
+  - `DiskCleanupAuto_v1.6.0.exe` (무설치 단독 포터블 실행 파일)
+  - `WindowsDiskCleanup_Portable_v1.6.0.zip` (무설치 포터블 ZIP 패키지 — EXE·스케줄러·라이선스·다국어 가이드 포함)
 
 ---
 
 ### 6. 버전정보
-- **소프트웨어 버전**: `v1.5.0` (빌드 번호: `1.5.0.0`)
+- **소프트웨어 버전**: `v1.6.0` (빌드 번호: `1.6.0.0`)
 - **릴리스 상태**: Stable Production
 - **파일 설명 (FileDescription)**: Windows 디스크 클린 오토
 - **제품 이름 (ProductName)**: Windows 디스크 클린 오토 (DiskCleanupAuto)
@@ -93,7 +93,8 @@ Windows PC를 장기간 사용하다 보면 C: 드라이브의 용량이 부족�
 
 | 버전 | 일자 | 구분 | 주요 변경 내역 요약 |
 | :---: | :---: | :---: | :--- |
-| **`v1.5.0`** | 2026-11-23 | **MINOR** | • Windows 11 `Windows.old` 권한 탈취 및 100% 완전 삭제 (`takeown` + `icacls` + `\\?\` 260자 돌파, 동적 `%SystemDrive%` 지원)<br>• `%SystemDrive%\Windows.old\Users` 개인 문서 보존 안전 가드레일 탑재<br>• OS/브라우저 언어 자동 감지 및 한/영/일 3개 국어 UI·인스톨러(`Japanese.isl` 포함)·문서(`README_EN`/`README_JA`) 지원<br>• Inno Setup 클린 설치 흐름(실행 중 강제 종료, 기존 버전 완전 제거 대기 후 재설치, 라이선스, 바탕화면 바로가기 기본 체크, 자동 실행) 및 방화벽 인바운드 규칙 등록<br>• 고화질 멀티 해상도 `app.ico` 적용 및 제어판(설치된 앱) 정식 등록<br>• GitHub Actions 단일 통합 빌드(`WindowsDiskCleanup_Setup_v1.5.0.exe` + `DiskCleanupAuto_v1.5.0.exe` + `WindowsDiskCleanup_Portable_v1.5.0.zip`)<br>• 휴지통 직접 비우기 API(`SHEmptyRecycleBinW`) 연동, `cleanmgr` 조기종료/업데이트 팝업 보호 및 MIT 라이선스·AhBiYout 단독 저작권 표준화 |
+| **`v1.6.0`** | 2026-11-24 | **MINOR** | • OS/브라우저 언어 자동 감지 및 1~5단계 전 구간 한/영/일 실시간 언어 전환(영어 `README_EN`/일본어 `README_JA`/인스톨러 `Japanese.isl` 완비)<br>• Inno Setup 6단계 클린 재설치(와일드카드 강제 종료, `unins000` 완료 대기, 커스텀 `/DIR` 잔여 정리, MIT 라이선스, 바탕화면 바로가기, 자동 실행) 및 포터블 ZIP 3종 배포<br>• 동적 `%SystemDrive%` 인식, `\\?\` 260자 돌파, 한/영/일 확장 `Windows.old` 안전 가드레일(동영상·음악·OneDrive 등)<br>• System32 절대 경로(`_sys32_exe`, `{sys}\netsh.exe`) 보안 강화, 최소화 시 모달 클램핑 및 완료 카운트다운 오클릭 방지 |
+| **`v1.5.0`** | 2026-11-23 | **MINOR** | • Windows 11 `Windows.old` 권한 탈취 및 100% 완전 삭제 (`takeown` + `icacls` + `rmtree`) 및 `Previous Installations` 추가<br>• `Windows.old\Users` 개인 문서 보존 안전 가드레일 탑재<br>• 고화질 멀티 해상도 `app.ico` 적용, 제어판 정식 등록, MIT 라이선스 및 AhBiYout 단독 저작권 표준화<br>• GitHub Actions 단일 통합 빌드, 휴지통 직접 비우기 API(`SHEmptyRecycleBinW`) 연동 및 방화벽 인바운드 규칙 등록 |
 | **`v1.4.0`** | 2026-09-07 | **MINOR** | • Win32 커널 동기화(`WaitForSingleObject`) 및 HWND 창 라이프사이클 실시간 후킹 (CPU 0%)<br>• 컴퓨터실/전산실 무인 대량 배포용 2초 주기 쉘 새로고침 및 트레이 가상 스위프<br>• C: 드라이브 여유 공간 실시간 계산 및 확보 용량 안내 (`GetDiskFreeSpaceExW`)<br>• 마우스 호버 즉시 닫기 제스처 & 5초 자동 카운트다운 종료 |
 | **`v1.3.4`** | 2026-08-29 | **PATCH** | • 화면 상단(Top 22% Golden Ratio) 최적 배치로 작업표시줄 겹침 방지<br>• 실행 즉시 전면 윈도우 활성화 (`lift` & `wm_attributes`) |
 | **`v1.3.3`** | 2026-08-29 | **PATCH** | • 대용량 Windows 업데이트 정리(WinSxS) 25초 타임아웃 제거 후 100% 완주 보장<br>• 실제 백그라운드 엔진 단계와 일치하는 상태 안내 및 실시간 타이머 |

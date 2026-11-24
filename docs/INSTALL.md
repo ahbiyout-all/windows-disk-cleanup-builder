@@ -1,6 +1,6 @@
 # 🚀 설치, 배포 및 무인 설치 가이드 (Installation Guide)
 
-본 문서는 **Windows Disk Cleanup Automation Builder (v1.5.0)**의 Inno Setup 설치 프로그램 패키지 배포, 일반 대화형 설치, 기존 버전 자동 제거 후 클린 재설치, 무인(Silent) 설치 옵션 및 Windows 방화벽 규칙 사전 등록 메커니즘을 상세히 설명합니다.
+본 문서는 **Windows Disk Cleanup Automation Builder (v1.6.0)**의 Inno Setup 설치 프로그램 패키지 배포, 일반 대화형 설치, 기존 버전 자동 제거 후 클린 재설치, 무인(Silent) 설치 옵션 및 Windows 방화벽 규칙 사전 등록 메커니즘을 상세히 설명합니다.
 
 ---
 
@@ -35,7 +35,7 @@ Inno Setup 마법사는 다음 순서로 안전하게 진행됩니다:
 5. **설치 완료 후 앱 실행 (`[Run]` `postinstall`)**:
    - 완료 화면에서 앱 실행 옵션이 기본 체크 상태로 표시되어 완료 버튼 클릭 시 `DiskCleanupAuto.exe`가 즉시 실행됩니다.
 
-> 💡 **무설치 사용**: 별도 설치 없이 바로 사용하려면 GitHub Releases의 단일 실행 파일(`DiskCleanupAuto_v1.5.0.exe`) 또는 스케줄러·가이드가 포함된 포터블 패키지(`WindowsDiskCleanup_Portable_v1.5.0.zip`)를 사용할 수 있습니다.
+> 💡 **무설치 사용**: 별도 설치 없이 바로 사용하려면 GitHub Releases의 단일 실행 파일(`DiskCleanupAuto_v1.6.0.exe`) 또는 스케줄러·가이드가 포함된 포터블 패키지(`WindowsDiskCleanup_Portable_v1.6.0.zip`)를 사용할 수 있습니다.
 
 ---
 
@@ -57,10 +57,10 @@ Inno Setup 마법사는 다음 순서로 안전하게 진행됩니다:
 
 ```cmd
 :: 완전 무인 자동 설치 (컴퓨터실 일괄 배포용)
-WindowsDiskCleanup_Setup_v1.5.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+WindowsDiskCleanup_Setup_v1.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 
 :: 특정 폴더 지정 무인 설치
-WindowsDiskCleanup_Setup_v1.5.0.exe /VERYSILENT /SUPPRESSMSGBOXES /DIR="C:\Tools\DiskCleanup"
+WindowsDiskCleanup_Setup_v1.6.0.exe /VERYSILENT /SUPPRESSMSGBOXES /DIR="C:\Tools\DiskCleanup"
 ```
 
 ### 무인 언인스톨 (Silent Uninstall)
@@ -84,19 +84,19 @@ WindowsDiskCleanup_Setup_v1.5.0.exe /VERYSILENT /SUPPRESSMSGBOXES /DIR="C:\Tools
    ```
 2. **버전 포함 이름 규칙**:
    ```cmd
-   netsh advfirewall firewall add rule name="Windows Disk Cleanup Automation Builder v1.5.0" dir=in action=allow program="C:\Program Files\Windows Disk Cleanup Automation Builder\DiskCleanupAuto.exe" enable=yes profile=any
+   netsh advfirewall firewall add rule name="Windows Disk Cleanup Automation Builder v1.6.0" dir=in action=allow program="C:\Program Files\Windows Disk Cleanup Automation Builder\DiskCleanupAuto.exe" enable=yes profile=any
    ```
 
 ### 안전한 언인스톨 정리
 프로그램을 제거할 때(`[UninstallRun]` 섹션), 위에서 등록한 방화벽 규칙 2개를 모두 자동으로 검색하여 깨끗하게 삭제합니다:
 ```cmd
 netsh advfirewall firewall delete rule name="Windows Disk Cleanup Automation Builder"
-netsh advfirewall firewall delete rule name="Windows Disk Cleanup Automation Builder v1.5.0"
+netsh advfirewall firewall delete rule name="Windows Disk Cleanup Automation Builder v1.6.0"
 ```
 
 
 ---
 
 ## 🪟 프로그램 추가/제거 (설정 앱) 관리
-- 본 설치 프로그램(`WindowsDiskCleanup_Setup_v1.5.0.exe`)으로 설치된 애플리케이션은 Windows **설정 → 앱 → 설치된 앱(또는 제어판 프로그램 추가/제거)**에 공식 아이콘과 함께 정식 등록됩니다.
+- 본 설치 프로그램(`WindowsDiskCleanup_Setup_v1.6.0.exe`)으로 설치된 애플리케이션은 Windows **설정 → 앱 → 설치된 앱(또는 제어판 프로그램 추가/제거)**에 공식 아이콘과 함께 정식 등록됩니다.
 - 언제든지 [제거]를 클릭하여 설치 폴더 및 등록된 방화벽 인바운드 규칙을 한 번에 깨끗하게 소거할 수 있습니다.

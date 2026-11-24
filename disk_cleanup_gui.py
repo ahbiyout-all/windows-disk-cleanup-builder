@@ -1,6 +1,6 @@
 """
 =============================================================================
- Windows Disk Cleanup Automated Runner (GUI Edition v1.5.0)
+ Windows Disk Cleanup Automated Runner (GUI Edition v1.6.0)
  Auto-configured Registry VolumeCaches & cleanmgr.exe execution
  ----------------------------------------------------------------------------
  * 개발자: AhBiYout
@@ -111,7 +111,7 @@ def elevate_admin():
 # =============================================================================
 # 2. 프로그램 정보 및 정리 대상 설정
 # =============================================================================
-CURRENT_VERSION = "v1.5.0"
+CURRENT_VERSION = "v1.6.0"
 FLAG_NAME = "StateFlags0064"
 SAGESET_ID = 64
 COMPANY_NAME = "AhBiYout"
@@ -1514,7 +1514,7 @@ def show_update_dialog(root, latest_version, release_url, release_notes=""):
         _update_dialog_open[0] = False
 
 def parse_semver(tag):
-    """'v1.5.0' 형태 문자열을 (1, 5, 0) 정수 튜플로 변환"""
+    """'v1.6.0' 형태 문자열을 (1, 6, 0) 정수 튜플로 변환"""
     try:
         clean = tag.strip().lstrip("vV").split("-")[0]
         parts = [int(p) for p in clean.split(".") if p.isdigit()]
